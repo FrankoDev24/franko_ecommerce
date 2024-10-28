@@ -1,4 +1,4 @@
-import  { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrderLifeCycle } from '../../Redux/slice/orderSlice'; // Adjust path as necessary
 import { Table, Spin, message } from 'antd';
@@ -9,11 +9,15 @@ const OrderCycle = () => {
 
   useEffect(() => {
     // Fetch order life cycle options on mount
-    dispatch(fetchOrderLifeCycle())
-      .unwrap()
-      .catch(() => {
-        message.error('Failed to fetch lifecycle states: ' + error);
-      });
+    const fetchData = async () => {
+      try {
+        await dispatch(fetchOrderLifeCycle()).unwrap();
+      } catch (err) {
+        message.error('Failed to fetch lifecycle states: ' + err);
+      }
+    };
+
+    fetchData();
   }, [dispatch]);
 
   // Define columns for Ant Design Table
@@ -23,7 +27,6 @@ const OrderCycle = () => {
       dataIndex: 'orderCycle',
       key: 'orderCycle',
     },
-
     {
       title: 'Updated At',
       dataIndex: 'updatedAt', // Assuming there's an updatedAt field
@@ -50,4 +53,4 @@ const OrderCycle = () => {
   );
 };
 
-export default OrderCycle
+export default OrderCycle;

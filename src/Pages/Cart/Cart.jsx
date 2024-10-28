@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { getCartById, deleteCartItem, updateCartItem } from "../../Redux/slice/cartSlice";
-import { Card, Spin, Alert, Button, Divider } from "antd";
+import { getCartById, deleteCartItem} from "../../Redux/slice/cartSlice";
+import {  Spin, Alert, Button, Divider } from "antd";
 
-const { Meta } = Card;
+
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -29,7 +29,7 @@ const Cart = () => {
   };
 
   const handleUpdateClick = (productId, quantity) => {
-    
+
     if (cartId) {
       // Navigate to the update page with cartId, productId, and quantity as parameters
       navigate(`/cart/update/${cartId}/${productId}/${quantity}`);
