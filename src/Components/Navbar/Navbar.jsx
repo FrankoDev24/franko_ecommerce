@@ -16,16 +16,32 @@ import { getCartById } from '../../Redux/slice/cartSlice';
 import frankoLoge from "../../assets/frankoIcon.png";
 
 const AccountDropdown = ({ isVisible, setIsVisible }) => {
-  // Implement your AccountDropdown logic here
-  return null; // Return the dropdown JSX here
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('cartId');
+    localStorage.removeItem('user');
+    // Redirect or refresh page after logout
+  };
+
+  return (
+    <Menu>
+      <Menu.Item onClick={() => { setIsVisible(false); /* Navigate to profile */ }}>
+        Profile
+      </Menu.Item>
+      <Menu.Item onClick={handleLogout}>
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
 };
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  // eslint-disable-next-line no-unused-vars
   const [hoveredCategoryId, setHoveredCategoryId] = useState(null);
-
   const [firstName, setFirstName] = useState('');
+  const [isAccountDropdownVisible, setAccountDropdownVisible] = useState(false); // State for account dropdown
 
   const dispatch = useDispatch();
   const navigate = useNavigate(); 
@@ -133,13 +149,21 @@ const Navbar = () => {
                 +233 030 2752020
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 relative">
               {firstName && (
                 <div className="text-blue-600 font-semibold">
                   Hello, {firstName}!
                 </div>
               )}
-              <HeartOutlined className="text-xl cursor-pointer hover:text-blue-600" />
+              <div onMouseEnter={() => setAccountDropdownVisible(true)} onMouseLeave={() => setAccountDropdownVisible(false)}>
+                <Dropdown 
+                  overlay={<AccountDropdown isVisible={isAccountDropdownVisible} setIsVisible={setAccountDropdownVisible} />} 
+                  trigger={['hover']}
+                  visible={isAccountDropdownVisible}
+                >
+                  <HeartOutlined className="text-xl cursor-pointer hover:text-blue-600" />
+                </Dropdown>
+              </div>
               <Badge count={totalItems || 0} className="cursor-pointer">
                 <ShoppingCartOutlined className="text-xl hover:text-blue-600" onClick={handleCartClick} />
               </Badge>

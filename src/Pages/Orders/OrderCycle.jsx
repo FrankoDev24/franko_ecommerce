@@ -18,7 +18,7 @@ const OrderCycle = () => {
     };
 
     fetchData();
-  }, [dispatch]);
+  }, [dispatch, error]); // Added error to the dependency array
 
   // Define columns for Ant Design Table
   const columns = [
