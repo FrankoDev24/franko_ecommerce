@@ -1,25 +1,91 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { setupSocketListeners } from './services/socketService'; // Import the socket service
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+// Import your user components
+import Navbar from './Components/Navbar/Navbar';
+import Home from './Pages/Home/Home';
+import Cart from './Pages/Cart/Cart';
+import Checkout from './Pages/Checkout/Checkout';
+import OrderList from './Components/OrderList/OrderList';
+import Brand from "./Pages/Brand/Brand";
+import ShowRoomProducts from "./Components/ShowRoom/ShowRoomPage";
+import ProductDetail from "./Pages/ProductDetails/ProductDetails";
+import OrderCycle from "./Pages/Orders/OrderCycle";
+
+// Import admin components
+import AdminPage from "./AdminPages/AdminPage";
+import AdminLogin from './AdminPages/Login';
+import AdminRegister from './AdminPages/Register';
+import RegistrationPage from './Pages/SignUp/SignUp';
+import Login from './AdminPages/Login';
+
+const App = () => {
+    useEffect(() => {
+        // Setup WebSocket listeners when the component mounts
+        const handleIncomingMessage = (data) => {
+            // Handle incoming messages here
+            console.log('Incoming message:', data);
+        };
+
+        setupSocketListeners(handleIncomingMessage);
+
+        return () => {
+            // Optional cleanup code
+        };
+    }, []);
+
+    return (
+        <Router>
+            <ConditionalNavbar />
+            <Routes>
+                {/* User routes */}
+                <Route path="/" element={<Navigate to="/franko" />} />
+                <Route path="/franko" element={<Home />} />
+                <Route path='/cart/:transactionNumber' element={<Cart />} />
+                <Route path="/checkout/:cartId/:customerId" element={<Checkout />} />
+                <Route path="/order" element={<OrderList />} />
+                <Route path="/brand/:brandId" element={<Brand />} />
+                <Route path="/showroom/:showRoomId" element={<ShowRoomProducts />} />
+                <Route path="/register" element={<RegistrationPage />} />
+                <Route path='/login' element={<Login />} />
+                <Route path="/product/:productId" element={<ProductDetail />} />
+                <Route path="/order-status" element={<OrderCycle />} />
+                
+                {/* Admin routes */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/register" element={<AdminRegister />} />
+                <Route path="/admin/*" element={<AdminPage />} />
+
+                {/* Default route redirects */}
+                <Route path="/orders" element={<Navigate to="/admin/orders" />} />
+                <Route path="/showroom" element={<Navigate to="/admin/showroom" />} />
+                <Route path="/categories" element={<Navigate to="/admin/category" />} />
+                <Route path="/brand" element={<Navigate to="/admin/brand" />} />
+                <Route path="/products" element={<Navigate to="/admin/products" />} />
+                <Route path="/users" element={<Navigate to="/admin/users" />} />
+                <Route path="/customers" element={<Navigate to="/admin/customers" />} />
+            </Routes>
+        </Router>
+    );
+};
+
+// New component to conditionally render the Navbar
+const ConditionalNavbar = () => {
+    const location = useLocation();
+
+    // Define paths where the Navbar should be hidden
+    const hiddenPaths = ['/admin/login', '/admin/register',"/register","/login"];
+
+    // Check if the current path starts with '/admin/'
+    const isAdminPath = location.pathname.startsWith('/admin/');
+
+    return (
+        <>
+            {/* Render the Navbar only if the current path is not in hiddenPaths and not an admin path */}
+            {!hiddenPaths.includes(location.pathname) && !isAdminPath && <Navbar />}
+        </>
+    );
+};
 
 export default App;
