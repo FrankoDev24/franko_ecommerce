@@ -48,5 +48,6 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47"
-  }
+  },
+    "proxy": "http://197.251.217.45:5000"
 }
