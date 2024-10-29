@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { setupSocketListeners } from './services/socketService'; // Import the socket service
 
 // Import your user components
 import Navbar from './Components/Navbar/Navbar';
@@ -22,20 +21,6 @@ import Login from './AdminPages/Login';
 import CartUpdatePage from './Pages/Cart/CartUpdate';
 
 const App = () => {
-    useEffect(() => {
-        // Setup WebSocket listeners when the component mounts
-        const handleIncomingMessage = (data) => {
-            // Handle incoming messages here
-            console.log('Incoming message:', data);
-        };
-
-        setupSocketListeners(handleIncomingMessage);
-
-        return () => {
-            // Optional cleanup code
-        };
-    }, []);
-
     return (
         <Router>
             <ConditionalNavbar />
@@ -77,7 +62,7 @@ const ConditionalNavbar = () => {
     const location = useLocation();
 
     // Define paths where the Navbar should be hidden
-    const hiddenPaths = ['/admin/login', '/admin/register',"/register","/login"];
+    const hiddenPaths = ['/admin/login', '/admin/register', "/register", "/login"];
 
     // Check if the current path starts with '/admin/'
     const isAdminPath = location.pathname.startsWith('/admin/');
