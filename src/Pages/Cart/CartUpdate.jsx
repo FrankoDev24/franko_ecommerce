@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import { updateCartItem } from '../../Redux/slice/cartSlice';
 
 const CartUpdatePage = ({ item, onClose }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Initialize navigate hook
-  const [quantity, setQuantity] = useState(item.quantity);
+  const navigate = useNavigate();
+
+  const transactionNumber = localStorage.getItem('transactionNumber'); // Define transactionNumber here
+  const [quantity, setQuantity] = useState(item?.quantity || 1);
 
   const handleUpdate = () => {
     if (quantity < 1) {
@@ -14,9 +16,14 @@ const CartUpdatePage = ({ item, onClose }) => {
       return;
     }
 
-    const transactionNumber = localStorage.getItem('transactionNumber');
     if (!transactionNumber) {
       alert("Transaction number not found in local storage. Please try again.");
+      return;
+    }
+
+    // Ensure item and its properties are defined before using them
+    if (!item || !item.productId) {
+      alert("Item information is missing. Please try again.");
       return;
     }
 
@@ -30,7 +37,7 @@ const CartUpdatePage = ({ item, onClose }) => {
       .unwrap()
       .then(() => {
         alert("Cart item updated successfully!");
-        navigate('/cart'); // Redirect to Cart page after successful update
+        navigate('/cart');
       })
       .catch((error) => {
         alert("Failed to update cart item: " + error);
@@ -43,37 +50,41 @@ const CartUpdatePage = ({ item, onClose }) => {
         <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
           Update Cart Item
         </h2>
-        <div className="flex flex-col gap-3 mb-4">
-          <div>
-            <p className="text-sm font-semibold text-gray-600">Cart ID:</p>
-            <p className="text-gray-800">{localStorage.getItem('transactionNumber')}</p>
+        {item ? (
+          <div className="flex flex-col gap-3 mb-4">
+            <div>
+              <p className="text-sm font-semibold text-gray-600">Cart ID:</p>
+              <p className="text-gray-800">{transactionNumber}</p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-600">Product Name:</p>
+              <p className="text-gray-800">{item.productName}</p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-600">Product ID:</p>
+              <p className="text-gray-800">{item.productId}</p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-600">Current Quantity:</p>
+              <p className="text-gray-800">{item.quantity}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="quantity" className="text-sm font-semibold text-gray-600">
+                Update Quantity:
+              </label>
+              <input
+                id="quantity"
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                min="1"
+                className="w-20 p-2 border border-gray-300 rounded-lg text-gray-700"
+              />
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-600">Product Name:</p>
-            <p className="text-gray-800">{item.productName}</p>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-600">Product ID:</p>
-            <p className="text-gray-800">{item.productId}</p>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-600">Current Quantity:</p>
-            <p className="text-gray-800">{item.quantity}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="quantity" className="text-sm font-semibold text-gray-600">
-              Update Quantity:
-            </label>
-            <input
-              id="quantity"
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              min="1"
-              className="w-20 p-2 border border-gray-300 rounded-lg text-gray-700"
-            />
-          </div>
-        </div>
+        ) : (
+          <p className="text-red-600">Item details are not available.</p>
+        )}
         <div className="flex justify-between items-center gap-2 mt-6">
           <button
             onClick={handleUpdate}

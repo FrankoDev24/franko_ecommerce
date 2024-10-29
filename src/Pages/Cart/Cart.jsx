@@ -29,6 +29,7 @@ const Cart = () => {
   };
 
   const handleUpdateClick = (productId, quantity) => {
+    const cartId = localStorage.getItem('transactionNumber')
 
     if (cartId) {
       // Navigate to the update page with cartId, productId, and quantity as parameters
@@ -37,6 +38,8 @@ const Cart = () => {
   };
 
   const handleProceedToCheckout = () => {
+
+
     const cartId = localStorage.getItem('transactionNumber');
     const user = JSON.parse(localStorage.getItem('user')) || {};
     const customerAccountNumber = user.customerAccountNumber;
@@ -78,7 +81,7 @@ const Cart = () => {
       );
     }
 
-    const backendBaseURL = "http://197.251.217.45:5000/";
+    const backendBaseURL = "https://api.salesmate.app/";
     const imageUrl = `${backendBaseURL}Media/Products_Images/${imagePath.split("\\").pop()}`;
 
     return (

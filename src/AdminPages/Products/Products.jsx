@@ -21,7 +21,7 @@ const Products = () => {
   const [searchText, setSearchText] = useState("");
   const [fullImageUrl, setFullImageUrl] = useState("");
 
-  const backendBaseURL = "http://197.251.217.45:5000"; // Replace with your actual backend URL
+  const backendBaseURL = "https://api.salesmate.app"; // Replace with your actual backend URL
 
   const fetchProductData = useCallback(async () => {
     try {

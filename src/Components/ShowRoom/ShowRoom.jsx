@@ -66,7 +66,7 @@ const Showroom = () => {
   const currentProducts = Array.isArray(products) ? products : [];
 
   const renderImage = (imagePath) => {
-    const backendBaseURL = 'http://197.251.217.45:5000'; 
+    const backendBaseURL = 'https://api.salesmate.app'; 
     const imageUrl = `${backendBaseURL}/Media/Products_Images/${imagePath.split('\\').pop()}`;
     
     return (

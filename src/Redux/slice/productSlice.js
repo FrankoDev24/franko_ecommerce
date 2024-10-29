@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Define the API base URL
-const API_BASE_URL = 'http://197.251.217.45:5000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Async thunk for adding a new product
 export const addProduct = createAsyncThunk('products/addProduct', async (productData) => {

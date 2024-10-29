@@ -19,6 +19,7 @@ import AdminLogin from './AdminPages/Login';
 import AdminRegister from './AdminPages/Register';
 import RegistrationPage from './Pages/SignUp/SignUp';
 import Login from './AdminPages/Login';
+import CartUpdatePage from './Pages/Cart/CartUpdate';
 
 const App = () => {
     useEffect(() => {
@@ -51,6 +52,7 @@ const App = () => {
                 <Route path='/login' element={<Login />} />
                 <Route path="/product/:productId" element={<ProductDetail />} />
                 <Route path="/order-status" element={<OrderCycle />} />
+                <Route path="/cart/update/:cartId/:productId/:quantity" element={<CartUpdatePage />} />
                 
                 {/* Admin routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
