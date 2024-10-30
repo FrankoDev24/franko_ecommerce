@@ -42,10 +42,8 @@ const Categories = () => {
         
         const categoryData = {
             CategoryId: categoryId,
-            CategoryName: categoryName,
-        };
-    
-        try {
+            CategoryName: categoryName };
+    try {
             await dispatch(addCategory(categoryData)).unwrap();
             hideModal(); // Close modal after successful submission
 
@@ -67,7 +65,6 @@ const Categories = () => {
                     Add Category
                 </button>
             </div>
-
             {/* Ant Design Spin for loading */}
             {loading ? (
                 <div className="flex justify-center items-center">

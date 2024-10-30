@@ -112,7 +112,6 @@ const CreateBrand = () => {
             </Form>
           </Modal>
 
-          <Title level={3} className="text-center mt-6">Brand List</Title>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {brandsWithCategoryNames.map((brand) => (

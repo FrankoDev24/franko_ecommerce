@@ -122,12 +122,6 @@ const Products = () => {
       render: (text) => `₵${parseFloat(text).toFixed(2)}`, // Format price
     },
     {
-      title: "Old Price",
-      dataIndex: "oldPrice",
-      key: "oldPrice",
-      render: (text) => `₵${parseFloat(text).toFixed(2)}`, // Format price
-    },
-    {
       title: "Date Created",
       dataIndex: "dateCreated",
       key: "dateCreated",

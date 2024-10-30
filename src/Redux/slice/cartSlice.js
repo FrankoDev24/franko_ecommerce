@@ -59,24 +59,27 @@ export const getCartById = createAsyncThunk(
     }
   }
 );
-
 export const updateCartItem = createAsyncThunk(
   'cart/updateCartItem',
   async ({ cartId, productId, quantity }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`https://api.salesmate.app/Cart/Cart-Update/${cartId}/${productId}/${quantity}`);
-      return response.data;
+      const response = await axios.post(
+        `https://api.salesmate.app/Cart/Cart-Update/${cartId}/${productId}/${quantity}`
+      );
+      return response.data; // Assuming the backend returns the updated data
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }
 );
+
+
 
 export const deleteCartItem = createAsyncThunk(
   'cart/deleteCartItem',
   async ({ cartId, productId }, { rejectWithValue }) => {
     try {
-      await axios.delete(`https://api.salesmate.app/Cart/Cart-Delete/${cartId}/${productId}`);
+      await axios.post(`https://api.salesmate.app/Cart/Cart-Delete/${cartId}/${productId}`);
       return { cartId, productId };
     } catch (error) {
       return rejectWithValue(error.message);
@@ -155,28 +158,49 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+      
+      .addCase(updateCartItem.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(updateCartItem.fulfilled, (state, action) => {
-        const { productId, quantity } = action.payload;
-        const itemIndex = state.cart.findIndex(item => item.productId === productId);
+        console.log('State before update:', JSON.parse(JSON.stringify(state)));
+        console.log('Update action payload:', action.payload);
+  
+        const { cartId, productId, quantity } = action.payload; // Assuming your payload contains these properties
+        const itemIndex = state.cart.findIndex(item => item.productId === productId && item.transactionNumber === cartId);
+  
         if (itemIndex !== -1) {
-          state.cart[itemIndex].quantity = quantity;
+          state.cart[itemIndex].quantity = quantity; // Update the quantity
+          console.log(`Updated product ${productId} quantity to ${quantity}`);
+        } else {
+          console.error('Product not found in cart with cartId:', cartId); // Log if product is not found
         }
+  
+        // Update total items
         state.totalItems = state.cart.reduce((total, item) => total + item.quantity, 0);
+        
         saveCartToLocalStorage(state.cart);
+        console.log('State after update:', JSON.parse(JSON.stringify(state)));
+      })
+      .addCase(updateCartItem.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+  
+      .addCase(deleteCartItem.pending, (state) => {
+        state.loading = true;
       })
       .addCase(deleteCartItem.fulfilled, (state, action) => {
-        const itemIndex = state.cart.findIndex(item => item.productId === action.payload.productId);
-        if (itemIndex !== -1) {
-          state.totalItems -= state.cart[itemIndex].quantity;
-          state.cart.splice(itemIndex, 1);
-        }
-        if (state.cart.length === 0) {
-          state.transactionNumber = uuidv4();
-          localStorage.setItem('transactionNumber', state.transactionNumber);
-        }
-        saveCartToLocalStorage(state.cart);
+        state.loading = false;
+        // Filter out the deleted item from the cart
+        state.cart = state.cart.filter(item => item.productId !== action.payload.productId);
+      })
+      .addCase(deleteCartItem.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
+
 });
 
 export const { clearCart, addCart, removeFromCart, setCartItems } = cartSlice.actions;

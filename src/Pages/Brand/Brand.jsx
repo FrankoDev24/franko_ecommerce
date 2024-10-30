@@ -65,7 +65,7 @@ const Brand = () => {
 
   // Function to render the image with the backend URL
   const renderImage = (imagePath) => {
-    const backendBaseURL = 'http://197.251.217.45:5000'; // Replace with your actual backend URL
+    const backendBaseURL = 'https://api.salesmate.app'; // Replace with your actual backend URL
     return `${backendBaseURL}/Media/Products_Images/${imagePath.split('\\').pop()}`; // Construct image URL
   };
 

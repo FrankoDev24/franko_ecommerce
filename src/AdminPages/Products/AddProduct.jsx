@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { addProduct, fetchProducts } from '../../Redux/slice/productSlice'; // Import fetchProducts
+import { addProduct, fetchProducts } from '../../Redux/slice/productSlice';
 import { fetchBrands } from '../../Redux/slice/brandSlice';
 import { fetchShowrooms } from '../../Redux/slice/showRoomSlice';
-import { Modal, Form, Input, Select, Button, message, Upload, Progress } from 'antd';
+import { Modal, Form, Input, Select, Button, message, Upload, Progress, Row, Col } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
@@ -16,6 +16,7 @@ const AddProduct = ({ visible, onClose }) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [productImageFile, setProductImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const brands = useSelector((state) => state.brands.brands);
   const showrooms = useSelector((state) => state.showrooms.showrooms);
@@ -49,13 +50,12 @@ const AddProduct = ({ visible, onClose }) => {
     try {
       await dispatch(addProduct(formData)).unwrap();
       message.success('Product added successfully!');
-
-      // Fetch products again to refresh the list
       await dispatch(fetchProducts()).unwrap();
 
       form.resetFields();
       setProductImageFile(null);
       setUploadProgress(0);
+      setImagePreview(null);
       onClose();
     } catch (err) {
       console.error(err);
@@ -70,6 +70,7 @@ const AddProduct = ({ visible, onClose }) => {
     if (info.file.status === 'done') {
       const { originFileObj } = info.file;
       setProductImageFile(originFileObj);
+      setImagePreview(URL.createObjectURL(originFileObj));
       setUploading(false);
       message.success(`${info.file.name} file uploaded successfully.`);
     } else if (info.file.status === 'error') {
@@ -81,7 +82,8 @@ const AddProduct = ({ visible, onClose }) => {
   const uploadProps = {
     beforeUpload: (file) => {
       setProductImageFile(file);
-      return false; // Prevent automatic upload
+      setImagePreview(URL.createObjectURL(file));
+      return false;
     },
     onChange: handleUploadChange,
     showUploadList: false,
@@ -99,13 +101,48 @@ const AddProduct = ({ visible, onClose }) => {
       width={600}
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Form.Item
-          label="Product Name"
-          name="productName"
-          rules={[{ required: true, message: 'Please input the product name!' }]}
-        >
-          <Input placeholder="Enter product name" />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Product Name"
+              name="productName"
+              rules={[{ required: true, message: 'Please input the product name!' }]}
+            >
+              <Input placeholder="Enter product name" />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Price"
+              name="price"
+              rules={[{ required: true, message: 'Please input the price!' }]}
+            >
+              <Input type="number" placeholder="Enter product price" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Old Price"
+              name="oldPrice"
+            >
+              <Input type="number" placeholder="Enter old price (optional)" />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item
+              label="Quantity"
+              name="Quantity"
+              rules={[{ required: true, message: 'Please input the quantity!' }]}
+            >
+              <Input type="number" placeholder="Enter product quantity" />
+            </Form.Item>
+          </Col>
+        </Row>
 
         <Form.Item
           label="Description"
@@ -115,56 +152,39 @@ const AddProduct = ({ visible, onClose }) => {
           <Input.TextArea placeholder="Enter product description" />
         </Form.Item>
 
-        <Form.Item
-          label="Price"
-          name="price"
-          rules={[{ required: true, message: 'Please input the price!' }]}
-        >
-          <Input type="number" placeholder="Enter product price" />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Brand"
+              name="brandId"
+              rules={[{ required: true, message: 'Please select a brand!' }]}
+            >
+              <Select placeholder="Select a brand">
+                {brands.map((brand) => (
+                  <Option key={brand.brandId} value={brand.brandId}>
+                    {brand.brandName}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
 
-        <Form.Item
-          label="Old Price"
-          name="oldPrice"
-        >
-          <Input type="number" placeholder="Enter old price (optional)" />
-        </Form.Item>
-
-        <Form.Item
-          label="Quantity"
-          name="Quantity"
-          rules={[{ required: true, message: 'Please input the quantity!' }]}
-        >
-          <Input type="number" placeholder="Enter product quantity" />
-        </Form.Item>
-
-        <Form.Item
-          label="Brand"
-          name="brandId"
-          rules={[{ required: true, message: 'Please select a brand!' }]}
-        >
-          <Select placeholder="Select a brand">
-            {brands.map((brand) => (
-              <Option key={brand.brandId} value={brand.brandId}>
-                {brand.brandName}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          label="Showroom"
-          name="showRoomId"
-          rules={[{ required: true, message: 'Please select a showroom!' }]}
-        >
-          <Select placeholder="Select a showroom">
-            {showrooms.map((showroom) => (
-              <Option key={showroom.showRoomID} value={showroom.showRoomID}>
-                {showroom.showRoomName}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+          <Col span={12}>
+            <Form.Item
+              label="Showroom"
+              name="showRoomId"
+              rules={[{ required: true, message: 'Please select a showroom!' }]}
+            >
+              <Select placeholder="Select a showroom">
+                {showrooms.map((showroom) => (
+                  <Option key={showroom.showRoomID} value={showroom.showRoomID}>
+                    {showroom.showRoomName}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
 
         <Form.Item label="Upload Image" name="productImage">
           <Upload {...uploadProps} accept="image/*">
@@ -176,8 +196,10 @@ const AddProduct = ({ visible, onClose }) => {
               <span>Uploading...</span>
             </>
           )}
-          {productImageFile && (
-            <span className="mt-2">{productImageFile.name}</span>
+          {imagePreview && (
+            <div className="mt-2">
+              <img src={imagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+            </div>
           )}
         </Form.Item>
 

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchBrands } from '../Redux/slice/brandSlice'; // Ensure the correct import path
-import { fetchShowrooms, addShowroom } from '../Redux/slice/showRoomSlice'; // Ensure the correct import path
+import { fetchBrands } from '../Redux/slice/brandSlice';
+import { fetchShowrooms, addShowroom } from '../Redux/slice/showRoomSlice';
 import { Button, Select, Typography, message, Spin, Modal, Form, Input } from 'antd';
-import { v4 as uuidv4 } from 'uuid'; // Import UUID for unique ID generation
+import { v4 as uuidv4 } from 'uuid';
 
 const { Title } = Typography;
 
@@ -11,26 +11,24 @@ const ShowRoom = () => {
   const dispatch = useDispatch();
   const { brands, loading: loadingBrands } = useSelector((state) => state.brands);
   const { showrooms, loading: loadingShowrooms, error: errorShowrooms } = useSelector((state) => state.showrooms);
-  
+
   const [form] = Form.useForm();
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Fetch brands and showrooms when the component mounts
   useEffect(() => {
     dispatch(fetchBrands());
     dispatch(fetchShowrooms());
   }, [dispatch]);
 
-  // Handle form submission
   const onFinish = (values) => {
-    const newShowroom = { ...values, showRoomID: uuidv4() }; // Generate unique Showroom ID
+    const newShowroom = { ...values, showRoomID: uuidv4() };
     dispatch(addShowroom(newShowroom))
       .unwrap()
       .then(() => {
-        form.resetFields(); // Reset form fields after successful submission
-        setModalVisible(false); // Close modal
+        form.resetFields();
+        setModalVisible(false);
         message.success('Showroom added successfully!');
-        dispatch(fetchShowrooms()); // Refresh showroom list
+        dispatch(fetchShowrooms());
       })
       .catch((err) => {
         console.error(err);
@@ -39,8 +37,16 @@ const ShowRoom = () => {
       });
   };
 
+  const showroomsWithBrandNames = showrooms.map(showroom => {
+    const brand = brands.find(b => b.brandId === showroom.brandId);
+    return {
+      ...showroom,
+      brandName: brand ? brand.brandName : 'Unknown',
+    };
+  });
+
   return (
-    <div className=" max-w-3xl">
+    <div className=" mx-auto">
       <Title level={2} className="text-center mb-4">Showrooms</Title>
 
       {loadingBrands || loadingShowrooms ? (
@@ -50,7 +56,7 @@ const ShowRoom = () => {
       ) : (
         <>
           {errorShowrooms && <p className="text-red-500 text-center">{errorShowrooms}</p>}
-          
+
           <Button type="primary" onClick={() => setModalVisible(true)} className="mb-4">
             Add New Showroom
           </Button>
@@ -66,7 +72,7 @@ const ShowRoom = () => {
               <Form.Item
                 label="Showroom ID"
                 name="showRoomID"
-                hidden // Hide the field since it's automatically generated
+                hidden
               >
                 <Input disabled />
               </Form.Item>
@@ -101,20 +107,14 @@ const ShowRoom = () => {
             </Form>
           </Modal>
 
-          <Title level={3} className="text-center mt-6">Showroom List</Title>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {showrooms.map((showroom) => {
-
-
-              return (
-                <div key={showroom.showRoomID} className="border p-4 rounded shadow">
-                  <h3 className="text-lg font-semibold">{showroom.showRoomName}</h3>
-                
-                 
-                </div>
-              );
-            })}
+            {showroomsWithBrandNames.map((showroom) => (
+              <div key={showroom.showRoomID} className="border p-4 rounded shadow">
+                <h3 className="text-lg font-semibold">{showroom.showRoomName}</h3>
+                <p className="text-gray-500">Brand: {showroom.brandName}</p>
+              </div>
+            ))}
           </div>
         </>
       )}
