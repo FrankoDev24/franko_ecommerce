@@ -14,8 +14,21 @@ export const addProduct = createAsyncThunk('products/addProduct', async (product
 
 // Async thunk for updating a product
 export const updateProduct = createAsyncThunk('products/updateProduct', async (productData) => {
-  const response = await axios.put(`${API_BASE_URL}/Product/Product-Put`, productData);
-  return response.data; // Assuming the response returns the updated product
+  const { Productid, ...restData } = productData; // Extract Productid from productData
+
+  const response = await axios.post(
+    `https://api.salesmate.app/Product/Product_Put?Productid=${Productid}`, // URL with Productid as query parameter
+    restData, // Pass the rest of the data as the request body
+    {
+      headers: {
+        'accept': 'text/plain',
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  console.log("Updated product:", response.data);
+  return response.data;
 });
 
 // Async thunk for fetching all products
@@ -32,12 +45,11 @@ export const fetchProductsByBrand = createAsyncThunk('products/fetchProductsByBr
 
 // Async thunk for fetching products by showroom
 export const fetchProductsByShowroom = createAsyncThunk(
-    'products/fetchProductsByShowroom',
-    async (showRoomID) => {
-      const response = await axios.get(`${API_BASE_URL}/Product/Product-Get-by-Showroom/${showRoomID}`);
-      console.log("Fetched products:", response.data); // Log response data
-      return response.data;
-    }
+  'products/fetchProductsByShowroom',
+  async (showRoomID) => {
+    const response = await axios.get(`https://api.salesmate.app/Product/Product-Get-by-ShowRoom/${showRoomID}`);
+    return { showRoomID, products: response.data }; // Return both showroom ID and products
+  }
 );
 
 // Async thunk for fetching a product by its ID
@@ -51,6 +63,7 @@ const productSlice = createSlice({
   name: 'products',
   initialState: {
     products: [],
+    productsByShowroom: {}, // Initialize productsByShowroom as an empty object
     currentProduct: null, // Add state for current product details
     loading: false,
     error: null,
@@ -58,40 +71,41 @@ const productSlice = createSlice({
   reducers: {
     clearProducts: (state) => {
       state.products = [];
+      state.productsByShowroom = {}; // Clear productsByShowroom on clear
       state.currentProduct = null; // Clear current product on clear
       state.error = null;
     },
   },
   extraReducers: (builder) => {
-    // Handle fetching all products
+    // Handle adding a product
     builder
-    .addCase(addProduct.pending, (state) => {
-      state.loading = true;
-    })
-    .addCase(addProduct.fulfilled, (state, action) => {
-      state.loading = false;
-      state.products.push(action.payload); // Add the new product to the state
-    })
-    .addCase(addProduct.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.error.message;
-    })
-
-    .addCase(updateProduct.pending, (state) => {
-      state.loading = true;
-    })
-    .addCase(updateProduct.fulfilled, (state, action) => {
-      state.loading = false;
-      const index = state.products.findIndex(product => product.id === action.payload.id);
-      if (index !== -1) {
-        state.products[index] = action.payload; // Update the product in the state
-      }
-    })
-    .addCase(updateProduct.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.error.message;
-    })
-
+      .addCase(addProduct.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.products.push(action.payload); // Add the new product to the state
+      })
+      .addCase(addProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Handle updating a product
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.products.findIndex(product => product.Productid === action.payload.Productid); // Ensure correct identifier is used
+        if (index !== -1) {
+          state.products[index] = action.payload; // Update the product in the state
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Handle fetching all products
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
       })
@@ -120,8 +134,12 @@ const productSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchProductsByShowroom.fulfilled, (state, action) => {
-        state.loading = false;
-        state.products = action.payload; // Ensure payload structure matches your expectations
+        const { showRoomID, products } = action.payload;
+        if (!state.productsByShowroom[showRoomID]) {
+          state.productsByShowroom[showRoomID] = []; // Initialize if undefined
+        }
+        state.productsByShowroom[showRoomID] = products; // Map products to the showroom ID
+        state.loading = false; // Update loading state after data is fetched
       })
       .addCase(fetchProductsByShowroom.rejected, (state, action) => {
         state.loading = false;
@@ -136,7 +154,6 @@ const productSlice = createSlice({
         state.currentProduct = action.payload; // Store the fetched product details
         console.log("Fetched product:", action.payload); // Check the payload
       })
-      
       .addCase(fetchProductById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;

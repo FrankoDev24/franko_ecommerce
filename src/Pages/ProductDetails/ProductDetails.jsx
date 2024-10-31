@@ -1,9 +1,9 @@
 // src/components/ProductDetail.js
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProductById } from '../../Redux/slice/productSlice'; // Adjust the import based on your folder structure
+import { fetchProductById } from '../../Redux/slice/productSlice';
 import { useParams } from 'react-router-dom';
-import { Button, Tag, Tabs } from 'antd';
+import { Button, Tag, Tabs, Modal } from 'antd';
 import {
   ShoppingCartOutlined,
   HeartOutlined,
@@ -14,7 +14,7 @@ import {
   DollarOutlined,
   CustomerServiceOutlined,
 } from '@ant-design/icons';
-import { addToCart } from '../../Redux/slice/cartSlice'; // Adjust import path for your cartSlice
+import { addToCart } from '../../Redux/slice/cartSlice';
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -23,13 +23,30 @@ const ProductDetail = () => {
   const currentProduct = useSelector((state) => state.products.currentProduct);
   const loading = useSelector((state) => state.products.loading);
   const error = useSelector((state) => state.products.error);
-  const transactionNumber = useSelector((state) => state.cart.transactionNumber); // Access transactionNumber
+  const transactionNumber = useSelector((state) => state.cart.transactionNumber);
+
+  const [isImageModalVisible, setImageModalVisible] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProductById(productId));
   }, [dispatch, productId]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="skeleton h-60 bg-gray-300 rounded-md" />
+          <div className="space-y-4">
+            <div className="skeleton h-8 bg-gray-300 rounded-md" />
+            <div className="skeleton h-6 bg-gray-300 rounded-md" />
+            <div className="skeleton h-12 bg-gray-300 rounded-md" />
+            <div className="skeleton h-10 bg-gray-300 rounded-md" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (error) return <div>Error: {error}</div>;
   if (!currentProduct || !Array.isArray(currentProduct) || currentProduct.length === 0) return <div>No product found</div>;
 
@@ -39,7 +56,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     const cartData = {
-      transactionNumber, // Include the transaction number from the Redux store
+      transactionNumber,
       productId: product.productID,
       price: product.price,
       quantity: 1,
@@ -47,6 +64,7 @@ const ProductDetail = () => {
 
     dispatch(addToCart(cartData));
   };
+
   return (
     <div className="max-w-7xl mx-auto p-4">
       <div className="flex flex-col lg:flex-row gap-8">
@@ -55,8 +73,9 @@ const ProductDetail = () => {
           <img
             src={imageUrl}
             alt={product.productName}
-            style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '5px' }} // Adjust image display
-            className="rounded-lg shadow-lg"
+            style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '5px' }} // Set fixed height
+            className="rounded-lg shadow-lg cursor-pointer"
+            onClick={() => setImageModalVisible(true)} // Show modal on click
           />
         </div>
 
@@ -78,26 +97,26 @@ const ProductDetail = () => {
             </div>
             <div className="flex items-center gap-2">
               <span className="font-medium">SKU:</span>
-              <span>{product.productID.slice(-6)}</span> {/* Display the last six digits of productID */}
+              <span>{product.productID.slice(-6)}</span>
             </div>
           </div>
 
           <div className="bg-red-50 p-4 rounded-lg inline-block mb-8">
             <span className="text-3xl font-bold">₵{product.price.toFixed(2)}</span>
-            {product.oldPrice && (
+            {product.oldPrice > 0 && (
               <span className="line-through text-gray-500 ml-8">₵{product.oldPrice.toFixed(2)}</span>
             )}
           </div>
 
           <div className="flex flex-wrap items-center gap-4 mb-6">
-          <Button
-        icon={<ShoppingCartOutlined />}
-        size="large"
-        className="bg-red-400 hover:bg-green-600 text-white"
-        onClick={handleAddToCart}
-      >
-        Add to Cart
-      </Button>
+            <Button
+              icon={<ShoppingCartOutlined />}
+              size="large"
+              className="bg-red-400 hover:bg-green-600 text-white"
+              onClick={handleAddToCart}
+            >
+              Add to Cart
+            </Button>
             <Button
               icon={<HeartOutlined />}
               size="large"
@@ -153,6 +172,20 @@ const ProductDetail = () => {
           ]}
         />
       </div>
+
+      {/* Image Modal */}
+      <Modal
+        title={product.productName}
+        visible={isImageModalVisible}
+        onCancel={() => setImageModalVisible(false)}
+        footer={null}
+      >
+        <img
+          src={imageUrl}
+          alt={product.productName}
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }} // Large view
+        />
+      </Modal>
     </div>
   );
 };

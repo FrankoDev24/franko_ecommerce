@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; 
-import { Input, Badge, Button, Drawer, Dropdown, Menu } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { Input, Badge, Button, Drawer, Dropdown, Menu, Modal } from 'antd';
 import {
   MenuOutlined,
   SearchOutlined,
@@ -8,13 +8,16 @@ import {
   ShoppingCartOutlined,
   CloseOutlined,
   PhoneOutlined,
+  CaretDownOutlined 
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../Redux/slice/categorySlice';
-import { fetchBrands } from '../../Redux/slice/brandSlice'; 
+import { fetchBrands } from '../../Redux/slice/brandSlice';
 import { getCartById } from '../../Redux/slice/cartSlice';
 import frankoLoge from "../../assets/frankoIcon.png";
+import "./Navbar.css"
 
+// Component for Account Dropdown
 const AccountDropdown = ({ isVisible, setIsVisible }) => {
   const handleLogout = () => {
     localStorage.removeItem('userId');
@@ -37,16 +40,17 @@ const AccountDropdown = ({ isVisible, setIsVisible }) => {
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false); // Modal state for search
   const [searchValue, setSearchValue] = useState('');
-  // eslint-disable-next-line no-unused-vars
   const [hoveredCategoryId, setHoveredCategoryId] = useState(null);
+  const [expandedCategoryId, setExpandedCategoryId] = useState(null); // Track expanded category in mobile drawer
   const [firstName, setFirstName] = useState('');
-  const [isAccountDropdownVisible, setAccountDropdownVisible] = useState(false); // State for account dropdown
+  const [isAccountDropdownVisible, setAccountDropdownVisible] = useState(false);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const { categories, status } = useSelector((state) => state.categories);
-  const { brands } = useSelector((state) => state.brands); 
+  const { brands } = useSelector((state) => state.brands);
   const totalItems = useSelector((state) => state.cart.totalItems);
 
   useEffect(() => {
@@ -54,15 +58,14 @@ const Navbar = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId'); // Retrieve user ID from local storage
+    const userId = localStorage.getItem('userId');
     if (userId) {
-      const cartId = localStorage.getItem('cartId'); // Replace with actual method to get cart ID
+      const cartId = localStorage.getItem('cartId');
       if (cartId) {
-        dispatch(getCartById(cartId)); // Fetch cart items on mount
+        dispatch(getCartById(cartId));
       }
     }
 
-    // Retrieve the first name from local storage if available
     const user = JSON.parse(localStorage.getItem('user'));
     if (user && user.firstName) {
       setFirstName(user.firstName);
@@ -79,20 +82,19 @@ const Navbar = () => {
 
   const handleMouseEnter = (categoryId) => {
     setHoveredCategoryId(categoryId);
-    dispatch(fetchBrands(categoryId)); 
+    dispatch(fetchBrands(categoryId));
   };
 
   const handleMouseLeave = () => {
-    setHoveredCategoryId(null); 
+    setHoveredCategoryId(null);
   };
 
   const brandMenu = (categoryId) => {
-    const filteredBrands = brands.filter(brand => brand.categoryId === categoryId);
-  
+    const filteredBrands = brands.filter((brand) => brand.categoryId === categoryId);
     return (
       <Menu>
         {filteredBrands.map((brand) => (
-          <Menu.Item key={brand.brandId} onClick={() => navigate(`/brand/${brand.brandId}`)}> 
+          <Menu.Item key={brand.brandId} onClick={() => navigate(`/brand/${brand.brandId}`)}>
             {brand.brandName}
           </Menu.Item>
         ))}
@@ -101,16 +103,25 @@ const Navbar = () => {
   };
 
   const handleCartClick = () => {
-    const transactionNumber = localStorage.getItem('transactionNumber'); // Retrieve transaction number from local storage
+    const transactionNumber = localStorage.getItem('transactionNumber');
     if (transactionNumber) {
-      navigate(`/cart/${transactionNumber}`); // Navigate to cart details based on transaction number
+      navigate(`/cart/${transactionNumber}`);
     } else {
-      console.error("No transaction number found in local storage."); // Log error if no transaction number is found
+      console.error("No transaction number found in local storage.");
+    }
+  };
+
+  const handleCategoryClickMobile = (categoryId) => {
+    if (expandedCategoryId === categoryId) {
+      setExpandedCategoryId(null); // Collapse if clicked again
+    } else {
+      setExpandedCategoryId(categoryId); // Expand the selected category
+      dispatch(fetchBrands(categoryId)); // Fetch brands for the selected category
     }
   };
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full sticky-navbar">
       {/* Top bar */}
       <div className="bg-white py-2 px-4 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -124,6 +135,7 @@ const Navbar = () => {
             </Link>
           </div>
 
+          {/* Desktop search bar */}
           <div className="flex-grow mx-8 max-w-2xl hidden md:block">
             <Input
               value={searchValue}
@@ -156,24 +168,42 @@ const Navbar = () => {
                 </div>
               )}
               <div onMouseEnter={() => setAccountDropdownVisible(true)} onMouseLeave={() => setAccountDropdownVisible(false)}>
+                
                 <Dropdown 
                   overlay={<AccountDropdown isVisible={isAccountDropdownVisible} setIsVisible={setAccountDropdownVisible} />} 
                   trigger={['hover']}
                   visible={isAccountDropdownVisible}
                 >
+                  
                   <HeartOutlined className="text-xl cursor-pointer hover:text-blue-600" />
                 </Dropdown>
               </div>
+              <div className="bg-white px-4 py-2 md:hidden flex justify-between">
+        <PhoneOutlined className="text-xl text-blue-600 cursor-pointer" />
+        <SearchOutlined
+          className="text-xl text-gray-400 cursor-pointer"
+          onClick={() => setIsSearchModalOpen(true)}
+        />
+      </div>
               <Badge count={totalItems || 0} className="cursor-pointer">
                 <ShoppingCartOutlined className="text-xl hover:text-blue-600" onClick={handleCartClick} />
               </Badge>
+                 {/* Mobile call and search icons */}
+    
+
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile search bar */}
-      <div className="bg-white px-4 py-2 md:hidden">
+   
+      {/* Search modal for mobile */}
+      <Modal
+        visible={isSearchModalOpen}
+        footer={null}
+        onCancel={() => setIsSearchModalOpen(false)}
+        title="Search"
+      >
         <Input
           value={searchValue}
           onChange={(e) => handleSearch(e.target.value)}
@@ -188,7 +218,7 @@ const Navbar = () => {
           }
           className="w-full"
         />
-      </div>
+      </Modal>
 
       {/* Navigation menu */}
       <div className="bg-red-500 text-white items-start">
@@ -200,6 +230,7 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(true)}
               className="text-white"
             />
+            Categories
           </div>
 
           <div className="hidden md:flex items-start overflow-x-auto">
@@ -230,21 +261,44 @@ const Navbar = () => {
       <Drawer
         title="Menu"
         placement="left"
+        width={250}
         onClose={() => setIsMenuOpen(false)}
-        open={isMenuOpen}
-        width={280}
+        visible={isMenuOpen}
+        bodyStyle={{ padding: 0 }}
       >
-        <div className="flex flex-col">
-          {categories.map((category) => (
-            <span
-              key={category.categoryId}
-              className="py-3 px-4 hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-gray-700 no-underline"
-              onClick={() => setIsMenuOpen(false)}
+        {categories.map((category) => (
+          <div key={category.categoryId} className="p-4 border-b border-gray-200">
+            <div
+              onClick={() => handleCategoryClickMobile(category.categoryId)}
+              className="flex justify-between items-center"
             >
               <span>{category.categoryName}</span>
-            </span>
-          ))}
-        </div>
+              {expandedCategoryId === category.categoryId ? (
+                <CloseOutlined />
+              ) : (
+                <CaretDownOutlined />
+              )}
+            </div>
+            {expandedCategoryId === category.categoryId && (
+              <div className="pl-4">
+                {brands
+                  .filter((brand) => brand.categoryId === category.categoryId)
+                  .map((brand) => (
+                    <div
+                      key={brand.brandId}
+                      className="py-2 cursor-pointer hover:text-blue-600"
+                      onClick={() => {
+                        navigate(`/brand/${brand.brandId}`);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      {brand.brandName}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        ))}
       </Drawer>
     </div>
   );
