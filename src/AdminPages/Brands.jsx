@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchBrands, addBrand } from '../Redux/slice/brandSlice';
+import { fetchBrands, addBrand, updateBrand } from '../Redux/slice/brandSlice';
 import { fetchCategories } from '../Redux/slice/categorySlice';
-import {  Button, Select, Typography, message, Spin, Modal, Form, Input } from 'antd';
-import { v4 as uuidv4 } from 'uuid'; // Import UUID for unique ID generation
+import { Button, Select, Typography, message, Spin, Modal, Form, Input } from 'antd';
+import { v4 as uuidv4 } from 'uuid';
+import { EditOutlined } from '@ant-design/icons'; // Import Edit icon
 
 const { Title } = Typography;
 
@@ -11,42 +12,50 @@ const CreateBrand = () => {
   const dispatch = useDispatch();
   const { brands, loading: loadingBrands, error: errorBrands } = useSelector((state) => state.brands);
   const { categories, loading: loadingCategories, error: errorCategories } = useSelector((state) => state.categories);
-  
+
   const [form] = Form.useForm();
   const [modalVisible, setModalVisible] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState(null);
 
-  // Fetch brands and categories when the component mounts
   useEffect(() => {
     dispatch(fetchBrands());
     dispatch(fetchCategories());
   }, [dispatch]);
-  
-  // Handle form submission
+
   const onFinish = (values) => {
-    const newBrand = { ...values, brandId: uuidv4() }; // Generate unique ID using UUID
-    dispatch(addBrand(newBrand))
+    const brandData = isEdit
+      ? { ...selectedBrand, ...values, Brandid: selectedBrand.brandId } // Use Brandid if required by API
+      : { ...values, brandId: uuidv4() };
+
+    const action = isEdit ? updateBrand : addBrand;
+
+    dispatch(action(brandData))
       .unwrap()
       .then(() => {
-        form.resetFields(); // Reset the form fields after successful submission
-        setModalVisible(false); // Close the modal
-        message.success('Brand added successfully!');
-        dispatch(fetchBrands()); // Refresh brand list after adding
+        form.resetFields();
+        setModalVisible(false);
+        setIsEdit(false);
+        setSelectedBrand(null);
+        message.success(`Brand ${isEdit ? 'updated' : 'added'} successfully!`);
+        dispatch(fetchBrands()); // Refresh the brands list
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Error details:", err); // Log the error object
         const errorMessage = err?.response?.data?.message || err?.message || 'An unexpected error occurred.';
         message.error(`Error: ${errorMessage}`);
       });
   };
 
-  // Prepare data for displaying categories
-  const brandsWithCategoryNames = brands.map(brand => {
-    const category = categories.find(cat => cat.categoryId === brand.categoryId);
-    return {
-      ...brand,
-      categoryName: category ? category.categoryName : 'Unknown', // Fallback if category not found
-    };
-  });
+  const handleEditBrand = (brand) => {
+    setIsEdit(true);
+    setSelectedBrand(brand);
+    setModalVisible(true);
+    form.setFieldsValue({
+      brandName: brand.brandName,
+      categoryId: brand.categoryId,
+    });
+  };
 
   return (
     <div className="mx-auto">
@@ -67,21 +76,17 @@ const CreateBrand = () => {
           </Button>
 
           <Modal
-            title="Create Brand"
+            title={isEdit ? 'Edit Brand' : 'Create Brand'}
             visible={modalVisible}
-            onCancel={() => setModalVisible(false)}
+            onCancel={() => {
+              setModalVisible(false);
+              setIsEdit(false);
+              setSelectedBrand(null);
+            }}
             footer={null}
             width={400}
           >
             <Form form={form} layout="vertical" onFinish={onFinish}>
-              <Form.Item
-                label="Brand ID"
-                name="brandId"
-                hidden
-              >
-                <Input placeholder="Enter brand ID" disabled />
-              </Form.Item>
-
               <Form.Item
                 label="Brand Name"
                 name="brandName"
@@ -106,20 +111,29 @@ const CreateBrand = () => {
 
               <Form.Item>
                 <Button type="primary" htmlType="submit" className="w-full">
-                  Add Brand
+                  {isEdit ? 'Update Brand' : 'Add Brand'}
                 </Button>
               </Form.Item>
             </Form>
           </Modal>
 
-
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {brandsWithCategoryNames.map((brand) => (
-              <div key={brand.brandId} className="border p-4 rounded shadow">
-                <h3 className="text-lg font-semibold">{brand.brandName}</h3>
-                <p className="text-gray-500">Category: {brand.categoryName}</p>
-              </div>
-            ))}
+            {brands.map((brand) => {
+              // Find the category name by categoryId
+              const category = categories.find(cat => cat.categoryId === brand.categoryId);
+
+              return (
+                <div key={brand.brandId} className="border p-4 rounded shadow hover:shadow-lg transition-shadow duration-200">
+                  <h3 className="text-lg font-semibold">{brand.brandName}</h3>
+                  <p className="text-gray-500">
+                    Category: <span className="font-medium">{category ? category.categoryName : 'Unknown'}</span>
+                  </p>
+                  <Button type="link" icon={<EditOutlined />} onClick={() => handleEditBrand(brand)}>
+                    Edit
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         </>
       )}

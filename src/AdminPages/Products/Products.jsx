@@ -16,7 +16,7 @@ const Products = () => {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
-  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false); // New modal state for product details
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [fullImageUrl, setFullImageUrl] = useState("");
@@ -39,7 +39,7 @@ const Products = () => {
   }, [fetchProductData]);
 
   const handleAddProduct = () => {
-    setSelectedProduct(null); // Reset selected product for adding
+    setSelectedProduct(null);
     setIsAddModalVisible(true);
   };
 
@@ -50,14 +50,13 @@ const Products = () => {
 
   const handleViewProductDetails = (product) => {
     setSelectedProduct(product);
-    setIsDetailModalVisible(true); // Open the product details modal
+    setIsDetailModalVisible(true);
   };
 
   const handleSearch = (e) => {
     setSearchText(e.target.value);
   };
 
-  // Filter products based on search input
   const filteredProducts = products.filter((product) => {
     const productNameMatch =
       product.productName?.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -71,7 +70,6 @@ const Products = () => {
     return productNameMatch || showroomMatch || brandMatch;
   });
 
-  // Sort products by date
   const sortedProducts = filteredProducts.sort(
     (a, b) => new Date(b.dateCreated) - new Date(a.dateCreated)
   );
@@ -98,8 +96,8 @@ const Products = () => {
               cursor: "pointer",
             }}
             onClick={() => {
-              setFullImageUrl(imageUrl); // Set the image URL for modal
-              setIsImageModalVisible(true); // Open image modal
+              setFullImageUrl(imageUrl);
+              setIsImageModalVisible(true);
             }}
           />
         );
@@ -119,14 +117,14 @@ const Products = () => {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (text) => `₵${parseFloat(text).toFixed(2)}`, // Format price
+      render: (text) => `₵${parseFloat(text).toFixed(2)}`,
     },
     {
       title: "Date Created",
       dataIndex: "dateCreated",
       key: "dateCreated",
-      render: (text) => new Date(text).toLocaleDateString(), // Format date
-      sorter: (a, b) => new Date(a.dateCreated) - new Date(b.dateCreated), // Enable sorting
+      render: (text) => new Date(text).toLocaleDateString(),
+      sorter: (a, b) => new Date(a.dateCreated) - new Date(b.dateCreated),
     },
     {
       title: "Brand",
@@ -147,7 +145,7 @@ const Products = () => {
           <Button
             type="link"
             icon={<EyeOutlined />}
-            onClick={() => handleViewProductDetails(record)} // Open product details
+            onClick={() => handleViewProductDetails(record)}
           >
             View
           </Button>
@@ -187,7 +185,10 @@ const Products = () => {
       {/* Update Product Modal */}
       <UpdateProduct
         visible={isUpdateModalVisible}
-        onClose={() => setIsUpdateModalVisible(false)}
+        onClose={() => {
+          setIsUpdateModalVisible(false);
+          fetchProductData(); // Refresh the product list after updating
+        }}
         product={selectedProduct}
         brands={brands}
         showrooms={showrooms}
@@ -216,23 +217,13 @@ const Products = () => {
         centered
       >
         {selectedProduct && (
-          <div style={{ padding: "20px" }}>
-            <img
-              src={`${backendBaseURL}/Media/Products_Images/${selectedProduct.productImage
-                .split("\\")
-                .pop()}`}
-              alt={selectedProduct.productName}
-              style={{ width: "100%", height: "auto", borderRadius: "10px" }}
-            />
-            <h2 style={{ margin: "10px 0", fontWeight: "bold", fontSize: "24px" }}>
-              {selectedProduct.productName}
-            </h2>
-            <p><strong>Description:</strong> {selectedProduct.description}</p>
-            <p><strong>Price:</strong> ₵{selectedProduct.price.toFixed(2)}</p>
-            <p><strong>Old Price:</strong> ₵{selectedProduct.oldPrice.toFixed(2)}</p>
-            <p><strong>Brand:</strong> {selectedProduct.brandName}</p>
-            <p><strong>Showroom:</strong> {selectedProduct.showRoomName}</p>
-            <p><strong>Date Created:</strong> {new Date(selectedProduct.dateCreated).toLocaleDateString()}</p>
+          <div style={{ padding: 20 }}>
+            <h2>{selectedProduct.productName}</h2>
+            <p>{selectedProduct.description}</p>
+            <p>Price: ₵{parseFloat(selectedProduct.price).toFixed(2)}</p>
+            <p>Brand: {selectedProduct.brandName}</p>
+            <p>Showroom: {selectedProduct.showRoomName}</p>
+            <p>Date Created: {new Date(selectedProduct.dateCreated).toLocaleDateString()}</p>
           </div>
         )}
       </Modal>

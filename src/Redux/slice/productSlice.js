@@ -1,5 +1,3 @@
-// src/Redux/slice/productSlice.js
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -14,11 +12,11 @@ export const addProduct = createAsyncThunk('products/addProduct', async (product
 
 // Async thunk for updating a product
 export const updateProduct = createAsyncThunk('products/updateProduct', async (productData) => {
-  const { Productid, ...restData } = productData; // Extract Productid from productData
+  const { Productid, ...restData } = productData;
 
   const response = await axios.post(
-    `https://api.salesmate.app/Product/Product_Put?Productid=${Productid}`, // URL with Productid as query parameter
-    restData, // Pass the rest of the data as the request body
+    `https://api.salesmate.app/Product/Product_Put/${Productid}`,
+    restData,
     {
       headers: {
         'accept': 'text/plain',
@@ -27,9 +25,33 @@ export const updateProduct = createAsyncThunk('products/updateProduct', async (p
     }
   );
 
-  console.log("Updated product:", response.data);
+  console.log("Updated product response:", response.data); // Log the response for debugging
   return response.data;
 });
+
+// Async thunk for updating a product's image
+export const updateProductImage = createAsyncThunk(
+  'products/updateProductImage',
+  async ({ Productid, ImageName }) => {
+    const formData = new FormData();
+    formData.append('Productid', Productid);
+    formData.append('ImageName', ImageName); // assuming ImageName is a File object
+
+    const response = await axios.post(
+      `${API_BASE_URL}/Product/Product-Image-Edit`,
+      formData,
+      {
+        headers: {
+          'accept': 'text/plain',
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    
+    console.log("Updated product image response:", response.data); // Log the response for debugging
+    return response.data; // Assuming the response returns the updated product
+  }
+);
 
 // Async thunk for fetching all products
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
@@ -96,12 +118,31 @@ const productSlice = createSlice({
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.products.findIndex(product => product.Productid === action.payload.Productid); // Ensure correct identifier is used
+        const index = state.products.findIndex(item => item.Productid === action.payload.Productid);
         if (index !== -1) {
-          state.products[index] = action.payload; // Update the product in the state
+          state.products[index] = action.payload; // Update the existing product
+        } else {
+          console.error('Product not found for update:', action.payload);
         }
       })
       .addCase(updateProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Handle updating a product's image
+      .addCase(updateProductImage.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateProductImage.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.products.findIndex(product => product.Productid === action.payload.Productid);
+        if (index !== -1) {
+          state.products[index] = action.payload; // Update the product's image
+        } else {
+          console.error('Product not found for image update:', action.payload);
+        }
+      })
+      .addCase(updateProductImage.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
@@ -138,8 +179,8 @@ const productSlice = createSlice({
         if (!state.productsByShowroom[showRoomID]) {
           state.productsByShowroom[showRoomID] = []; // Initialize if undefined
         }
-        state.productsByShowroom[showRoomID] = products; // Map products to the showroom ID
-        state.loading = false; // Update loading state after data is fetched
+        state.productsByShowroom[showRoomID] = products; // Update products for that showroom
+        state.loading = false;
       })
       .addCase(fetchProductsByShowroom.rejected, (state, action) => {
         state.loading = false;
@@ -151,8 +192,7 @@ const productSlice = createSlice({
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentProduct = action.payload; // Store the fetched product details
-        console.log("Fetched product:", action.payload); // Check the payload
+        state.currentProduct = action.payload; // Set the current product details
       })
       .addCase(fetchProductById.rejected, (state, action) => {
         state.loading = false;
@@ -161,7 +201,7 @@ const productSlice = createSlice({
   },
 });
 
-// Export the action to clear products
+// Export the clearProducts action
 export const { clearProducts } = productSlice.actions;
 
 // Export the reducer

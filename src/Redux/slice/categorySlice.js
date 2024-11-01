@@ -8,6 +8,7 @@ export const fetchCategories = createAsyncThunk('Category/fetchCategories', asyn
     const response = await axios.get(`${API_BASE_URL}/Category/Category-Get`);
     return response.data; // Adjust based on your backend response
 });
+
 export const addCategory = createAsyncThunk('Category/addCategory', async (categoryData) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/Category/Setup-Category`, categoryData);
@@ -19,6 +20,17 @@ export const addCategory = createAsyncThunk('Category/addCategory', async (categ
     }
 });
 
+// New updateCategory async thunk
+export const updateCategory = createAsyncThunk('Category/updateCategory', async ({ categoryId, categoryData }) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/Category/Category-Put/${categoryId}`, categoryData);
+        console.log('Response from updateCategory:', response.data); // Log response
+        return response.data; // Adjust based on your backend response
+    } catch (error) {
+        console.error('Error updating category:', error); // Log error details
+        throw error; // Rethrow to handle in the rejected case
+    }
+});
 
 const categorySlice = createSlice({
     name: 'categories',
@@ -54,8 +66,23 @@ const categorySlice = createSlice({
                 state.loading = false;
                 console.error('Error while adding category:', action.error); // Log error details
                 state.error = action.error.message;
+            })
+            .addCase(updateCategory.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateCategory.fulfilled, (state, action) => {
+                state.loading = false;
+                const index = state.categories.findIndex(category => category.categoryId === action.payload.categoryId);
+                if (index !== -1) {
+                    state.categories[index] = action.payload; // Update the existing category in the state
+                }
+            })
+            .addCase(updateCategory.rejected, (state, action) => {
+                state.loading = false;
+                console.error('Error while updating category:', action.error); // Log error details
+                state.error = action.error.message;
             });
-            
     },
 });
 

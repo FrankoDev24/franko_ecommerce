@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBrands } from '../Redux/slice/brandSlice';
-import { fetchShowrooms, addShowroom } from '../Redux/slice/showRoomSlice';
+import { fetchShowrooms, addShowroom, updateShowroom } from '../Redux/slice/showRoomSlice';
 import { Button, Select, Typography, message, Spin, Modal, Form, Input } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -14,27 +14,75 @@ const ShowRoom = () => {
 
   const [form] = Form.useForm();
   const [modalVisible, setModalVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentShowroom, setCurrentShowroom] = useState(null);
 
   useEffect(() => {
     dispatch(fetchBrands());
     dispatch(fetchShowrooms());
   }, [dispatch]);
-
   const onFinish = (values) => {
-    const newShowroom = { ...values, showRoomID: uuidv4() };
-    dispatch(addShowroom(newShowroom))
-      .unwrap()
-      .then(() => {
-        form.resetFields();
-        setModalVisible(false);
-        message.success('Showroom added successfully!');
-        dispatch(fetchShowrooms());
-      })
-      .catch((err) => {
-        console.error(err);
-        const errorMessage = err?.response?.data?.message || err?.message || 'An unexpected error occurred.';
-        message.error(`Error: ${errorMessage}`);
-      });
+    // Determine the showroomID based on the action
+    const showroomID = currentShowroom ? currentShowroom.showRoomID : uuidv4();
+
+    // Construct the payload with the correct key
+    const showroomData = {
+        ...values,
+        Showroomid: showroomID, // Use Showroomid here
+    };
+
+    // Log the payload to verify structure before sending
+ 
+
+    if (isEditing) {
+
+        dispatch(updateShowroom(showroomData)) // Pass the full showroomData which now includes Showroomid
+            .unwrap()
+            .then(() => {
+                message.success('Showroom updated successfully!');
+                resetForm();
+            })
+            .catch((err) => {
+                console.error(err);
+                const errorMessage = err?.response?.data?.message || err?.message || 'An unexpected error occurred.';
+                message.error(`Error: ${errorMessage}`);
+            });
+    } else {
+        console.log('Adding new showroom:', showroomData);
+        dispatch(addShowroom(showroomData)) // Ensure addShowroom also handles the expected structure
+            .unwrap()
+            .then(() => {
+                message.success('Showroom added successfully!');
+                resetForm();
+            })
+            .catch((err) => {
+                console.error(err);
+                const errorMessage = err?.response?.data?.message || err?.message || 'An unexpected error occurred.';
+                message.error(`Error: ${errorMessage}`);
+            });
+    }
+};
+
+
+
+
+  const handleEditShowroom = (showroom) => {
+    setCurrentShowroom(showroom);
+    form.setFieldsValue({
+      showRoomID: showroom.showRoomID,
+      showRoomName: showroom.showRoomName,
+      brandId: showroom.brandId,
+    });
+    setIsEditing(true);
+    setModalVisible(true);
+  };
+
+  const resetForm = () => {
+    form.resetFields();
+    setModalVisible(false);
+    setIsEditing(false);
+    setCurrentShowroom(null);
+    dispatch(fetchShowrooms()); // Refresh showrooms after adding/updating
   };
 
   const showroomsWithBrandNames = showrooms.map(showroom => {
@@ -46,7 +94,7 @@ const ShowRoom = () => {
   });
 
   return (
-    <div className=" mx-auto">
+    <div className="mx-auto">
       <Title level={2} className="text-center mb-4">Showrooms</Title>
 
       {loadingBrands || loadingShowrooms ? (
@@ -57,21 +105,21 @@ const ShowRoom = () => {
         <>
           {errorShowrooms && <p className="text-red-500 text-center">{errorShowrooms}</p>}
 
-          <Button type="primary" onClick={() => setModalVisible(true)} className="mb-4">
+          <Button type="primary" onClick={() => { setModalVisible(true); setIsEditing(false); }} className="mb-4">
             Add New Showroom
           </Button>
 
           <Modal
-            title="Create Showroom"
+            title={isEditing ? "Update Showroom" : "Create Showroom"}
             visible={modalVisible}
-            onCancel={() => setModalVisible(false)}
+            onCancel={resetForm}
             footer={null}
             width={400}
           >
             <Form form={form} layout="vertical" onFinish={onFinish}>
               <Form.Item
                 label="Showroom ID"
-                name="showRoomID"
+                name="showRoomID" // This should match the field in the object
                 hidden
               >
                 <Input disabled />
@@ -101,18 +149,20 @@ const ShowRoom = () => {
 
               <Form.Item>
                 <Button type="primary" htmlType="submit" className="w-full">
-                  Add Showroom
+                  {isEditing ? "Update Showroom" : "Add Showroom"}
                 </Button>
               </Form.Item>
             </Form>
           </Modal>
-
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {showroomsWithBrandNames.map((showroom) => (
               <div key={showroom.showRoomID} className="border p-4 rounded shadow">
                 <h3 className="text-lg font-semibold">{showroom.showRoomName}</h3>
                 <p className="text-gray-500">Brand: {showroom.brandName}</p>
+                <Button type="link" onClick={() => handleEditShowroom(showroom)}>
+                  Edit
+                </Button>
               </div>
             ))}
           </div>
