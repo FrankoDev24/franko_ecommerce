@@ -23,7 +23,7 @@ const ProductDetail = () => {
   const currentProduct = useSelector((state) => state.products.currentProduct);
   const loading = useSelector((state) => state.products.loading);
   const error = useSelector((state) => state.products.error);
-  const transactionNumber = useSelector((state) => state.cart.transactionNumber);
+  const cartId = useSelector((state) => state.cart.cartId);
 
   const [isImageModalVisible, setImageModalVisible] = useState(false);
 
@@ -35,7 +35,7 @@ const ProductDetail = () => {
     return (
       <div className="max-w-7xl mx-auto p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="skeleton h-60 bg-gray-300 rounded-md" />
+          <div className="skeleton h-80 bg-gray-300 rounded-md" />
           <div className="space-y-4">
             <div className="skeleton h-8 bg-gray-300 rounded-md" />
             <div className="skeleton h-6 bg-gray-300 rounded-md" />
@@ -56,7 +56,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     const cartData = {
-      transactionNumber,
+   cartId,
       productId: product.productID,
       price: product.price,
       quantity: 1,
@@ -162,16 +162,21 @@ const ProductDetail = () => {
 
       {/* Tabs Section */}
       <div className="mt-8">
-        <Tabs
-          items={[
-            {
-              key: '1',
-              label: 'Details',
-              children: <div className="p-4">{product.description}</div>,
-            },
-          ]}
-        />
-      </div>
+  <Tabs
+    items={[
+      {
+        key: '1',
+        label: 'Details',
+        children: (
+          <div className="p-4" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            {product.description}
+          </div>
+        ),
+      },
+    ]}
+  />
+</div>
+
 
       {/* Image Modal */}
       <Modal

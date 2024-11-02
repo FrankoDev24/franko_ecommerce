@@ -145,12 +145,15 @@ const AddProduct = ({ visible, onClose }) => {
         </Row>
 
         <Form.Item
-          label="Description"
-          name="description"
-          rules={[{ required: true, message: 'Please input the description!' }]}
-        >
-          <Input.TextArea placeholder="Enter product description" />
-        </Form.Item>
+  label="Description"
+  name="description"
+  rules={[{ required: true, message: 'Please input the description!' }]}
+>
+  <Input.TextArea 
+    placeholder="Enter product description" 
+    autoSize={{ minRows: 3, maxRows: 8 }} // Ensures multiline and wraps automatically
+  />
+</Form.Item>
 
         <Row gutter={16}>
           <Col span={12}>

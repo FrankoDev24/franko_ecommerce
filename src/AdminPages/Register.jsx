@@ -133,7 +133,7 @@ const UserRegistration = () => {
       <div className="text-center mt-4">
         <p>
           Already registered?{' '}
-          <Link to="/login" className="text-blue-500 hover:underline">
+          <Link to="/admin/login" className="text-blue-500 hover:underline">
             Login here
           </Link>
         </p>

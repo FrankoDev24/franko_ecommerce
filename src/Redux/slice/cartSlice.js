@@ -16,7 +16,7 @@ const saveCartToLocalStorage = (cart) => {
 const initialState = {
   cart: loadCartFromLocalStorage(),
   totalItems: loadCartFromLocalStorage().reduce((total, item) => total + item.quantity, 0),
-  transactionNumber: localStorage.getItem('transactionNumber') || uuidv4(),
+  cartId: localStorage.getItem('cartId') || uuidv4(),
   loading: false,
   error: null,
 };
@@ -26,15 +26,15 @@ export const addToCart = createAsyncThunk(
   'cart/addToCart',
   async (item, { rejectWithValue }) => {
     try {
-      // Get or set transaction number
-      let transactionNumber = localStorage.getItem('transactionNumber');
-      if (!transactionNumber || transactionNumber === 'undefined') {
-        transactionNumber = uuidv4();
-        localStorage.setItem('transactionNumber', transactionNumber);
+      // Get or set cartId
+      let cartId = localStorage.getItem('cartId');
+      if (!cartId || cartId === 'undefined') {
+        cartId = uuidv4();
+        localStorage.setItem('cartId', cartId);
       }
 
       const cartItem = {
-        transactionNumber,
+        cartId,
         productId: item.productId,
         price: item.price,
         quantity: item.quantity,
@@ -50,15 +50,16 @@ export const addToCart = createAsyncThunk(
 
 export const getCartById = createAsyncThunk(
   'cart/getCartById',
-  async (id, { rejectWithValue }) => {
+  async (cartId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://api.salesmate.app/Cart/Cart-GetbyID/${id}`);
+      const response = await axios.get(`https://api.salesmate.app/Cart/Cart-GetbyID/${cartId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
+
 export const updateCartItem = createAsyncThunk(
   'cart/updateCartItem',
   async ({ cartId, productId, quantity }, { rejectWithValue }) => {
@@ -72,8 +73,6 @@ export const updateCartItem = createAsyncThunk(
     }
   }
 );
-
-
 
 export const deleteCartItem = createAsyncThunk(
   'cart/deleteCartItem',
@@ -113,8 +112,8 @@ const cartSlice = createSlice({
     clearCart: (state) => {
       state.cart = [];
       state.totalItems = 0;
-      state.transactionNumber = uuidv4();
-      localStorage.setItem('transactionNumber', state.transactionNumber);
+      state.cartId = uuidv4();
+      localStorage.setItem('cartId', state.cartId);
       localStorage.removeItem('cart');
     },
     setCartItems(state, action) {
@@ -163,24 +162,17 @@ const cartSlice = createSlice({
         state.loading = true;
       })
       .addCase(updateCartItem.fulfilled, (state, action) => {
-        console.log('State before update:', JSON.parse(JSON.stringify(state)));
-        console.log('Update action payload:', action.payload);
-  
         const { cartId, productId, quantity } = action.payload; // Assuming your payload contains these properties
-        const itemIndex = state.cart.findIndex(item => item.productId === productId && item.transactionNumber === cartId);
+        const itemIndex = state.cart.findIndex(item => item.productId === productId && item.cartId === cartId);
   
         if (itemIndex !== -1) {
           state.cart[itemIndex].quantity = quantity; // Update the quantity
-          console.log(`Updated product ${productId} quantity to ${quantity}`);
-        } else {
-          console.error('Product not found in cart with cartId:', cartId); // Log if product is not found
         }
   
         // Update total items
         state.totalItems = state.cart.reduce((total, item) => total + item.quantity, 0);
         
         saveCartToLocalStorage(state.cart);
-        console.log('State after update:', JSON.parse(JSON.stringify(state)));
       })
       .addCase(updateCartItem.rejected, (state, action) => {
         state.loading = false;
@@ -194,6 +186,8 @@ const cartSlice = createSlice({
         state.loading = false;
         // Filter out the deleted item from the cart
         state.cart = state.cart.filter(item => item.productId !== action.payload.productId);
+        state.totalItems = state.cart.reduce((total, item) => total + item.quantity, 0); // Update total items
+        saveCartToLocalStorage(state.cart);
       })
       .addCase(deleteCartItem.rejected, (state, action) => {
         state.loading = false;

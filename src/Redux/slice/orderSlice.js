@@ -4,139 +4,219 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-// Async thunk for fetching orders by date range
+// Async thunks
 export const fetchOrdersByDate = createAsyncThunk(
   'orders/fetchOrdersByDate',
-  async ({ from, to }) => {
-    const response = await axios.get(`${API_BASE_URL}/Order/GetOrdersByDate/${from}/${to}`);
-    return response.data; // Adjust based on your backend response
+  async ({ from, to }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/Order/GetOrdersByDate/${from}/${to}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch orders by date');
+    }
   }
 );
 
-// Async thunk for checking out an order
 export const checkOutOrder = createAsyncThunk(
   'orders/checkOutOrder',
-  async ({ cartId, customerId }) => {
-    const response = await axios.get(`${API_BASE_URL}/Order/CheckOut/${cartId}/${customerId}`);
-    return response.data; // Adjust based on your backend response
+  async ({ cartId, customerId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/Order/CheckOut/${cartId}/${customerId}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to checkout order');
+    }
   }
 );
 
-// Async thunk for updating order transition
 export const updateOrderTransition = createAsyncThunk(
   'orders/updateOrderTransition',
-  async ({ cycleName, orderId }) => {
-    const response = await axios.get(`${API_BASE_URL}/Order/UpdateOrderTransition/${cycleName}/${orderId}`);
-    return response.data; // Adjust based on your backend response
+  async ({ cycleName, orderId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/Order/UpdateOrderTransition/${cycleName}/${orderId}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to update order transition');
+    }
   }
 );
-// Fetch order life cycle
+
 export const fetchOrderLifeCycle = createAsyncThunk(
-  'order/fetchLifeCycle',
+  'orders/fetchOrderLifeCycle',
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/Order/OrderLifeCycle-Get`);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || 'Failed to fetch order lifecycle');
     }
   }
 );
 
-
-// Async thunk for fetching sales order by ID
 export const fetchSalesOrderById = createAsyncThunk(
   'orders/fetchSalesOrderById',
-  async (orderId) => {
-    const response = await axios.get(`${API_BASE_URL}/Order/SalesOrderGet/${orderId}`);
-    return response.data; // Adjust based on your backend response
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/Order/SalesOrderGet/${orderId}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch sales order');
+    }
   }
 );
 
+export const updateOrderDelivery = createAsyncThunk(
+  'orders/updateOrderDelivery',
+  async (orderCode, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/Order/OrderDeliveryUpdate/${orderCode}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to update order delivery');
+    }
+  }
+);
+
+export const fetchOrderDeliveryAddress = createAsyncThunk(
+  'orders/fetchOrderDeliveryAddress',
+  async (orderCode, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/Order/GetOrderDeliveryAddress/${orderCode}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch delivery address');
+    }
+  }
+);
+
+// Slice
 const orderSlice = createSlice({
   name: 'orders',
   initialState: {
     orders: [],
-   
-    loading: false,
-    error: null,
-    salesOrder: null, // Add a property to store a single sales order
+    salesOrder: null,
+    lifeCycle: null,
+    deliveryAddress: null,
+    deliveryUpdate: null,
+    loading: {
+      orders: false,
+      salesOrder: false,
+      lifeCycle: false,
+      deliveryAddress: false,
+      deliveryUpdate: false,
+    },
+    error: {
+      orders: null,
+      salesOrder: null,
+      lifeCycle: null,
+      deliveryAddress: null,
+      deliveryUpdate: null,
+    },
   },
   reducers: {
-    clearOrders: (state) => {
+    clearOrders(state) {
       state.orders = [];
-      state.error = null;
-      state.salesOrder = null; // Clear the sales order on reset
+      state.salesOrder = null;
+      state.lifeCycle = null;
+      state.deliveryAddress = null;
+      state.deliveryUpdate = null;
+      state.error = {};
+      state.loading = {};
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchOrdersByDate.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.loading.orders = true;
+        state.error.orders = null;
       })
       .addCase(fetchOrdersByDate.fulfilled, (state, action) => {
-        state.loading = false;
-        state.orders = action.payload; // Store the fetched orders
+        state.loading.orders = false;
+        state.orders = action.payload;
+      })
+      .addCase(fetchOrdersByDate.rejected, (state, action) => {
+        state.loading.orders = false;
+        state.error.orders = action.payload;
       })
 
-      .addCase(fetchOrdersByDate.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message; // Capture error message
+      .addCase(fetchOrderLifeCycle.pending, (state) => {
+        state.loading.lifeCycle = true;
+        state.error.lifeCycle = null;
       })
-        // Fetch Order Life Cycle
-        .addCase(fetchOrderLifeCycle.pending, (state) => {
-          state.status = 'loading';
-        })
-        .addCase(fetchOrderLifeCycle.fulfilled, (state, action) => {
-          state.status = 'succeeded';
-          state.lifeCycle = action.payload;
-        })
-        .addCase(fetchOrderLifeCycle.rejected, (state, action) => {
-          state.status = 'failed';
-          state.error = action.payload;
-        })
+      .addCase(fetchOrderLifeCycle.fulfilled, (state, action) => {
+        state.loading.lifeCycle = false;
+        state.lifeCycle = action.payload;
+      })
+      .addCase(fetchOrderLifeCycle.rejected, (state, action) => {
+        state.loading.lifeCycle = false;
+        state.error.lifeCycle = action.payload;
+      })
+
       .addCase(checkOutOrder.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.loading.orders = true;
+        state.error.orders = null;
       })
-      .addCase(checkOutOrder.fulfilled, (state) => {
-        state.loading = false;
-        // Handle successful checkout, e.g., update orders or store message
+      .addCase(checkOutOrder.fulfilled, (state, action) => {
+        state.loading.orders = false;
+        state.orders = action.payload;
       })
       .addCase(checkOutOrder.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message; // Capture error message
+        state.loading.orders = false;
+        state.error.orders = action.payload;
       })
+
       .addCase(updateOrderTransition.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.loading.orders = true;
+        state.error.orders = null;
       })
       .addCase(updateOrderTransition.fulfilled, (state) => {
-        state.loading = false;
-        // Handle successful transition update, e.g., update the state or orders
+        state.loading.orders = false;
       })
       .addCase(updateOrderTransition.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message; // Capture error message
+        state.loading.orders = false;
+        state.error.orders = action.payload;
       })
+
       .addCase(fetchSalesOrderById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.loading.salesOrder = true;
+        state.error.salesOrder = null;
       })
       .addCase(fetchSalesOrderById.fulfilled, (state, action) => {
-        state.loading = false;
-        state.salesOrder = action.payload; // Store the fetched sales order
+        state.loading.salesOrder = false;
+        state.salesOrder = action.payload;
       })
       .addCase(fetchSalesOrderById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message; // Capture error message
+        state.loading.salesOrder = false;
+        state.error.salesOrder = action.payload;
+      })
+
+      .addCase(fetchOrderDeliveryAddress.pending, (state) => {
+        state.loading.deliveryAddress = true;
+        state.error.deliveryAddress = null;
+      })
+      .addCase(fetchOrderDeliveryAddress.fulfilled, (state, action) => {
+        state.loading.deliveryAddress = false;
+        state.deliveryAddress = action.payload;
+      })
+      .addCase(fetchOrderDeliveryAddress.rejected, (state, action) => {
+        state.loading.deliveryAddress = false;
+        state.error.deliveryAddress = action.payload;
+      })
+
+      .addCase(updateOrderDelivery.pending, (state) => {
+        state.loading.deliveryUpdate = true;
+        state.error.deliveryUpdate = null;
+      })
+      .addCase(updateOrderDelivery.fulfilled, (state, action) => {
+        state.loading.deliveryUpdate = false;
+        state.deliveryUpdate = action.payload;
+      })
+      .addCase(updateOrderDelivery.rejected, (state, action) => {
+        state.loading.deliveryUpdate = false;
+        state.error.deliveryUpdate = action.payload;
       });
   },
 });
 
-// Export the action to clear orders
 export const { clearOrders } = orderSlice.actions;
-
-// Export the reducer
 export default orderSlice.reducer;

@@ -1,24 +1,41 @@
-import {  useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Button, InputNumber, Spin, Alert } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { updateCartItem } from "../../Redux/slice/cartSlice";
 
-// UpdateCartModal.js
 const UpdateCartModal = ({ visible, onClose, productId, currentQuantity, onUpdate }) => {
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.cart.loading);
   const error = useSelector((state) => state.cart.error);
   const [quantity, setQuantity] = useState(currentQuantity);
 
-  const handleUpdate = () => {
-    const cartId = localStorage.getItem("transactionNumber");
+  // Reset quantity when modal is opened
+  useEffect(() => {
+    setQuantity(currentQuantity);
+  }, [visible, currentQuantity]);
 
-    if (cartId && quantity > 0) {
-      dispatch(updateCartItem({ cartId, productId, quantity })).then(() => {
-        onUpdate(); // Call onUpdate to refresh the cart items
-        onClose(); // Close the modal after updating
-      });
+  const handleUpdate = async () => {
+    const cartId = localStorage.getItem("cartId");
+
+    // Validate the cartId and quantity before dispatching
+    if (!cartId) {
+      alert("Cart ID not found.");
+      return;
     }
+
+    if (quantity <= 0) {
+      alert("Please enter a valid quantity."); // Validation alert
+      return;
+    }
+
+    // Dispatch the update action and wait for it to complete
+    await dispatch(updateCartItem({ cartId, productId, quantity }));
+
+    // Call the onUpdate function to refresh the cart items after a successful update
+    onUpdate(); // This will refresh the cart items in the parent component
+
+    // Close the modal
+    onClose();
   };
 
   return (
@@ -53,9 +70,9 @@ const UpdateCartModal = ({ visible, onClose, productId, currentQuantity, onUpdat
           <div>
             <p>Current Quantity: {currentQuantity}</p>
             <InputNumber
-              min={1}
+              min={1} // Prevents zero or negative numbers
               value={quantity}
-              onChange={(value) => setQuantity(value)}
+              onChange={(value) => setQuantity(value)} // Ensure this updates state correctly
               className="w-full"
             />
           </div>
@@ -66,4 +83,3 @@ const UpdateCartModal = ({ visible, onClose, productId, currentQuantity, onUpdat
 };
 
 export default UpdateCartModal;
-

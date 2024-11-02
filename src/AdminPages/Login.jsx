@@ -17,7 +17,7 @@ const Login = () => {
       .unwrap()
       .then(() => {
         message.success('Login successful!');
-        navigate('/admin'); // Redirect to dashboard after login
+        navigate('/admin/dashboard'); // Redirect to dashboard after login
       })
       .catch((error) => {
         message.error(`Login failed: ${error.message}`);
@@ -87,7 +87,7 @@ const Login = () => {
       <div className="text-center mt-4">
         <p>
           Don&apos;t have an account?{' '}
-          <Link to="/register" className="text-blue-500 hover:underline">
+          <Link to="/admin/register" className="text-blue-500 hover:underline">
             Sign Up
           </Link>
         </p>

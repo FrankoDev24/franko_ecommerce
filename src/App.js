@@ -17,8 +17,9 @@ import AdminPage from "./AdminPages/AdminPage";
 import AdminLogin from './AdminPages/Login';
 import AdminRegister from './AdminPages/Register';
 import RegistrationPage from './Pages/SignUp/SignUp';
-import Login from './AdminPages/Login';
+
 import CartUpdatePage from './Pages/Cart/CartUpdate';
+import LoginPage from './Pages/LogIn/Signin';
 
 const App = () => {
     return (
@@ -33,8 +34,8 @@ const App = () => {
                 <Route path="/order" element={<OrderList />} />
                 <Route path="/brand/:brandId" element={<Brand />} />
                 <Route path="/showroom/:showRoomId" element={<ShowRoomProducts />} />
-                <Route path="/register" element={<RegistrationPage />} />
-                <Route path='/login' element={<Login />} />
+                <Route path="/sign-up" element={<RegistrationPage />} />
+                <Route path='/sign-in' element={<LoginPage />} />
                 <Route path="/product/:productId" element={<ProductDetail />} />
                 <Route path="/order-status" element={<OrderCycle />} />
                 <Route path="/cart/update/:cartId/:productId/:quantity" element={<CartUpdatePage />} />
@@ -62,7 +63,7 @@ const ConditionalNavbar = () => {
     const location = useLocation();
 
     // Define paths where the Navbar should be hidden
-    const hiddenPaths = ['/admin/login', '/admin/register', "/register", "/login"];
+    const hiddenPaths = ['/admin/login', '/admin/register', "/sign-in", "/sign-up"];
 
     // Check if the current path starts with '/admin/'
     const isAdminPath = location.pathname.startsWith('/admin/');

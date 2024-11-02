@@ -46,8 +46,17 @@ export const getUsers = createAsyncThunk('user/getUsers', async (_, { rejectWith
     }
 });
 
+// Initialize user state from localStorage
+let initialUser = null;
+try {
+    const savedUser = localStorage.getItem('user');
+    initialUser = savedUser ? JSON.parse(savedUser) : null;
+} catch (error) {
+    console.error("Failed to parse user from localStorage:", error);
+}
+
 const initialState = {
-    user: JSON.parse(localStorage.getItem('user')) || null,
+    user: initialUser,
     token: localStorage.getItem('token') || null,
     users: [],
     loading: false,
@@ -85,7 +94,6 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-
             .addCase(loginUser.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -99,7 +107,6 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-
             .addCase(getUsers.pending, (state) => {
                 state.loading = true;
                 state.error = null;

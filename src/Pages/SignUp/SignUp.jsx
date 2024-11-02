@@ -50,7 +50,7 @@ const RegistrationPage = () => {
     try {
       const result = await dispatch(createCustomer(finalData)).unwrap();
       message.success('Registration successful!');
-      navigate('/login');
+      navigate('/sign-in');
       console.log('Registration result:', result); // Log the entire result
     } catch (error) {
       message.error('Registration failed: ' + error.message);
@@ -128,7 +128,7 @@ const RegistrationPage = () => {
         <p className="mt-4 text-center">
           Already registered?{' '}
           <span
-            onClick={() => navigate('/login')} // Use navigate instead of history
+            onClick={() => navigate('/sign-in')} // Use navigate instead of history
             className="text-blue-500 cursor-pointer hover:underline"
           >
             Login
