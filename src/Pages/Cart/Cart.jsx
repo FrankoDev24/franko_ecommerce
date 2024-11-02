@@ -32,51 +32,19 @@ const Cart = () => {
   };
 
   const handleDelete = (productId) => {
-    setConfirmDeleteItem(productId); // Set the product ID to delete
+    setConfirmDeleteItem(productId);
   };
 
   const confirmDelete = () => {
     if (confirmDeleteItem) {
       dispatch(deleteCartItem({ cartId: transactionNumber, productId: confirmDeleteItem }));
-      setConfirmDeleteItem(null); // Reset confirmation state
+      setConfirmDeleteItem(null);
     }
   };
 
   const handleProceedToCheckout = () => {
-    // Retrieve customer details from local storage
-    const customerDetailsString = localStorage.getItem('customerDetails');
-    
-    // Check if customerDetailsString is not null or undefined before parsing
-    let customerDetails;
-    try {
-        customerDetails = customerDetailsString ? JSON.parse(customerDetailsString) : null;
-    } catch (error) {
-        console.error("Error parsing customer details:", error);
-        alert("There was an error retrieving your customer details. Please log in again.");
-        navigate('/login');
-        return;
-    }
-    
-    // Retrieve cart ID from local storage
-    const cartId = localStorage.getItem('cartId'); // Assuming cartId is stored as a string in local storage
-
-    // Check if customer details are available
-    if (!customerDetails || !customerDetails.customerAccountNumber) {
-        alert("Missing customer account number in local storage.");
-        navigate('/login');
-        return;
-    }
-
-    // Check if cart ID is available
-    if (!cartId) {
-        alert("Missing Cart ID in local storage.");
-        return;
-    }
-
-    // Navigate to the checkout page with the retrieved cartId and customerAccountNumber
-    navigate(`/checkout/${cartId}/${customerDetails.customerAccountNumber}`);
-};
-
+    navigate('/checkout');
+  };
 
   if (loading) {
     return (

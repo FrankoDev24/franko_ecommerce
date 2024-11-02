@@ -1,70 +1,84 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchBrands } from '../Redux/slice/brandSlice';
-import { fetchShowrooms, addShowroom, updateShowroom } from '../Redux/slice/showRoomSlice';
-import { Button, Select, Typography, message, Spin, Modal, Form, Input } from 'antd';
-import { v4 as uuidv4 } from 'uuid';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBrands } from "../Redux/slice/brandSlice";
+import {
+  fetchShowrooms,
+  addShowroom,
+  updateShowroom,
+} from "../Redux/slice/showRoomSlice";
+import {
+  Button,
+  Select,
+  Typography,
+  message,
+  Spin,
+  Modal,
+  Form,
+  Input,
+  Pagination,
+} from "antd";
+import { v4 as uuidv4 } from "uuid";
+import { EditOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
 const ShowRoom = () => {
   const dispatch = useDispatch();
-  const { brands, loading: loadingBrands } = useSelector((state) => state.brands);
-  const { showrooms, loading: loadingShowrooms, error: errorShowrooms } = useSelector((state) => state.showrooms);
+  const { brands, loading: loadingBrands } = useSelector(
+    (state) => state.brands
+  );
+  const {
+    showrooms,
+    loading: loadingShowrooms,
+    error: errorShowrooms,
+  } = useSelector((state) => state.showrooms);
 
   const [form] = Form.useForm();
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentShowroom, setCurrentShowroom] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const showroomsPerPage = 8; // Change this value for items per page
 
   useEffect(() => {
     dispatch(fetchBrands());
     dispatch(fetchShowrooms());
   }, [dispatch]);
-  const onFinish = (values) => {
-    // Determine the showroomID based on the action
-    const showroomID = currentShowroom ? currentShowroom.showRoomID : uuidv4();
 
-    // Construct the payload with the correct key
+  const onFinish = (values) => {
+    const showroomID = currentShowroom ? currentShowroom.showRoomID : uuidv4();
     const showroomData = {
-        ...values,
-        Showroomid: showroomID, // Use Showroomid here
+      ...values,
+      Showroomid: showroomID,
     };
 
-    // Log the payload to verify structure before sending
- 
-
     if (isEditing) {
-
-        dispatch(updateShowroom(showroomData)) // Pass the full showroomData which now includes Showroomid
-            .unwrap()
-            .then(() => {
-                message.success('Showroom updated successfully!');
-                resetForm();
-            })
-            .catch((err) => {
-                console.error(err);
-                const errorMessage = err?.response?.data?.message || err?.message || 'An unexpected error occurred.';
-                message.error(`Error: ${errorMessage}`);
-            });
+      dispatch(updateShowroom(showroomData))
+        .unwrap()
+        .then(() => {
+          message.success("Showroom updated successfully!");
+          resetForm();
+        })
+        .catch(handleError);
     } else {
-        console.log('Adding new showroom:', showroomData);
-        dispatch(addShowroom(showroomData)) // Ensure addShowroom also handles the expected structure
-            .unwrap()
-            .then(() => {
-                message.success('Showroom added successfully!');
-                resetForm();
-            })
-            .catch((err) => {
-                console.error(err);
-                const errorMessage = err?.response?.data?.message || err?.message || 'An unexpected error occurred.';
-                message.error(`Error: ${errorMessage}`);
-            });
+      dispatch(addShowroom(showroomData))
+        .unwrap()
+        .then(() => {
+          message.success("Showroom added successfully!");
+          resetForm();
+        })
+        .catch(handleError);
     }
-};
+  };
 
-
-
+  const handleError = (err) => {
+    console.error(err);
+    const errorMessage =
+      err?.response?.data?.message ||
+      err?.message ||
+      "An unexpected error occurred.";
+    message.error(`Error: ${errorMessage}`);
+  };
 
   const handleEditShowroom = (showroom) => {
     setCurrentShowroom(showroom);
@@ -85,17 +99,27 @@ const ShowRoom = () => {
     dispatch(fetchShowrooms()); // Refresh showrooms after adding/updating
   };
 
-  const showroomsWithBrandNames = showrooms.map(showroom => {
-    const brand = brands.find(b => b.brandId === showroom.brandId);
+  const showroomsWithBrandNames = showrooms.map((showroom) => {
+    const brand = brands.find((b) => b.brandId === showroom.brandId);
     return {
       ...showroom,
-      brandName: brand ? brand.brandName : 'Unknown',
+      brandName: brand ? brand.brandName : "Unknown",
     };
   });
 
+  // Pagination logic
+  const indexOfLastShowroom = currentPage * showroomsPerPage;
+  const indexOfFirstShowroom = indexOfLastShowroom - showroomsPerPage;
+  const currentShowrooms = showroomsWithBrandNames.slice(
+    indexOfFirstShowroom,
+    indexOfLastShowroom
+  );
+
   return (
-    <div className="mx-auto">
-      <Title level={2} className="text-center mb-4">Showrooms</Title>
+    <div className="mx-auto p-4">
+      <Title level={2} className="text-center mb-4">
+        Showrooms
+      </Title>
 
       {loadingBrands || loadingShowrooms ? (
         <div className="flex justify-center">
@@ -103,9 +127,18 @@ const ShowRoom = () => {
         </div>
       ) : (
         <>
-          {errorShowrooms && <p className="text-red-500 text-center">{errorShowrooms}</p>}
+          {errorShowrooms && (
+            <p className="text-red-500 text-center">{errorShowrooms}</p>
+          )}
 
-          <Button type="primary" onClick={() => { setModalVisible(true); setIsEditing(false); }} className="mb-4">
+          <Button
+            type="primary"
+            onClick={() => {
+              setModalVisible(true);
+              setIsEditing(false);
+            }}
+            className="mb-4 bg-green-800 hover:bg-green-700 transition"
+          >
             Add New Showroom
           </Button>
 
@@ -119,7 +152,7 @@ const ShowRoom = () => {
             <Form form={form} layout="vertical" onFinish={onFinish}>
               <Form.Item
                 label="Showroom ID"
-                name="showRoomID" // This should match the field in the object
+                name="showRoomID"
                 hidden
               >
                 <Input disabled />
@@ -128,7 +161,12 @@ const ShowRoom = () => {
               <Form.Item
                 label="Showroom Name"
                 name="showRoomName"
-                rules={[{ required: true, message: 'Please input the showroom name!' }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input the showroom name!",
+                  },
+                ]}
               >
                 <Input placeholder="Enter showroom name" />
               </Form.Item>
@@ -136,7 +174,7 @@ const ShowRoom = () => {
               <Form.Item
                 label="Brand"
                 name="brandId"
-                rules={[{ required: true, message: 'Please select a brand!' }]}
+                rules={[{ required: true, message: "Please select a brand!" }]}
               >
                 <Select placeholder="Select a brand">
                   {brands.map((brand) => (
@@ -148,24 +186,44 @@ const ShowRoom = () => {
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit" className="w-full">
+                <Button type="primary" htmlType="submit" className="w-full bg-green-800 hover:bg-green-700 transition">
                   {isEditing ? "Update Showroom" : "Add Showroom"}
                 </Button>
               </Form.Item>
             </Form>
           </Modal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {showroomsWithBrandNames.map((showroom) => (
-              <div key={showroom.showRoomID} className="border p-4 rounded shadow">
-                <h3 className="text-lg font-semibold">{showroom.showRoomName}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {currentShowrooms.map((showroom) => (
+              <div
+                key={showroom.showRoomID}
+                className="border p-4 rounded shadow transition-transform hover:shadow-lg hover:scale-105 bg-white"
+              >
+                <h3 className="text-lg font-semibold text-red-600">
+                  {showroom.showRoomName}
+                </h3>
                 <p className="text-gray-500">Brand: {showroom.brandName}</p>
-                <Button type="link" onClick={() => handleEditShowroom(showroom)}>
+                <Button
+                    
+                    icon={<EditOutlined />} 
+                  onClick={() => handleEditShowroom(showroom)}
+                  className="mt-2 bg-green-800 text-white hover:bg-green-800 transition"
+                >
                   Edit
                 </Button>
               </div>
             ))}
           </div>
+
+          <Pagination
+            current={currentPage}
+            onChange={(page) => setCurrentPage(page)}
+            pageSize={showroomsPerPage}
+            total={showroomsWithBrandNames.length}
+            className="mt-4 text-center"
+            showSizeChanger={false}
+            showTotal={(total) => `Total ${total} showrooms`}
+          />
         </>
       )}
     </div>

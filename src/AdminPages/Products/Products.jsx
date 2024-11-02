@@ -119,17 +119,20 @@ const Products = () => {
       title: "Description",
       dataIndex: "description",
       key: "description",
-      render: (text) => (
-        <Tooltip title="Click to view full description">
-          <span
-       
-            onClick={() => handleDescriptionClick(text)}
-          >
-            {text}
-          </span>
-        </Tooltip>
-      ),
+      render: (text) => {
+        const truncatedText = text.length > 30 ? `${text.substring(0, 30)}...` : text;
+    
+        return (
+          <Tooltip title="View description">
+            <span onClick={() => handleDescriptionClick(text)}>
+              {truncatedText}
+            </span>
+          </Tooltip>
+        );
+      },
     },
+    
+    
     {
       title: "Price",
       dataIndex: "price",
@@ -277,11 +280,6 @@ const Products = () => {
           <strong>Product ID:</strong> {selectedProduct.productID}
         </p>
 
-        <p style={{ color: "#555", fontSize: "1rem", marginBottom: 15 }}>
-          {selectedProduct.description}
-        </p>
-
-       
 
         <div style={{ fontSize: "1rem", color: "#555", marginBottom: 10 }}>
           <p><strong>Category:</strong> {selectedProduct.categoryName}</p>

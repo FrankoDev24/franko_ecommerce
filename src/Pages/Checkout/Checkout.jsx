@@ -1,44 +1,124 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { checkOutOrder } from '../../Redux/slice/orderSlice';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { Button, Input, Form, message } from 'antd';
+import { checkOutOrder, updateOrderDelivery } from '../../Redux/slice/orderSlice';
 
-const Checkout = () => {
+const CheckoutPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Initialize useNavigate
-  const orders = useSelector((state) => state.order.orders);
-  const status = useSelector((state) => state.order.status);
-  const error = useSelector((state) => state.order.error);
 
-  useEffect(() => {
-    // Trigger checkout process
-    const cartId = localStorage.getItem('transactionNumber');
-    const user = JSON.parse(localStorage.getItem('user')) || {};
-    const customerAccountNumber = user.customerAccountNumber;
+  // Retrieve data from local storage
+  const customerDetails = JSON.parse(localStorage.getItem('customerDetails')) || {};
+  const cartId = localStorage.getItem('cartId');
 
-    if (cartId && customerAccountNumber) {
-      dispatch(checkOutOrder({ cartId, customerId: customerAccountNumber }));
+  const [form] = Form.useForm();
+  const [addressData, setAddressData] = useState({
+    customerid: customerDetails.customerAccount || '',
+    orderCode: '',
+    address: '',
+    geoLocation: '',
+  });
+
+  // Handle form submission for checkout
+  const onCheckout = async () => {
+    if (!addressData.customerid || !cartId) {
+      return message.error("Missing customer or cart details");
     }
-  }, [dispatch]);
 
-  if (status === 'loading') {
-    return <div>Loading...</div>;
-  }
+    try {
+      // Dispatch the order address update action
+      await dispatch(updateOrderDelivery(addressData.orderCode));
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+      // Dispatch the checkout action with cartId and customerId
+      await dispatch(checkOutOrder({ cartId, customerId: addressData.customerid }));
+
+      message.success("Checkout successful!");
+    } catch (error) {
+      message.error("Checkout failed. Please try again.");
+    }
+  };
+
+  // Update form fields state
+  const handleInputChange = (e) => {
+    setAddressData((prevData) => ({
+      ...prevData,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
   return (
-    <div>
-      <h2>Checkout Successful</h2>
-      {orders.map(order => (
-        <div key={order.id}>{JSON.stringify(order)}</div>
-      ))}
-      {/* Button to navigate to Order Lifecycle page */}
-      <button onClick={() => navigate('/order-lifecycle')}>View Order Lifecycle</button>
+    <div className="flex flex-col items-center p-4 sm:p-8 bg-gray-100 min-h-screen">
+      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-semibold text-center mb-4">Checkout</h2>
+
+        <div className="border p-4 rounded-md mb-6">
+          <h3 className="font-semibold text-lg mb-2">Items in Cart</h3>
+          {/* Display items in cart here */}
+          <p>Sample item 1 - $20.00</p>
+          <p>Sample item 2 - $15.00</p>
+        </div>
+
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={addressData}
+          onFinish={onCheckout}
+        >
+          <Form.Item label="Customer ID">
+            <Input
+              value={addressData.customerid}
+              name="customerid"
+              disabled
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Order Code"
+            name="orderCode"
+            rules={[{ required: true, message: 'Order code is required' }]}
+          >
+            <Input
+              value={addressData.orderCode}
+              name="orderCode"
+              onChange={handleInputChange}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Address"
+            name="address"
+            rules={[{ required: true, message: 'Please enter your address' }]}
+          >
+            <Input
+              value={addressData.address}
+              name="address"
+              onChange={handleInputChange}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Geo Location"
+            name="geoLocation"
+            rules={[{ required: true, message: 'Please enter geo location' }]}
+          >
+            <Input
+              value={addressData.geoLocation}
+              name="geoLocation"
+              onChange={handleInputChange}
+            />
+          </Form.Item>
+
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            className="mt-4"
+          >
+            Confirm and Checkout
+          </Button>
+        </Form>
+      </div>
     </div>
   );
 };
 
-export default Checkout;
+export default CheckoutPage;

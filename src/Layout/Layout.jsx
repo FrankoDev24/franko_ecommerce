@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from 'react';
 import { Layout, Menu, Avatar, Dropdown, Button, Modal, Typography } from 'antd';
 import {
@@ -15,8 +14,8 @@ import {
 } from '@ant-design/icons';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../Redux/slice/userSlice'; // Ensure the correct path for your userSlice
-import './Layout.css'; // Custom CSS for styling
+import { logout } from '../Redux/slice/userSlice';
+import './Layout.css'; // Custom CSS for additional styling
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -31,7 +30,7 @@ const AdminLayout = ({ children }) => {
   const currentPath = location.pathname;
 
   // Access user information from Redux store
-  const user = useSelector((state) => state.user.userData); // Access the userData from the Redux store
+  const user = useSelector((state) => state.user.userData);
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -42,9 +41,9 @@ const AdminLayout = ({ children }) => {
   };
 
   const handleLogout = () => {
-    dispatch(logout()); // Clear user data in Redux and local storage
+    dispatch(logout());
     setIsLogoutModalVisible(false);
-    navigate('/login'); // Redirect to login page after logout
+    navigate('/login');
   };
 
   const handleCancel = () => {
@@ -59,7 +58,7 @@ const AdminLayout = ({ children }) => {
     { key: '/admin/brands', icon: <TrademarkOutlined />, label: 'Brands', link: '/admin/brands' },
     { key: '/admin/showroom', icon: <ShopOutlined />, label: 'Showroom', link: '/admin/showroom' },
     { key: '/admin/users', icon: <UserOutlined />, label: 'Users', link: '/admin/users' },
-    { key: '/admin/customers', icon: <UsergroupAddOutlined  />, label: 'Customers', link: '/admin/customers' },
+    { key: '/admin/customers', icon: <UsergroupAddOutlined />, label: 'Customers', link: '/admin/customers' },
     { key: 'logout', icon: <LogoutOutlined />, label: 'Logout', action: showLogoutModal },
   ];
 
@@ -74,7 +73,18 @@ const AdminLayout = ({ children }) => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed} 
+        style={{ 
+          position: 'fixed', 
+          height: '100vh', 
+          left: 0, 
+          top: 0, 
+          zIndex: 10 
+        }}
+      >
         <div className="logo" style={{ padding: '16px', color: '#fff', textAlign: 'center' }}>
           {collapsed ? 'Admin' : 'Admin Panel'}
         </div>
@@ -91,8 +101,16 @@ const AdminLayout = ({ children }) => {
         </Menu>
       </Sider>
 
-      <Layout className="site-layout">
-        <Header className="site-layout-background" style={{ padding: 0 }}>
+      <Layout className="site-layout" style={{ marginLeft: collapsed ? 80 : 200 }}>
+        <Header
+          className="site-layout-background"
+          style={{
+            padding: 0,
+            position: 'fixed',
+            width: `calc(100% - ${collapsed ? 80 : 200}px)`,
+            zIndex: 9,
+          }}
+        >
           <Button type="link" onClick={toggleCollapsed} style={{ fontSize: '16px' }}>
             {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           </Button>
@@ -100,14 +118,13 @@ const AdminLayout = ({ children }) => {
             <Dropdown overlay={userMenu}>
               <Avatar style={{ backgroundColor: '#87d068' }} icon={<UserOutlined />} />
             </Dropdown>
-            {/* Display user full name if available */}
-            <span style={{ marginLeft: '20px' }}> Hello, {user ? user.fullName : 'Admin'}</span>
+            <span style={{ marginLeft: '20px' }}>Hello, {user ? user.fullName : 'Admin'}</span>
           </div>
         </Header>
 
         <Content
           style={{
-            margin: '24px 16px',
+            margin: '80px 16px 24px',
             padding: 24,
             minHeight: 280,
             backgroundColor: '#fff',
