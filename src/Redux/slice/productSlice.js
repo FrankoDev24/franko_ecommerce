@@ -66,13 +66,17 @@ export const fetchProductsByBrand = createAsyncThunk('products/fetchProductsByBr
 });
 
 // Async thunk for fetching products by showroom
+// Inside your productSlice
 export const fetchProductsByShowroom = createAsyncThunk(
   'products/fetchProductsByShowroom',
   async (showRoomID) => {
     const response = await axios.get(`https://api.salesmate.app/Product/Product-Get-by-ShowRoom/${showRoomID}`);
-    return { showRoomID, products: response.data }; // Return both showroom ID and products
+    console.log("Fetched products:", response.data); // Log the response
+    return { showRoomID, products: response.data };
   }
 );
+
+
 
 // Async thunk for fetching a product by its ID
 export const fetchProductById = createAsyncThunk('products/fetchProductById', async (productId) => {
@@ -174,14 +178,14 @@ const productSlice = createSlice({
       .addCase(fetchProductsByShowroom.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchProductsByShowroom.fulfilled, (state, action) => {
-        const { showRoomID, products } = action.payload;
-        if (!state.productsByShowroom[showRoomID]) {
-          state.productsByShowroom[showRoomID] = []; // Initialize if undefined
-        }
-        state.productsByShowroom[showRoomID] = products; // Update products for that showroom
-        state.loading = false;
-      })
+    // Inside extraReducers
+.addCase(fetchProductsByShowroom.fulfilled, (state, action) => {
+  const { showRoomID, products } = action.payload;
+  console.log("Products for showroom:", products); // Log the products for this showroom
+  state.productsByShowroom[showRoomID] = products; // Update products for that showroom
+  state.loading = false;
+})
+
       .addCase(fetchProductsByShowroom.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;

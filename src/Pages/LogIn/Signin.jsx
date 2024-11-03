@@ -22,7 +22,7 @@ const LoginPage = () => {
     try {
       await dispatch(loginCustomer(values)).unwrap(); // Use values directly from the onFinish
       message.success('Login successful!');
-      navigate('/home'); // Navigate to home page upon successful login
+      navigate('/'); // Navigate to home page upon successful login
     } catch (error) {
       message.error('Login failed: ' + error.message);
     }

@@ -3,98 +3,93 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductsByShowroom } from '../../Redux/slice/productSlice';
 import { addToCart } from '../../Redux/slice/cartSlice';
-import { Spin, Alert, Card, Col, Row, Pagination, Empty } from 'antd';
+import { Alert, Card, Row, Col, Pagination, Empty, message } from 'antd';
 import { ShoppingCartOutlined } from '@ant-design/icons';
 
-const ShowRoomPage = () => {
-  const { showRoomId } = useParams();
+const ShowroomProductsPage = () => {
+  const { showRoomID } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const { products = [], loading: loadingProducts, error: errorProducts } = useSelector((state) => state.products);
+  const { productsByShowroom, loading, error, showroomName } = useSelector((state) => state.products);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8; // Number of products per page
+  const itemsPerPage = 8;
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        await dispatch(fetchProductsByShowroom(showRoomId)).unwrap();
-        console.log(`Products for showroom ID ${showRoomId} fetched successfully`);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
+    if (showRoomID) {
+      dispatch(fetchProductsByShowroom(showRoomID));
+    }
+  }, [dispatch, showRoomID]);
 
-    fetchProducts();
-  }, [dispatch, showRoomId]);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleCardClick = (product) => {
-    // Navigate to product details page
-    navigate(`/product/${product.productID}`);
-  };
+  const handlePageChange = (page) => setCurrentPage(page);
 
   const handleAddToCart = (product) => {
-    dispatch(addToCart(product)); // Dispatch action to add product to the cart
+    const cartData = {
+      productId: product.productID,
+      productName: product.productName,
+      quantity: 1,
+      price: product.price,
+      image: product.productImage,
+    };
+
+    dispatch(addToCart(cartData))
+      .unwrap()
+      .then(() => {
+        message.success(`${product.productName} added to cart!`);
+      })
+      .catch((error) => {
+        message.error(`Failed to add ${product.productName} to cart: ${error.message}`);
+      });
   };
 
-  // Calculate pagination indices
+  const products = productsByShowroom[showRoomID] || [];
   const lastIndex = currentPage * itemsPerPage;
   const firstIndex = lastIndex - itemsPerPage;
   const currentProducts = products.slice(firstIndex, lastIndex);
 
-  if (loadingProducts) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin tip="Loading products..." />
-      </div>
-    );
-  }
-
-  if (errorProducts) {
-    return <Alert message="Error fetching products" description={errorProducts} type="error" />;
-  }
+  if (loading) return <p>Loading products...</p>;
+  if (error) return <Alert message="Error fetching products" description={error} type="error" />;
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="mt-12"></div>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-semibold mb-5">{showroomName || 'Showroom Products'}</h1>
       {currentProducts.length > 0 ? (
         <>
-          <Row gutter={16} style={{ marginBottom: '40px' }}>
+          <Row gutter={[24, 32]}>
             {currentProducts.map((product) => (
-              <Col 
-                key={product.productID} 
-                xs={12} 
-                sm={12} 
-                md={8} 
-                lg={6} 
-                style={{ marginBottom: '20px' }}
-              >
+              <Col key={product.productID} xs={24} sm={12} md={8} lg={6}>
                 <Card
                   hoverable
-                  cover={<img alt={product.productName} src={product.productImage} loading="lazy" />}
-                  className="border rounded shadow relative group h-full"
-                  onClick={() => handleCardClick(product)} 
+                  className="transition-transform transform hover:scale-105 hover:shadow-xl rounded-lg overflow-hidden relative"
+                  cover={
+                    <img
+                      alt={product.productName}
+                      src={`https://api.salesmate.app/Media/Products_Images/${product.productImage.split('\\').pop()}`}
+                      className="h-full w-full object-cover"
+                    />
+                  }
+                  onClick={() => navigate(`/product/${product.productID}`)}
                 >
-                  <Card.Meta title={product.productName} />
-                  <div className="mt-2">
-                    <p className="text-lg font-bold">{`₵${product.price.toFixed(2)}`}</p>
-                    {product.oldPrice && (
-                      <p className="text-gray-500 line-through block md:inline-block mt-1 md:ml-2">{`₵${product.oldPrice.toFixed(2)}`}</p>
-                    )}
+                  <div className="p-4">
+                    <Card.Meta
+                      title={<p className="text-xl font-semibold text-gray-800">{product.productName}</p>}
+                      description={
+                        <div className="flex items-center justify-between mt-2">
+                          <p className="text-lg font-bold text-gray-900">{`₵${product.price.toFixed(2)}`}</p>
+                          {product.oldPrice > 0 && (
+                            <p className="text-sm line-through text-gray-500">{`₵${product.oldPrice.toFixed(2)}`}</p>
+                          )}
+                        </div>
+                      }
+                    />
                   </div>
-                  <p className="text-sm text-gray-700 mt-1 truncate">{product.description}</p>
                   <div
-                    className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    className="absolute bottom-4 right-4 bg-primary rounded-full p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-md"
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent card click
-                      handleAddToCart(product); // Add product to cart
+                      e.stopPropagation();
+                      handleAddToCart(product);
                     }}
                   >
-                    <ShoppingCartOutlined className="text-2xl text-primary text-red-500" />
+                    <ShoppingCartOutlined className="bg-red-500 text-white text-xl cursor-pointer" />
                   </div>
                 </Card>
               </Col>
@@ -105,7 +100,7 @@ const ShowRoomPage = () => {
             pageSize={itemsPerPage}
             total={products.length}
             onChange={handlePageChange}
-            className="mt-4"
+            className="mt-6"
             showSizeChanger={false}
           />
         </>
@@ -122,4 +117,4 @@ const ShowRoomPage = () => {
   );
 };
 
-export default ShowRoomPage;
+export default ShowroomProductsPage;

@@ -53,16 +53,17 @@ const initialState = {
   currentCustomerDetails: null, // This will store the customer details
 };
 
+
 // Create the customer slice
 const customerSlice = createSlice({
   name: 'customer',
   initialState,
   reducers: {
-    // Clear customer data when logging out
+    // Clear customer data from Redux state but keep it in local storage when logging out
     logoutCustomer: (state) => {
-      state.currentCustomer = null; // Clear the current customer
-      state.currentCustomerDetails = null; // Clear customer details
-      localStorage.removeItem('customer'); // Clear customer data from local storage on logout
+      state.currentCustomer = null; // Clear the current customer in Redux state
+      state.currentCustomerDetails = null; // Clear customer details in Redux state
+      // Do not remove the customer data from local storage on logout
     },
     clearCustomers: (state) => {
       state.customerList = []; // Reset the customer list
@@ -145,3 +146,4 @@ export const { logoutCustomer, clearCustomers, setCustomer, clearSelectedCustome
 
 // Export the reducer
 export default customerSlice.reducer;
+
