@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'; // Import useCallback
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrdersByDate, updateOrderTransition } from '../../Redux/slice/orderSlice';
 import { DatePicker, Button, Table, message, Empty, Modal, Select, Spin, Input } from 'antd';
@@ -18,22 +18,20 @@ const Orders = () => {
   const [newCycle, setNewCycle] = useState('');
   const [searchText, setSearchText] = useState('');
 
-  // Use useCallback to memoize the fetchCurrentMonthOrders function
   const fetchCurrentMonthOrders = useCallback(() => {
     const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
     const from = startOfMonth.toISOString().split('T')[0];
     const to = endOfMonth.toISOString().split('T')[0];
     dispatch(fetchOrdersByDate({ from, to }));
-  }, [dispatch]); // Dependency array includes dispatch
+  }, [dispatch]);
 
   const handleDateChange = (dates) => setDateRange(dates);
 
   const handleFetchOrders = () => {
     if (dateRange[0] && dateRange[1]) {
-      // Format the dates as MM-DD-YYYY
-      const from = dateRange[0].format('MM-DD-YYYY');
-      const to = dateRange[1].format('MM-DD-YYYY');
+      const from = dateRange[0].format('YYYY-MM-DD');
+      const to = dateRange[1].format('YYYY-MM-DD');
       dispatch(fetchOrdersByDate({ from, to }));
     } else {
       message.error('Please select a date range');
@@ -42,8 +40,7 @@ const Orders = () => {
 
   useEffect(() => {
     fetchCurrentMonthOrders();
-    if (error) message.error(`Error: ${error}`);
-  }, [fetchCurrentMonthOrders, error]); // Add fetchCurrentMonthOrders to the dependency array
+  }, [fetchCurrentMonthOrders]);
 
   const openCycleModal = (order) => {
     setSelectedOrderId(order.orderCode);
@@ -59,11 +56,17 @@ const Orders = () => {
 
   const handleUpdateCycle = async () => {
     if (selectedOrderId && newCycle) {
-      await dispatch(updateOrderTransition({ cycleName: newCycle, orderId: selectedOrderId }));
-      message.success('Order cycle updated successfully');
-      setIsModalOpen(false);
-      setNewCycle('');
-      fetchCurrentMonthOrders();
+      try {
+        await dispatch(updateOrderTransition({ cycleName: newCycle, orderId: selectedOrderId }));
+        message.success('Order cycle updated successfully');
+        setIsModalOpen(false);
+        setNewCycle('');
+        fetchCurrentMonthOrders();
+      } catch (err) {
+        message.error(`Error updating cycle: ${err.message || 'An error occurred'}`);
+      }
+    } else {
+      message.error('Please select a cycle');
     }
   };
 
@@ -71,7 +74,19 @@ const Orders = () => {
     setSearchText(value.toLowerCase());
   };
 
-  const filteredOrders = orders.filter(order => {
+  // Group orders by orderCode
+  const groupedOrders = Object.values(
+    orders.reduce((acc, order) => {
+      if (!acc[order.orderCode]) {
+        acc[order.orderCode] = { ...order, orders: [order] };
+      } else {
+        acc[order.orderCode].orders.push(order);
+      }
+      return acc;
+    }, {})
+  );
+
+  const filteredOrders = groupedOrders.filter(order => {
     const fullNameMatch = order.fullName.toLowerCase().includes(searchText);
     const statusMatch = order.orderCycle.toLowerCase().includes(searchText);
     return fullNameMatch || statusMatch;
@@ -94,6 +109,7 @@ const Orders = () => {
       title: 'Order Date',
       dataIndex: 'orderDate',
       key: 'orderDate',
+      render: (date) => (date === '0001-01-01' ? 'N/A' : new Date(date).toLocaleDateString()),
       sorter: (a, b) => new Date(a.orderDate) - new Date(b.orderDate),
     },
     {
@@ -125,11 +141,23 @@ const Orders = () => {
         <Spin />
       ) : filteredOrders.length > 0 ? (
         <Table
-        dataSource={filteredOrders}
-        columns={columns}
-        rowKey={(record, index) => `${record.orderCode}-${index}`}
-      />
-      
+          dataSource={filteredOrders}
+          columns={columns}
+          rowKey="orderCode"
+          expandable={{
+            expandedRowRender: (record) => (
+              <div>
+                {record.orders.map((item, index) => (
+                  <div key={index} style={{ marginBottom: 8 }}>
+                    <strong>Product:</strong> {item.productName} <br />
+                    <strong>Quantity:</strong> {item.quantity} <br />
+                    <strong>Price:</strong> ${item.price}
+                  </div>
+                ))}
+              </div>
+            ),
+          }}
+        />
       ) : (
         <Empty description="No orders found" />
       )}

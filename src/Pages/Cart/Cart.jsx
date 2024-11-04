@@ -43,6 +43,10 @@ const Cart = () => {
   };
 
   const handleProceedToCheckout = () => {
+    // If the cart is empty after checkout, clear the cartId from local storage
+    if (cartItems.length === 0) {
+      localStorage.removeItem('cartId'); // Adjust the key if different
+    }
     navigate('/checkout');
   };
 

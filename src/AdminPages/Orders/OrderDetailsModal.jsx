@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSalesOrderById } from '../../Redux/slice/orderSlice';
@@ -17,12 +16,13 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
   }, [dispatch, orderId]);
 
   if (loading) return <Spin size="large" />; // Show loading spinner
-  if (error) return <div>Error loading order: {error}</div>;
-  if (!salesOrder || salesOrder.length === 0) return <div>No order details found.</div>;
+  if (error) return <div>Error loading order: {error.message || 'An error occurred'}</div>;
+  if (!salesOrder || salesOrder.length === 0) return <div>No order details found.</div>; // Handle empty or null salesOrder
 
-  // Construct the image URL
+  // Safely access imagePath and handle cases where it may be undefined
+  const imagePath = salesOrder[0]?.imagePath;
   const backendBaseURL = 'https://api.salesmate.app/'; // Replace with your actual backend URL
-  const imageUrl = `${backendBaseURL}/Media/Products_Images/${salesOrder[0]?.imagePath.split('\\').pop()}`;
+  const imageUrl = imagePath ? `${backendBaseURL}/Media/Products_Images/${imagePath.split('\\').pop()}` : null;
 
   return (
     <Modal
@@ -35,12 +35,16 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
       <Title level={4}>Order Information</Title>
       <Row style={{ marginTop: '16px' }}>
         <Col span={24}>
-          <Image
-            src={imageUrl}
-            alt="Product"
-            style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '5px', marginTop: '8px' }}
-            preview={false} // Disable image preview
-          />
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt="Product"
+              style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '5px', marginTop: '8px' }}
+              preview={false} // Disable image preview
+            />
+          ) : (
+            <Text type="danger">Image not available.</Text>
+          )}
         </Col>
       </Row>
       <Row gutter={16}>

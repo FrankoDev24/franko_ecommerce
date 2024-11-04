@@ -12,8 +12,9 @@ export const fetchOrdersByDate = createAsyncThunk(
       const response = await axios.get(
         `${API_BASE_URL}/Order/GetOrdersByDate/${from}/${to}`
       );
-      return response.data;
+      return response.data; // Ensure this returns the expected data format
     } catch (error) {
+      console.error("Error fetching orders by date:", error); // Log the error for debugging
       return rejectWithValue(
         error.response?.data || "Failed to fetch orders by date"
       );
@@ -143,7 +144,7 @@ const orderSlice = createSlice({
   name: "orders",
   initialState: {
     orders: [],
-    salesOrder: null,
+    salesOrder: null, 
     lifeCycle: null,
     deliveryAddress: null,
     deliveryUpdate: null,
@@ -175,18 +176,31 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchOrdersByDate.pending, (state) => {
-        state.loading.orders = true;
-        state.error.orders = null;
-      })
-      .addCase(fetchOrdersByDate.fulfilled, (state, action) => {
-        state.loading.orders = false;
-        state.orders = action.payload;
-      })
-      .addCase(fetchOrdersByDate.rejected, (state, action) => {
-        state.loading.orders = false;
-        state.error.orders = action.payload;
-      })
+    .addCase(fetchOrdersByDate.pending, (state) => {
+      state.loading = true;
+    })
+    .addCase(fetchOrdersByDate.fulfilled, (state, action) => {
+      state.loading = false;
+      state.orders = action.payload; // or whatever your payload structure is
+    })
+    .addCase(fetchOrdersByDate.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error; // Store error information
+    })
+
+    // Handle updateOrderTransition similarly
+    .addCase(updateOrderTransition.pending, (state) => {
+      state.loading.orders = true;
+      state.error.orders = null;
+    })
+    .addCase(updateOrderTransition.fulfilled, (state) => {
+      state.loading.orders = false; // Ensure to update loading state
+      // Handle additional logic after successful update if needed
+    })
+    .addCase(updateOrderTransition.rejected, (state, action) => {
+      state.loading.orders = false;
+      state.error.orders = action.payload; // Capture error message
+    })
 
       .addCase(fetchOrderLifeCycle.pending, (state) => {
         state.loading.lifeCycle = true;
@@ -214,29 +228,20 @@ const orderSlice = createSlice({
         state.error.orders = action.payload;
       })
 
-      .addCase(updateOrderTransition.pending, (state) => {
-        state.loading.orders = true;
-        state.error.orders = null;
-      })
-      .addCase(updateOrderTransition.fulfilled, (state) => {
-        state.loading.orders = false;
-      })
-      .addCase(updateOrderTransition.rejected, (state, action) => {
-        state.loading.orders = false;
-        state.error.orders = action.payload;
-      })
+   
 
       .addCase(fetchSalesOrderById.pending, (state) => {
-        state.loading.salesOrder = true;
-        state.error.salesOrder = null;
+        state.loading = true;
+        state.error = null; // Reset error on new fetch
       })
       .addCase(fetchSalesOrderById.fulfilled, (state, action) => {
-        state.loading.salesOrder = false;
-        state.salesOrder = action.payload;
+        state.loading = false;
+        state.salesOrder = action.payload; // Ensure salesOrder gets proper data
       })
       .addCase(fetchSalesOrderById.rejected, (state, action) => {
-        state.loading.salesOrder = false;
-        state.error.salesOrder = action.payload;
+        state.loading = false;
+        state.error = action.error; // Capture error message
+        state.salesOrder = null; // Reset salesOrder on error
       })
       .addCase(orderAddress.pending, (state) => {
         state.loading.deliveryAddress = true;

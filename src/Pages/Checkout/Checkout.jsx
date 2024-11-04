@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { checkOutOrder, orderAddress } from '../../Redux/slice/orderSlice';
+import { clearCart } from '../../Redux/slice/cartSlice';
 import { notification, Card, List, Button, Checkbox } from 'antd';
-import { ShoppingCartOutlined } from '@ant-design/icons';
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
 
@@ -50,8 +50,12 @@ const CheckoutPage = () => {
           description: 'Your order has been placed successfully!',
         });
 
-        // Clear the cart and redirect to the home page
+        // Clear the cart items and cartId from Redux and local storage
+        dispatch(clearCart());
         localStorage.removeItem('cart');
+        localStorage.removeItem('cartId');
+        
+        // Clear the local cartItems state and redirect to home
         setCartItems([]);
         navigate('/franko');
       }

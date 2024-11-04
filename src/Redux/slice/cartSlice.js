@@ -26,10 +26,9 @@ export const addToCart = createAsyncThunk(
   'cart/addToCart',
   async (item, { rejectWithValue }) => {
     try {
-      // Get or set cartId
       let cartId = localStorage.getItem('cartId');
-      if (!cartId || cartId === 'undefined') {
-        cartId = uuidv4();
+      if (!cartId) {
+        cartId = uuidv4(); // Generate new ID if not present
         localStorage.setItem('cartId', cartId);
       }
 
@@ -94,35 +93,54 @@ const cartSlice = createSlice({
     addCart: (state, action) => {
       const itemIndex = state.cart.findIndex((item) => item.productId === action.payload.productId);
       if (itemIndex >= 0) {
+        // Update quantity if item already exists
         state.cart[itemIndex].quantity += action.payload.quantity;
       } else {
-        state.cart.push({ ...action.payload, quantity: 1 });
+        // Add new item to the cart
+        state.cart.push({ ...action.payload, quantity: action.payload.quantity || 1 });
       }
+
+      // Update total items in the cart
       state.totalItems = state.cart.reduce((total, item) => total + item.quantity, 0);
       saveCartToLocalStorage(state.cart);
+      // Ensure cartId is set if not already set
+      if (!localStorage.getItem('cartId')) {
+        localStorage.setItem('cartId', uuidv4()); // Use uuidv4 directly to generate a new ID
+      }
     },
     removeFromCart: (state, action) => {
       const itemIndex = state.cart.findIndex((item) => item.productId === action.payload.productId);
+      
       if (itemIndex >= 0) {
+        // Update total items
         state.totalItems -= state.cart[itemIndex].quantity;
+    
+        // Remove the item from the cart
         state.cart.splice(itemIndex, 1);
         saveCartToLocalStorage(state.cart);
+    
+        // Check if the cart is empty after removal
+        if (state.cart.length === 0) {
+          console.log("Cart is empty, removing cartId and cart from localStorage");
+          localStorage.removeItem('cartId'); // Clear cartId from localStorage
+          localStorage.removeItem('cart'); // Clear the cart from localStorage
+        }
       }
     },
     clearCart: (state) => {
       state.cart = [];
       state.totalItems = 0;
-      state.cartId = uuidv4();
-      localStorage.setItem('cartId', state.cartId);
-      localStorage.removeItem('cart');
+      console.log("Clearing cart and removing cartId from localStorage");
+      localStorage.removeItem('cartId'); // Clear cartId from localStorage
+      localStorage.removeItem('cart'); // Clear the cart from localStorage
     },
-    setCartItems(state, action) {
+    
+    setCartItems: (state, action) => {
       state.cart = action.payload;
       state.totalItems = action.payload.reduce((total, item) => total + item.quantity, 0);
       saveCartToLocalStorage(state.cart);
     },
   },
-  
   extraReducers: (builder) => {
     builder
       .addCase(addToCart.pending, (state) => {
@@ -157,28 +175,25 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      
       .addCase(updateCartItem.pending, (state) => {
         state.loading = true;
       })
       .addCase(updateCartItem.fulfilled, (state, action) => {
-        const { cartId, productId, quantity } = action.payload; // Assuming your payload contains these properties
-        const itemIndex = state.cart.findIndex(item => item.productId === productId && item.cartId === cartId);
-  
+        const { productId, quantity } = action.payload; // Assuming your payload contains these properties
+        const itemIndex = state.cart.findIndex(item => item.productId === productId);
+
         if (itemIndex !== -1) {
           state.cart[itemIndex].quantity = quantity; // Update the quantity
         }
-  
+
         // Update total items
         state.totalItems = state.cart.reduce((total, item) => total + item.quantity, 0);
-        
         saveCartToLocalStorage(state.cart);
       })
       .addCase(updateCartItem.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-  
       .addCase(deleteCartItem.pending, (state) => {
         state.loading = true;
       })
@@ -194,8 +209,8 @@ const cartSlice = createSlice({
         state.error = action.error.message;
       });
   },
-
 });
 
+// Exporting actions and reducer
 export const { clearCart, addCart, removeFromCart, setCartItems } = cartSlice.actions;
 export default cartSlice.reducer;
