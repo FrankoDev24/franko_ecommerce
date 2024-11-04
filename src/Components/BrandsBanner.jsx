@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import SamsungLogo from '../assets/samsung.webp';
+import SamsungLogo from '../assets/samsung.png';
 import InfinixLogo from '../assets/infinix.png';
 import HmdLogo from '../assets/hmd.png';
 import TecnoLogo from '../assets/tecno.png';
@@ -14,8 +14,8 @@ const ShopByBrandsBanner = () => {
   };
 
   return (
-    <div className="bg-gray-100 p-8 rounded-lg shadow-md mt-8">
-      <h2 className="text-3xl font-bold text-red-500 text-center mb-6">
+    <div className="bg-gray-300 p-8 rounded-lg shadow-md mt-8">
+      <h2 className="text-3xl font-bold text-red-500 mb-6">
         Shop by Brands
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

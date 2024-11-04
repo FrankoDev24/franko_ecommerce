@@ -1,28 +1,21 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProductsByShowroom } from "../../Redux/slice/productSlice";
-import { addToCart } from "../../Redux/slice/cartSlice";
-import { Pagination, Empty, message } from "antd";
-import { ShoppingCartOutlined } from "@ant-design/icons";
+import React, { useEffect, } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProducts } from '../Redux/slice/productSlice'; // Adjust the import path according to your project structure
+import {  Empty, message, Button } from 'antd'; // Using Ant Design components for UI
+import { ShoppingCartOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import { useNavigate } from 'react-router-dom';
+import { addToCart } from '../Redux/slice/cartSlice'; // Adjust path based on your project structure
 
-const ShowroomProductsPage = () => {
-  const { showRoomID } = useParams();
+const RecentProducts = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { productsByShowroom, loading, error, showroom  } = useSelector(
-    (state) => state.products
-  );
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const { products, loading, error } = useSelector((state) => state.products);
+
 
   useEffect(() => {
-    if (showRoomID) {
-      dispatch(fetchProductsByShowroom(showRoomID));
-    }
-  }, [dispatch, showRoomID]);
+    dispatch(fetchProducts()); // Fetch products on component mount
+  }, [dispatch]);
 
-  const handlePageChange = (page) => setCurrentPage(page);
 
   const handleAddToCart = (product) => {
     const cartData = {
@@ -45,10 +38,8 @@ const ShowroomProductsPage = () => {
       });
   };
 
-  const products = productsByShowroom[showRoomID] || [];
-  const lastIndex = currentPage * itemsPerPage;
-  const firstIndex = lastIndex - itemsPerPage;
-  const currentProducts = products.slice(firstIndex, lastIndex);
+  // Get the 12 most recent products (last 12 items)
+  const recentProducts = products.slice(-12); // Adjusting the slice to show only the last 12 products
 
   // Function to format price with commas
   const formatPrice = (price) =>
@@ -56,15 +47,11 @@ const ShowroomProductsPage = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6">
- <h1 className="text-2xl md:text-3xl font-semibold mb-4">
-  {showroom ? `${showroom.showRoomName} Products` : "Showroom Products"}
-</h1>
-
-
+      <h1 className="text-2xl md:text-2xl font-semibold mb-4 text-red-500">Recent Added</h1>
 
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {Array.from({ length: itemsPerPage }).map((_, index) => (
+          {Array.from({ length: 12 }).map((_, index) => (
             <div
               key={index}
               className="animate-pulse p-4 border rounded-lg shadow-md bg-gray-50"
@@ -79,10 +66,10 @@ const ShowroomProductsPage = () => {
         <div className="text-center text-red-500 mt-6">
           Error fetching products
         </div>
-      ) : currentProducts.length > 0 ? (
+      ) : recentProducts.length > 0 ? (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {currentProducts.map((product) => (
+            {recentProducts.map((product) => (
               <div
                 key={product.productID}
                 className="relative group p-4 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer"
@@ -102,7 +89,7 @@ const ShowroomProductsPage = () => {
                     {product.productName}
                   </h2>
                   <div className="flex md:items-center md:flex-row flex-col md:space-x-2">
-                    <span className="text-lg md:text-xl font-bold text-gray-900">
+                    <span className="text-lg md:text-xl font-bold text-red-500">
                       {`₵${formatPrice(product.price)}`}
                     </span>
                     {product.oldPrice > 0 && (
@@ -124,14 +111,7 @@ const ShowroomProductsPage = () => {
               </div>
             ))}
           </div>
-          <Pagination
-            current={currentPage}
-            pageSize={itemsPerPage}
-            total={products.length}
-            onChange={handlePageChange}
-            className="mt-6"
-            showSizeChanger={false}
-          />
+        
         </>
       ) : (
         <div className="flex flex-col items-center justify-center mt-10">
@@ -146,8 +126,18 @@ const ShowroomProductsPage = () => {
           />
         </div>
       )}
+
+      <div className="flex justify-center mt-6">
+      <Button 
+                        shape="round" 
+                        icon={<ArrowRightOutlined />} 
+                        className="text-sm bg-red-500 text-white px-4 py-2 md:px-6 md:py-4 md:text-base"
+                      >
+                        View All Products
+                      </Button>
+      </div>
     </div>
   );
 };
 
-export default ShowroomProductsPage;
+export default RecentProducts;

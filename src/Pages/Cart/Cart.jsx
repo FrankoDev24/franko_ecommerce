@@ -106,7 +106,7 @@ const Cart = () => {
                 <div className="flex flex-col md:flex-row flex-1 md:justify-between mt-4 md:mt-0 md:ml-4 space-y-2 md:space-y-0">
                   <div>
                     <h2 className="text-xl font-bold">{item.productName}</h2>
-                    <p>{item.productDescription}</p>
+              
                     <p className="font-semibold mt-2">Price: ${item.price.toFixed(2)}</p>
                     <p className="font-bold mt-2">Total: ${(item.price * item.quantity).toFixed(2)}</p>
                   </div>

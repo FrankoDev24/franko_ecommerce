@@ -1,26 +1,22 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProductsByShowroom } from "../../Redux/slice/productSlice";
-import { addToCart } from "../../Redux/slice/cartSlice";
-import { Pagination, Empty, message } from "antd";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProducts } from '../Redux/slice/productSlice'; // Adjust the import path according to your project structure
+import { Pagination, Empty, message } from 'antd'; // Using Ant Design components for UI
 import { ShoppingCartOutlined } from "@ant-design/icons";
+import { useNavigate } from 'react-router-dom';
+import { addToCart } from '../Redux/slice/cartSlice'; // Adjust path based on your project structure
 
-const ShowroomProductsPage = () => {
-  const { showRoomID } = useParams();
+const ProductsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { productsByShowroom, loading, error, showroom  } = useSelector(
-    (state) => state.products
-  );
+  const { products, loading, error } = useSelector((state) => state.products); // Assuming your products slice is named 'products'
+  
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 12;
 
   useEffect(() => {
-    if (showRoomID) {
-      dispatch(fetchProductsByShowroom(showRoomID));
-    }
-  }, [dispatch, showRoomID]);
+    dispatch(fetchProducts()); // Fetch products on component mount
+  }, [dispatch]);
 
   const handlePageChange = (page) => setCurrentPage(page);
 
@@ -45,7 +41,6 @@ const ShowroomProductsPage = () => {
       });
   };
 
-  const products = productsByShowroom[showRoomID] || [];
   const lastIndex = currentPage * itemsPerPage;
   const firstIndex = lastIndex - itemsPerPage;
   const currentProducts = products.slice(firstIndex, lastIndex);
@@ -56,11 +51,7 @@ const ShowroomProductsPage = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6">
- <h1 className="text-2xl md:text-3xl font-semibold mb-4">
-  {showroom ? `${showroom.showRoomName} Products` : "Showroom Products"}
-</h1>
-
-
+      <h1 className="text-2xl md:text-3xl font-semibold mb-4">Products</h1>
 
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -146,8 +137,17 @@ const ShowroomProductsPage = () => {
           />
         </div>
       )}
+
+      <div className="flex justify-center mt-6">
+        <button
+          onClick={() => navigate('/products')}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200"
+        >
+          View All Products
+        </button>
+      </div>
     </div>
   );
 };
 
-export default ShowroomProductsPage;
+export default ProductsPage;

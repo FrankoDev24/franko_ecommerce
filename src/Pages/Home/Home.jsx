@@ -3,6 +3,7 @@ import ShowRoom from '../../Components/ShowRoom/ShowRoom'
 import ProductCarousel from '../../Components/Carousel/ProductCarousel'
 import Footer from '../../Components/Footer/Footer'
 import ShopByBrandsBanner from '../../Components/BrandsBanner'
+import RecentProducts from '../../Components/RecentProducts'
 
 
 export default function Home() {
@@ -11,7 +12,9 @@ export default function Home() {
         <ProductCarousel/>
         <ShowRoom/>
         <ShopByBrandsBanner/>
+     <RecentProducts/>
         <div>
+          
 
         <Footer/>
         </div>
