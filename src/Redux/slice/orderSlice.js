@@ -1,97 +1,146 @@
 // src/Redux/Slice/orderSlice.js
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Async thunks
 export const fetchOrdersByDate = createAsyncThunk(
-  'orders/fetchOrdersByDate',
+  "orders/fetchOrdersByDate",
   async ({ from, to }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/Order/GetOrdersByDate/${from}/${to}`);
+      const response = await axios.get(
+        `${API_BASE_URL}/Order/GetOrdersByDate/${from}/${to}`
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch orders by date');
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch orders by date"
+      );
     }
   }
 );
 
 export const checkOutOrder = createAsyncThunk(
-  'orders/checkOutOrder',
+  "orders/checkOutOrder",
   async ({ cartId, customerId }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/Order/CheckOut/${cartId}/${customerId}`);
+      const response = await axios.post(
+        `${API_BASE_URL}/Order/CheckOut/${cartId}/${customerId}`
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to checkout order');
+      return rejectWithValue(
+        error.response?.data || "Failed to checkout order"
+      );
     }
   }
 );
 
 export const updateOrderTransition = createAsyncThunk(
-  'orders/updateOrderTransition',
+  "orders/updateOrderTransition",
   async ({ cycleName, orderId }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/Order/UpdateOrderTransition/${cycleName}/${orderId}`);
+      const response = await axios.post(
+        `${API_BASE_URL}/Order/UpdateOrderTransition/${cycleName}/${orderId}`
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to update order transition');
+      return rejectWithValue(
+        error.response?.data || "Failed to update order transition"
+      );
     }
   }
 );
 
 export const fetchOrderLifeCycle = createAsyncThunk(
-  'orders/fetchOrderLifeCycle',
+  "orders/fetchOrderLifeCycle",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/Order/OrderLifeCycle-Get`);
+      const response = await axios.get(
+        `${API_BASE_URL}/Order/OrderLifeCycle-Get`
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch order lifecycle');
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch order lifecycle"
+      );
     }
   }
 );
 
 export const fetchSalesOrderById = createAsyncThunk(
-  'orders/fetchSalesOrderById',
+  "orders/fetchSalesOrderById",
   async (orderId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/Order/SalesOrderGet/${orderId}`);
+      const response = await axios.get(
+        `${API_BASE_URL}/Order/SalesOrderGet/${orderId}`
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch sales order');
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch sales order"
+      );
     }
   }
 );
 
 export const updateOrderDelivery = createAsyncThunk(
-  'orders/updateOrderDelivery',
+  "orders/updateOrderDelivery",
   async (orderCode, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/Order/OrderDeliveryUpdate/${orderCode}`);
+      const response = await axios.post(
+        `${API_BASE_URL}/Order/OrderDeliveryUpdate/${orderCode}`
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to update order delivery');
+      return rejectWithValue(
+        error.response?.data || "Failed to update order delivery"
+      );
     }
   }
 );
 
-export const fetchOrderDeliveryAddress = createAsyncThunk(
-  'orders/fetchOrderDeliveryAddress',
-  async (orderCode, { rejectWithValue }) => {
+export const orderAddress = createAsyncThunk(
+  "orders/OrderAddress",
+  async ({ customerId, orderCode, address, geoLocation }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/Order/GetOrderDeliveryAddress/${orderCode}`);
+      const response = await axios.post(
+        `${API_BASE_URL}/Order/OrderAddress`,
+        {
+          customerid: customerId,
+          orderCode: orderCode,
+          address: address,
+          geoLocation: geoLocation,
+        }
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch delivery address');
+      return rejectWithValue(
+        error.response?.data || "Failed to update order address"
+      );
+    }
+  }
+);
+export const fetchOrderDeliveryAddress = createAsyncThunk(
+  "orders/fetchOrderDeliveryAddress",
+  async (orderCode, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/Order/GetOrderDeliveryAddress/${orderCode}`
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch delivery address"
+      );
     }
   }
 );
 
 // Slice
 const orderSlice = createSlice({
-  name: 'orders',
+  name: "orders",
   initialState: {
     orders: [],
     salesOrder: null,
@@ -188,6 +237,18 @@ const orderSlice = createSlice({
       .addCase(fetchSalesOrderById.rejected, (state, action) => {
         state.loading.salesOrder = false;
         state.error.salesOrder = action.payload;
+      })
+      .addCase(orderAddress.pending, (state) => {
+        state.loading.deliveryAddress = true;
+        state.error.deliveryAddress = null;
+      })
+      .addCase(orderAddress.fulfilled, (state, action) => {
+        state.loading.deliveryAddress = false;
+        state.deliveryAddress = action.payload; // Optionally, you may want to store the updated address here
+      })
+      .addCase(orderAddress.rejected, (state, action) => {
+        state.loading.deliveryAddress = false;
+        state.error.deliveryAddress = action.payload;
       })
 
       .addCase(fetchOrderDeliveryAddress.pending, (state) => {

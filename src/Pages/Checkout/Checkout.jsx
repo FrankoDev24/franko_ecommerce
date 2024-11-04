@@ -1,121 +1,176 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Button, Input, Form, message } from 'antd';
-import { checkOutOrder, updateOrderDelivery } from '../../Redux/slice/orderSlice';
+import { checkOutOrder, orderAddress } from '../../Redux/slice/orderSlice';
+import { notification, Card, List, Button, Checkbox } from 'antd';
+import { ShoppingCartOutlined } from '@ant-design/icons';
+import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from 'react-router-dom';
 
 const CheckoutPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [address, setAddress] = useState('');
+  const [geoLocation, setGeoLocation] = useState('');
+  const [cartItems, setCartItems] = useState([]);
+  const [paymentMethod, setPaymentMethod] = useState(''); // New state for payment method
 
-  // Retrieve data from local storage
-  const customerDetails = JSON.parse(localStorage.getItem('customerDetails')) || {};
   const cartId = localStorage.getItem('cartId');
+  const customerData = JSON.parse(localStorage.getItem('customer'));
+  const customerId = customerData?.customerAccountNumber;
+  const orderId = uuidv4();
 
-  const [form] = Form.useForm();
-  const [addressData, setAddressData] = useState({
-    customerid: customerDetails.customerAccount || '',
-    orderCode: '',
-    address: '',
-    geoLocation: '',
-  });
+  useEffect(() => {
+    const storedCartItems = JSON.parse(localStorage.getItem('cart')) || [];
+    setCartItems(storedCartItems);
+  }, []);
 
-  // Handle form submission for checkout
-  const onCheckout = async () => {
-    if (!addressData.customerid || !cartId) {
-      return message.error("Missing customer or cart details");
+  const handleCheckout = async () => {
+    if (!paymentMethod) {
+      notification.warning({
+        message: 'Select Payment Method',
+        description: 'Please select a payment method to proceed.',
+      });
+      return;
     }
 
     try {
-      // Dispatch the order address update action
-      await dispatch(updateOrderDelivery(addressData.orderCode));
+      const orderResponse = await dispatch(checkOutOrder({ cartId, customerId, orderId })).unwrap();
 
-      // Dispatch the checkout action with cartId and customerId
-      await dispatch(checkOutOrder({ cartId, customerId: addressData.customerid }));
+      if (orderResponse) {
+        await dispatch(orderAddress({
+          customerId,
+          orderCode: orderId,
+          address,
+          geoLocation,
+          paymentMethod,
+        })).unwrap();
 
-      message.success("Checkout successful!");
+        notification.success({
+          message: 'Checkout Successful',
+          description: 'Your order has been placed successfully!',
+        });
+
+        // Clear the cart and redirect to the home page
+        localStorage.removeItem('cart');
+        setCartItems([]);
+        navigate('/franko');
+      }
     } catch (error) {
-      message.error("Checkout failed. Please try again.");
+      notification.error({
+        message: 'Checkout Failed',
+        description: error.message || 'An error occurred during checkout.',
+      });
     }
   };
 
-  // Update form fields state
-  const handleInputChange = (e) => {
-    setAddressData((prevData) => ({
-      ...prevData,
-      [e.target.name]: e.target.value,
-    }));
+  const renderImage = (imagePath) => {
+    const backendBaseURL = 'https://api.salesmate.app';
+    const imageUrl = `${backendBaseURL}/Media/Products_Images/${imagePath.split('\\').pop()}`;
+    
+    return (
+      <img
+        src={imageUrl}
+        alt="Product"
+        className="w-20 h-20 object-cover rounded-lg"
+      />
+    );
   };
 
   return (
-    <div className="flex flex-col items-center p-4 sm:p-8 bg-gray-100 min-h-screen">
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold text-center mb-4">Checkout</h2>
-
-        <div className="border p-4 rounded-md mb-6">
-          <h3 className="font-semibold text-lg mb-2">Items in Cart</h3>
-          {/* Display items in cart here */}
-          <p>Sample item 1 - $20.00</p>
-          <p>Sample item 2 - $15.00</p>
-        </div>
-
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={addressData}
-          onFinish={onCheckout}
+    <div className="flex flex-col md:flex-row gap-8 p-6 bg-gray-100 min-h-screen">
+      {/* Cart Summary Section */}
+      <div className="flex-1">
+        <Card
+          title="Cart Summary"
+          bordered={false}
+          className="shadow-lg bg-white"
+        
+          headStyle={{ fontSize: '1.5rem', fontWeight: 'bold', background: '#f5f5f5', padding: '0.5rem 1rem' }}
         >
-          <Form.Item label="Customer ID">
-            <Input
-              value={addressData.customerid}
-              name="customerid"
-              disabled
-            />
-          </Form.Item>
+          <List
+            dataSource={cartItems}
+            renderItem={(item) => (
+              <List.Item className="p-4 border-b">
+                <div className="flex items-center w-full">
+                  <div className="mr-4">{renderImage(item.imagePath)}</div>
+                  <div className="flex flex-col w-full">
+                    <h3 className="font-semibold text-lg">{item.productName}</h3>
+                    <span className="text-gray-500">Quantity: {item.quantity}</span>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="font-semibold text-base">₵{item.price.toLocaleString()}</span>
+                      <span className="font-bold text-xl text-green-600">₵{item.total.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </List.Item>
+            )}
+            footer={
+              <div className="flex justify-between items-center text-lg font-bold px-4 py-2 bg-gray-200 rounded-md mt-4 text-red-500">
+                <span>Total:</span>
+                <span>₵{cartItems.reduce((total, item) => total + (item.total || 0), 0).toLocaleString()}</span>
+              </div>
+            }
+          />
+        </Card>
+      </div>
 
-          <Form.Item
-            label="Order Code"
-            name="orderCode"
-            rules={[{ required: true, message: 'Order code is required' }]}
-          >
-            <Input
-              value={addressData.orderCode}
-              name="orderCode"
-              onChange={handleInputChange}
+      {/* Checkout Form Section */}
+      <div className="flex-1">
+        <Card
+          title="Checkout"
+          bordered={false}
+          className="shadow-lg bg-white"
+        >
+          <div className="mb-4">
+            <label htmlFor="address" className="block text-gray-700">Delivery Address:</label>
+            <input
+              type="text"
+              id="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Enter your delivery address"
+              required
+              className="w-full p-2 border border-gray-300 rounded mt-1"
             />
-          </Form.Item>
+          </div>
+          <div className="mb-6">
+            <label htmlFor="geoLocation" className="block text-gray-700">Geo Location:</label>
+            <input
+              type="text"
+              id="geoLocation"
+              value={geoLocation}
+              onChange={(e) => setGeoLocation(e.target.value)}
+              placeholder="Enter your geo location (latitude, longitude)"
+              className="w-full p-2 border border-gray-300 rounded mt-1"
+            />
+          </div>
 
-          <Form.Item
-            label="Address"
-            name="address"
-            rules={[{ required: true, message: 'Please enter your address' }]}
-          >
-            <Input
-              value={addressData.address}
-              name="address"
-              onChange={handleInputChange}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Geo Location"
-            name="geoLocation"
-            rules={[{ required: true, message: 'Please enter geo location' }]}
-          >
-            <Input
-              value={addressData.geoLocation}
-              name="geoLocation"
-              onChange={handleInputChange}
-            />
-          </Form.Item>
+          {/* Payment Method Section */}
+          <div className="mb-4">
+            <label className="block text-gray-700 font-semibold mb-2">Payment Method:</label>
+            <Checkbox
+              checked={paymentMethod === 'Mobile'}
+              onChange={() => setPaymentMethod('Mobile')}
+              className="mb-2"
+            >
+              Pay by Mobile
+            </Checkbox>
+            <Checkbox
+              checked={paymentMethod === 'Cash'}
+              onChange={() => setPaymentMethod('Cash')}
+            >
+              Cash on Delivery
+            </Checkbox>
+          </div>
 
           <Button
             type="primary"
-            htmlType="submit"
-            block
-            className="mt-4"
+            onClick={handleCheckout}
+            className="w-full mt-4 py-2 text-lg font-semibold"
           >
-            Confirm and Checkout
+            Confirm Checkout
           </Button>
-        </Form>
+        </Card>
       </div>
     </div>
   );
