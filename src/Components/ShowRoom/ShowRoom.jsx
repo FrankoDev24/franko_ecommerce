@@ -57,7 +57,7 @@ const ShowroomPage = () => {
   if (loading || loadingProducts) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4 text-red-500">Shop By Showrooms</h1>
+   
         <Row gutter={16}>
           {Array.from({ length: 4 }).map((_, index) => (
             <Col key={index} xs={12} sm={12} md={8} lg={6} style={{ marginBottom: '20px' }}>
