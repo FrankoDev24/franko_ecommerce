@@ -6,11 +6,12 @@ import { addToCart } from "../../Redux/slice/cartSlice";
 import { Pagination, Empty, message } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 
+
 const ShowroomProductsPage = () => {
   const { showRoomID } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { productsByShowroom, loading, error, showroom  } = useSelector(
+  const { productsByShowroom, loading, error, showroom } = useSelector(
     (state) => state.products
   );
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,22 +46,22 @@ const ShowroomProductsPage = () => {
       });
   };
 
-  const products = productsByShowroom[showRoomID] || [];
+  const products = (productsByShowroom[showRoomID] || [])
+    .slice() // Create a shallow copy to avoid mutating the original array
+    .sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate)); // Sort by addedDate in descending order
+
   const lastIndex = currentPage * itemsPerPage;
   const firstIndex = lastIndex - itemsPerPage;
   const currentProducts = products.slice(firstIndex, lastIndex);
 
-  // Function to format price with commas
   const formatPrice = (price) =>
     price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   return (
     <div className="container mx-auto p-4 md:p-6">
- <h1 className="text-2xl md:text-3xl font-semibold mb-4">
-  {showroom ? `${showroom.showRoomName} Products` : "Showroom Products"}
-</h1>
-
-
+      <h1 className="text-2xl md:text-3xl font-semibold mb-4">
+        {showroom ? `${showroom.showRoomName} Products` : "Showroom Products"}
+      </h1>
 
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -151,3 +152,5 @@ const ShowroomProductsPage = () => {
 };
 
 export default ShowroomProductsPage;
+
+
