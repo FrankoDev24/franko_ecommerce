@@ -1,8 +1,21 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrdersByDate, updateOrderTransition } from '../../Redux/slice/orderSlice';
-import { DatePicker, Button, Table, message, Empty, Modal, Select, Spin, Input } from 'antd';
-import OrderDetailsModal from './OrderDetailsModal';
+import React, { useEffect, useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchOrdersByDate,
+  updateOrderTransition,
+} from "../../Redux/slice/orderSlice";
+import {
+  DatePicker,
+  Button,
+  Table,
+  message,
+  Empty,
+  Modal,
+  Select,
+  Spin,
+  Input,
+} from "antd";
+import OrderDetailsModal from "./OrderDetailsModal";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -10,19 +23,27 @@ const { Search } = Input;
 
 const Orders = () => {
   const dispatch = useDispatch();
-  const { orders, loading, error } = useSelector((state) => state.orders);
+  const { orders, loading } = useSelector((state) => state.orders);
   const [dateRange, setDateRange] = useState([null, null]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [newCycle, setNewCycle] = useState('');
-  const [searchText, setSearchText] = useState('');
+  const [newCycle, setNewCycle] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   const fetchCurrentMonthOrders = useCallback(() => {
-    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
-    const from = startOfMonth.toISOString().split('T')[0];
-    const to = endOfMonth.toISOString().split('T')[0];
+    const startOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0
+    );
+    const from = startOfMonth.toISOString().split("T")[0];
+    const to = endOfMonth.toISOString().split("T")[0];
     dispatch(fetchOrdersByDate({ from, to }));
   }, [dispatch]);
 
@@ -30,11 +51,11 @@ const Orders = () => {
 
   const handleFetchOrders = () => {
     if (dateRange[0] && dateRange[1]) {
-      const from = dateRange[0].format('YYYY-MM-DD');
-      const to = dateRange[1].format('YYYY-MM-DD');
+      const from = dateRange[0].format("YYYY-MM-DD");
+      const to = dateRange[1].format("YYYY-MM-DD");
       dispatch(fetchOrdersByDate({ from, to }));
     } else {
-      message.error('Please select a date range');
+      message.error("Please select a date range");
     }
   };
 
@@ -57,16 +78,23 @@ const Orders = () => {
   const handleUpdateCycle = async () => {
     if (selectedOrderId && newCycle) {
       try {
-        await dispatch(updateOrderTransition({ cycleName: newCycle, orderId: selectedOrderId }));
-        message.success('Order cycle updated successfully');
+        await dispatch(
+          updateOrderTransition({
+            cycleName: newCycle,
+            orderId: selectedOrderId,
+          })
+        );
+        message.success("Order cycle updated successfully");
         setIsModalOpen(false);
-        setNewCycle('');
+        setNewCycle("");
         fetchCurrentMonthOrders();
       } catch (err) {
-        message.error(`Error updating cycle: ${err.message || 'An error occurred'}`);
+        message.error(
+          `Error updating cycle: ${err.message || "An error occurred"}`
+        );
       }
     } else {
-      message.error('Please select a cycle');
+      message.error("Please select a cycle");
     }
   };
 
@@ -86,7 +114,7 @@ const Orders = () => {
     }, {})
   );
 
-  const filteredOrders = groupedOrders.filter(order => {
+  const filteredOrders = groupedOrders.filter((order) => {
     const fullNameMatch = order.fullName.toLowerCase().includes(searchText);
     const statusMatch = order.orderCycle.toLowerCase().includes(searchText);
     return fullNameMatch || statusMatch;
@@ -94,28 +122,33 @@ const Orders = () => {
 
   const columns = [
     {
-      title: 'Order Code',
-      dataIndex: 'orderCode',
-      key: 'orderCode',
+      title: "Order Code",
+      dataIndex: "orderCode",
+      key: "orderCode",
       render: (text, record) => (
         <Button type="link" onClick={() => openDetailModal(record.orderCode)}>
           {text}
         </Button>
       ),
     },
-    { title: 'Full Name', dataIndex: 'fullName', key: 'fullName' },
-    { title: 'Contact Number', dataIndex: 'contactNumber', key: 'contactNumber' },
+    { title: "Full Name", dataIndex: "fullName", key: "fullName" },
     {
-      title: 'Order Date',
-      dataIndex: 'orderDate',
-      key: 'orderDate',
-      render: (date) => (date === '0001-01-01' ? 'N/A' : new Date(date).toLocaleDateString()),
+      title: "Contact Number",
+      dataIndex: "contactNumber",
+      key: "contactNumber",
+    },
+    {
+      title: "Order Date",
+      dataIndex: "orderDate",
+      key: "orderDate",
+      render: (date) =>
+        date === "0001-01-01" ? "N/A" : new Date(date).toLocaleDateString(),
       sorter: (a, b) => new Date(a.orderDate) - new Date(b.orderDate),
     },
     {
-      title: 'Status',
-      dataIndex: 'orderCycle',
-      key: 'orderCycle',
+      title: "Status",
+      dataIndex: "orderCycle",
+      key: "orderCycle",
       render: (text, record) => (
         <Button type="link" onClick={() => openCycleModal(record)}>
           {text}
@@ -128,8 +161,17 @@ const Orders = () => {
   return (
     <div>
       <h2>Orders</h2>
-      <RangePicker format="MM-DD-YYYY" onChange={handleDateChange} style={{ marginBottom: 16 }} />
-      <Button type="primary" onClick={handleFetchOrders} disabled={loading} style={{ marginRight: 16 }}>
+      <RangePicker
+        format="MM-DD-YYYY"
+        onChange={handleDateChange}
+        style={{ marginBottom: 16 }}
+      />
+      <Button
+        type="primary"
+        onClick={handleFetchOrders}
+        disabled={loading}
+        style={{ marginRight: 16 }}
+      >
         Fetch Orders
       </Button>
       <Search
@@ -167,14 +209,22 @@ const Orders = () => {
         onOk={handleUpdateCycle}
         onCancel={() => setIsModalOpen(false)}
       >
-        <Select value={newCycle} onChange={handleCycleChange} style={{ width: '100%' }}>
+        <Select
+          value={newCycle}
+          onChange={handleCycleChange}
+          style={{ width: "100%" }}
+        >
+          <Option value="Packing">Packing</Option>
           <Option value="Pending">Pending</Option>
           <Option value="Processed">Processed</Option>
           <Option value="Delivered">Delivered</Option>
         </Select>
       </Modal>
       {isDetailModalOpen && (
-        <OrderDetailsModal orderId={selectedOrderId} onClose={() => setIsDetailModalOpen(false)} />
+        <OrderDetailsModal
+          orderId={selectedOrderId}
+          onClose={() => setIsDetailModalOpen(false)}
+        />
       )}
     </div>
   );

@@ -47,7 +47,7 @@ const RecentProducts = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6">
-      <h1 className="text-2xl md:text-2xl font-semibold mb-4 text-red-500">Recent Added</h1>
+      <h1 className="text-2xl md:text-2xl font-semibold mb-4 text-red-500">Recently Added</h1>
 
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
