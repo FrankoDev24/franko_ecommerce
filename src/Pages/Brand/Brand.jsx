@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductsByBrand } from "../../Redux/slice/productSlice";
 import { addToCart } from "../../Redux/slice/cartSlice";
-import { Alert, Card, Col, Row, Pagination, Empty, message } from 'antd';
+import { Empty, message } from 'antd';
 import { ShoppingCartOutlined } from '@ant-design/icons';
 
 const Brand = () => {
@@ -11,52 +11,26 @@ const Brand = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { products, loading, error } = useSelector((state) => state.products);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const [visibleProducts, setVisibleProducts] = useState(8); // Number of products initially visible
+  const observer = useRef();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        await dispatch(fetchProductsByBrand(brandId)).unwrap();
-        console.log(`Products for brand ID ${brandId} fetched successfully`);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-
-    fetchProducts();
+    dispatch(fetchProductsByBrand(brandId)); // Fetch products for the selected brand
   }, [dispatch, brandId]);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const lastIndex = currentPage * itemsPerPage;
-  const firstIndex = lastIndex - itemsPerPage;
-  const currentProducts = products.slice(firstIndex, lastIndex);
-
-  if (loading) {
-    return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Showrooms</h1>
-        <Row gutter={16}>
-          {Array.from({ length: itemsPerPage }).map((_, index) => (
-            <Col key={index} xs={24} sm={12} md={8} lg={6} style={{ marginBottom: '20px' }}>
-              <div className="animate-pulse">
-                <div className="h-48 bg-gray-200 rounded-lg mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              </div>
-            </Col>
-          ))}
-        </Row>
-      </div>
-    );
-  }
-
-  if (error) {
-    return <Alert message="Error fetching products" description={error} type="error" />;
-  }
+  const lastProductRef = useCallback(
+    (node) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && visibleProducts < products.length) {
+          setVisibleProducts((prev) => prev + 8); // Load more products when the last product comes into view
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, products.length, visibleProducts]
+  );
 
   const handleCardClick = (product) => {
     navigate(`/product/${product.productID}`);
@@ -88,53 +62,64 @@ const Brand = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className='mt-12'></div>
-      {currentProducts.length > 0 ? (
+      <div className="mt-12"></div>
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="animate-pulse border rounded-lg shadow p-4">
+              <div className="h-48 bg-gray-200 rounded-lg mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <div className="text-center text-red-500">Error fetching products</div>
+      ) : products.length > 0 ? (
         <>
-          <Row gutter={16}>
-            {currentProducts.map((product) => (
-              <Col key={product.productID} xs={24} sm={12} md={8} lg={6}>
-                <Card
-  hoverable
-  cover={
-    <img 
-      alt={product.productName} 
-      src={renderImage(product.productImage)} 
-      className="h-full w-full object-cover" 
-    />
-  }
-  className="border rounded shadow relative " // Use aspect-square to make card square-shaped
-  onClick={() => handleCardClick(product)}
->
-  <Card.Meta title={product.productName} />
-  <div className="flex justify-between mt-2">
-    <p className="text-lg font-bold">{`₵${product.price.toFixed(2)}`}</p>
-    {product.oldPrice && (
-      <p className="text-gray-500 line-through">{`₵${product.oldPrice.toFixed(2)}`}</p>
-    )}
-  </div>
-  <div
-    className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-    onClick={(e) => {
-      e.stopPropagation();
-      handleAddToCart(product);
-    }}
-  >
-    <ShoppingCartOutlined className="text-2xl text-primary text-red-500 cursor-pointer" />
-  </div>
-</Card>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {products.slice(0, visibleProducts).map((product, index) => (
+              <div
+                key={product.productID}
+                ref={index === visibleProducts - 1 ? lastProductRef : null}
+                className="relative group p-4 bg-white border border-gray-200 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 cursor-pointer"
+                onClick={() => handleCardClick(product)}
+              >
+             <div className="h-48 md:h-64  flex items-center justify-center mb-4 ">
+  <img
+    src={renderImage(product.productImage)}
+    alt={product.productName}
+    className="w-full h-full object-cover rounded-lg"
+  />
+</div>
 
-              </Col>
+                <div className="flex flex-col space-y-1">
+                  <h2 className="text-base md:text-lg font-semibold text-gray-800 truncate">
+                    {product.productName}
+                  </h2>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg font-bold text-red-500">
+                      {`₵${product.price.toFixed(2)}`}
+                    </span>
+                    {product.oldPrice > 0 && (
+                      <span className="text-sm line-through text-gray-500">
+                        {`₵${product.oldPrice.toFixed(2)}`}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div
+                  className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCart(product);
+                  }}
+                >
+                  <ShoppingCartOutlined className="text-2xl text-red-500 hover:text-red-600 transition-colors duration-200" />
+                </div>
+              </div>
             ))}
-          </Row>
-          <Pagination
-            current={currentPage}
-            pageSize={itemsPerPage}
-            total={products.length}
-            onChange={handlePageChange}
-            className="mt-4"
-            showSizeChanger={false}
-          />
+          </div>
         </>
       ) : (
         <div className="flex flex-col items-center justify-center mt-10">

@@ -79,7 +79,7 @@ const ShowroomPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4 text-red-500">Shop By Showrooms</h1>
+    
       <Row gutter={[16, 16]}>
         {showrooms
           .filter((showroom) => productsByShowroom[showroom.showRoomID]?.length > 0)
