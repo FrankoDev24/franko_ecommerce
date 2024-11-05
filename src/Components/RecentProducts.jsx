@@ -126,16 +126,17 @@ const RecentProducts = () => {
           />
         </div>
       )}
+<div className="flex justify-center mt-6">
+  <Button 
+    shape="round" 
+    icon={<ArrowRightOutlined />} 
+    className="text-sm bg-red-500 text-white px-4 py-2 md:px-6 md:py-4 md:text-base"
+    onClick={() => navigate('/products')} // Navigate to products page on click
+  >
+    View All Products
+  </Button>
+</div>
 
-      <div className="flex justify-center mt-6">
-      <Button 
-                        shape="round" 
-                        icon={<ArrowRightOutlined />} 
-                        className="text-sm bg-red-500 text-white px-4 py-2 md:px-6 md:py-4 md:text-base"
-                      >
-                        View All Products
-                      </Button>
-      </div>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { addToCart } from '../../Redux/slice/cartSlice';
 import { Alert, Card, Row, Col, Button } from 'antd';
 import { ShoppingCartOutlined, ArrowRightOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import "./ShowRoom.css"
 
 const ShowroomPage = () => {
   const dispatch = useDispatch();
@@ -111,14 +112,14 @@ const ShowroomPage = () => {
                     />
                     <div
                       ref={(el) => (scrollRef.current[showroom.showRoomID] = el)}
-                      className="flex overflow-x-scroll space-x-4"
+                      className="flex overflow-x-scroll space-x-4 no-scrollbar"
                       style={{ scrollBehavior: 'smooth' }}
                     >
-                      {sortedProducts.slice(0, 10).map((product, index) => (
-                        <div key={product.productID} className="flex-shrink-0 w-40">
+                      {sortedProducts.slice(0, 10).map((product) => (
+                        <div key={product.productID} className="flex-shrink-0 w-40 relative group">
                           <Card
                             hoverable
-                            className="border rounded-lg flex flex-col"
+                            className="border rounded-lg flex flex-col transition-transform transform group-hover:scale-105"
                             style={{ height: '100%' }}
                             cover={
                               <div
@@ -140,23 +141,16 @@ const ShowroomPage = () => {
                                 </div>
                               } 
                             />
-                            {index === sortedProducts.length - 1 && (
-                              <div 
-                                onClick={() => navigate(`/showroom/${showroom.showRoomID}`)}
-                                className="absolute top-1/2 transform -translate-y-1/2 right-4 cursor-pointer"
-                              >
-                                <ArrowRightOutlined className="text-xl text-red-500" />
-                              </div>
-                            )}
-                            <div
-                              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            <Button
+                          
+                              shape="circle"
+                              icon={<ShoppingCartOutlined />}
+                              className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-red-500 text-white"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleAddToCart(product);
                               }}
-                            >
-                              <ShoppingCartOutlined className="text-2xl text-primary text-red-500 hover:text-red-600 transition-colors duration-200" />
-                            </div>
+                            />
                           </Card>
                         </div>
                       ))}
