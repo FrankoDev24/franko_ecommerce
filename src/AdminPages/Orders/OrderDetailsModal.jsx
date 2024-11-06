@@ -2,8 +2,14 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSalesOrderById } from '../../Redux/slice/orderSlice';
 import { Modal, Spin, Typography, Row, Col, Image, Button, Divider, Card } from 'antd';
+import { UserOutlined, PhoneOutlined, HomeOutlined, DollarCircleOutlined, CalendarOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
+
+// Function to format price with commas
+const formatPrice = (amount) => {
+  return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
 
 const OrderDetailsModal = ({ orderId, onClose }) => {
   const dispatch = useDispatch();
@@ -20,9 +26,8 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
   if (!salesOrder || salesOrder.length === 0) return <div>No order details found.</div>;
 
   const backendBaseURL = 'https://api.salesmate.app/';
-
-  // Retrieve common customer details from the first order item
   const customer = salesOrder[0];
+  const totalAmount = salesOrder.reduce((acc, order) => acc + order.total, 0); // Calculate total amount
 
   return (
     <Modal
@@ -31,19 +36,20 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
       footer={null}
       width={800}
       onCancel={onClose}
+  
     >
       {/* Customer Information */}
-      <Title level={4} style={{ marginBottom: '16px' }}>Customer Information</Title>
-      <Card bordered={false} style={{ backgroundColor: '#fafafa', marginBottom: '16px', padding: '16px' }}>
+      <Title level={4} style={{ marginBottom: '16px', color: 'red' }}>Customer Information</Title>
+      <Card bordered={false} style={{ backgroundColor: '#e6f7ff', marginBottom: '16px', padding: '16px' }}>
         <Row gutter={[16, 8]}>
           <Col span={12}>
-            <Text strong>Name:</Text> <Text>{customer.fullName}</Text>
+            <Text strong className=' font-medium'><UserOutlined /> Name:</Text> <Text>{customer.fullName}</Text>
           </Col>
           <Col span={12}>
-            <Text strong>Contact Number:</Text> <Text>{customer.contactNumber}</Text>
+            <Text strong><PhoneOutlined /> Contact Number:</Text> <Text>{customer.contactNumber}</Text>
           </Col>
           <Col span={24}>
-            <Text strong>Address:</Text> <Text>{customer.address}</Text>
+            <Text strong><HomeOutlined /> Address:</Text> <Text>{customer.address}</Text>
           </Col>
         </Row>
       </Card>
@@ -51,7 +57,7 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
       <Divider />
 
       {/* Order Details */}
-      <Title level={4} style={{ marginBottom: '16px' }}>Order Information</Title>
+      <Title level={4} style={{ marginBottom: '16px', color: 'red' }}>Order Information</Title>
       {salesOrder.map((order, index) => {
         const imagePath = order?.imagePath;
         const imageUrl = imagePath ? `${backendBaseURL}/Media/Products_Images/${imagePath.split('\\').pop()}` : null;
@@ -60,7 +66,16 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
           <Card
             key={index}
             bordered={false}
-            style={{ marginBottom: '16px', padding: '16px', backgroundColor: '#f9f9f9' }}
+            style={{ 
+              marginBottom: '16px', 
+              padding: '16px', 
+              backgroundColor: '#ffffff',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', 
+              transition: 'transform 0.2s', 
+            }}
+            hoverable
+            onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
           >
             <Row gutter={16} align="middle">
               <Col span={8}>
@@ -68,7 +83,7 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
                   <Image
                     src={imageUrl}
                     alt="Product"
-                    style={{ width: '70%', maxHeight: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                    style={{ width: '100%', maxHeight: '100px', objectFit: 'cover', borderRadius: '5px' }}
                     preview={false}
                   />
                 ) : (
@@ -78,19 +93,19 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
               <Col span={16}>
                 <Row gutter={[16, 8]}>
                   <Col span={24}>
-                    <Text strong>Product Name:</Text> <Text>{order.productName}</Text>
+                    <Text strong><ShoppingCartOutlined /> Product Name:</Text> <Text>{order.productName}</Text>
                   </Col>
                   <Col span={12}>
                     <Text strong>Quantity:</Text> <Text>{order.quantity}</Text>
                   </Col>
                   <Col span={12}>
-                    <Text strong>Price:</Text> <Text>₵{order.price}.00</Text>
+                    <Text strong><DollarCircleOutlined /> Price:</Text> <Text>₵{formatPrice(order.price)}.00</Text>
                   </Col>
                   <Col span={12}>
-                    <Text strong>Total:</Text> <Text>₵{order.total}.00</Text>
+                    <Text strong>Total:</Text> <Text>₵{formatPrice(order.total)}.00</Text>
                   </Col>
                   <Col span={12}>
-                    <Text strong>Order Date:</Text> <Text>{new Date(order.orderDate).toLocaleDateString()}</Text>
+                    <Text strong><CalendarOutlined /> Order Date:</Text> <Text>{new Date(order.orderDate).toLocaleDateString()}</Text>
                   </Col>
                 </Row>
               </Col>
@@ -99,7 +114,20 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
         );
       })}
 
-      <Button onClick={onClose} style={{ marginTop: '16px' }}>
+      <Divider />
+      {/* Total Amount Section */}
+      <Row justify="end" style={{ marginTop: '16px' }}>
+        <Col>
+          <Text strong style={{ fontSize: '18px' }}>Total Amount: </Text>
+          <Text strong style={{ fontSize: '18px', color: '#ff4d4f' }}>₵{formatPrice(totalAmount)}.00</Text>
+        </Col>
+      </Row>
+
+      <Button 
+        onClick={onClose} 
+        style={{ marginTop: '16px', backgroundColor: 'green', color: '#fff', border: 'none', borderRadius: '5px' }}
+        shape="round"
+      >
         Cancel
       </Button>
     </Modal>

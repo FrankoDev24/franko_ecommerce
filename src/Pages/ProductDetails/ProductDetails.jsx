@@ -16,6 +16,10 @@ import {
 } from '@ant-design/icons';
 import { addToCart } from '../../Redux/slice/cartSlice';
 
+const formatPrice = (price) => {
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 const ProductDetail = () => {
   const { productId } = useParams();
   const dispatch = useDispatch();
@@ -29,6 +33,8 @@ const ProductDetail = () => {
 
   useEffect(() => {
     dispatch(fetchProductById(productId));
+    // Scroll to top on component mount
+    window.scrollTo(0, 0);
   }, [dispatch, productId]);
 
   if (loading) {
@@ -56,7 +62,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     const cartData = {
-   cartId,
+      cartId,
       productId: product.productID,
       price: product.price,
       quantity: 1,
@@ -64,6 +70,11 @@ const ProductDetail = () => {
 
     dispatch(addToCart(cartData));
   };
+
+  // Split description into paragraphs
+  const productDescription = product.description.split('\n').map((text, index) => (
+    <p key={index} className="mb-4">{text}</p>
+  ));
 
   return (
     <div className="max-w-7xl mx-auto p-4">
@@ -102,9 +113,9 @@ const ProductDetail = () => {
           </div>
 
           <div className="bg-red-50 p-4 rounded-lg inline-block mb-8">
-            <span className="text-3xl font-bold">₵{product.price.toFixed(2)}</span>
+            <span className="text-3xl font-bold">₵{formatPrice(product.price)}.00</span>
             {product.oldPrice > 0 && (
-              <span className="line-through text-gray-500 ml-8">₵{product.oldPrice.toFixed(2)}</span>
+              <span className="line-through text-gray-500 ml-8">₵{formatPrice(product.oldPrice)}.00</span>
             )}
           </div>
 
@@ -162,21 +173,20 @@ const ProductDetail = () => {
 
       {/* Tabs Section */}
       <div className="mt-8">
-  <Tabs
-    items={[
-      {
-        key: '1',
-        label: 'Details',
-        children: (
-          <div className="p-4" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-            {product.description}
-          </div>
-        ),
-      },
-    ]}
-  />
-</div>
-
+        <Tabs
+          items={[
+            {
+              key: '1',
+              label: 'Details',
+              children: (
+                <div className="p-4" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  {productDescription}
+                </div>
+              ),
+            },
+          ]}
+        />
+      </div>
 
       {/* Image Modal */}
       <Modal

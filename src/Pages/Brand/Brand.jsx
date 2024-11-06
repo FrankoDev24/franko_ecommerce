@@ -60,6 +60,11 @@ const Brand = () => {
     return `${backendBaseURL}/Media/Products_Images/${imagePath.split('\\').pop()}`;
   };
 
+  // Function to format the price with commas
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="mt-12"></div>
@@ -85,13 +90,13 @@ const Brand = () => {
                 className="relative group p-4 bg-white border border-gray-200 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 cursor-pointer"
                 onClick={() => handleCardClick(product)}
               >
-             <div className="h-48 md:h-64  flex items-center justify-center mb-4 ">
-  <img
-    src={renderImage(product.productImage)}
-    alt={product.productName}
-    className="w-full h-full object-cover rounded-lg"
-  />
-</div>
+                <div className="h-48 md:h-64 flex items-center justify-center mb-4">
+                  <img
+                    src={renderImage(product.productImage)}
+                    alt={product.productName}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
 
                 <div className="flex flex-col space-y-1">
                   <h2 className="text-base md:text-lg font-semibold text-gray-800 truncate">
@@ -99,11 +104,11 @@ const Brand = () => {
                   </h2>
                   <div className="flex items-center space-x-2">
                     <span className="text-lg font-bold text-red-500">
-                      {`₵${product.price.toFixed(2)}`}
+                      {`₵${formatPrice(product.price.toFixed(2))}`}
                     </span>
                     {product.oldPrice > 0 && (
                       <span className="text-sm line-through text-gray-500">
-                        {`₵${product.oldPrice.toFixed(2)}`}
+                        {`₵${formatPrice(product.oldPrice.toFixed(2))}`}
                       </span>
                     )}
                   </div>
