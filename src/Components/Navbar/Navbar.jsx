@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Input, Badge, Button, Drawer, Dropdown, Menu, Modal } from 'antd';
+import { Input, Badge, Button, Dropdown, Menu, Modal } from 'antd';
 import {
-  MenuOutlined,
   SearchOutlined,
-  HeartOutlined,
   ShoppingCartOutlined,
   CloseOutlined,
   PhoneOutlined,
-  CaretDownOutlined,
+  UserOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategories } from '../../Redux/slice/categorySlice';
-import { fetchBrands } from '../../Redux/slice/brandSlice';
 import { getCartById } from '../../Redux/slice/cartSlice';
 import { logoutCustomer } from '../../Redux/slice/customerSlice';
 import frankoLoge from '../../assets/frankoIcon.png';
@@ -20,34 +17,27 @@ import './Navbar.css';
 
 const AccountDropdown = ({ onLogout }) => (
   <Menu>
-    <Menu.Item onClick={() => { /* Add profile navigation here */ }}>
+    <Menu.Item icon={<UserOutlined />} onClick={() => { /* Add profile navigation here */ }}>
       Profile
     </Menu.Item>
-    <Menu.Item onClick={onLogout}>
+    <Menu.Item icon={<LogoutOutlined />} onClick={onLogout}>
       Logout
     </Menu.Item>
   </Menu>
 );
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const [expandedCategoryId, setExpandedCategoryId] = useState(null);
   const [isAccountDropdownVisible, setAccountDropdownVisible] = useState(false);
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  const { categories, status } = useSelector((state) => state.categories);
-  const { brands } = useSelector((state) => state.brands);
   const totalItems = useSelector((state) => state.cart.totalItems);
   const currentCustomer = useSelector((state) => state.customer.currentCustomer);
 
   useEffect(() => {
-    dispatch(fetchCategories());
-    dispatch(fetchBrands());
-    
     const userId = localStorage.getItem('userId');
     if (userId) {
       const cartId = localStorage.getItem('cartId');
@@ -87,7 +77,7 @@ const Navbar = () => {
               suffix={searchValue ? (
                 <CloseOutlined className="text-gray-400 cursor-pointer" onClick={() => setSearchValue('')} />
               ) : null}
-              className="w-full"
+              className="w-full rounded-full"
             />
           </div>
 
@@ -111,9 +101,6 @@ const Navbar = () => {
 
               {isUserLoggedIn ? (
                 <>
-                  <div className="text-red-600 font-semibold">
-                    Hello, {firstName}!
-                  </div>
                   <Dropdown 
                     overlay={<AccountDropdown onLogout={handleLogout} />} 
                     trigger={['hover']}
@@ -121,7 +108,10 @@ const Navbar = () => {
                     onMouseEnter={() => setAccountDropdownVisible(true)}
                     onMouseLeave={() => setAccountDropdownVisible(false)}
                   >
-                    <HeartOutlined className="text-xl cursor-pointer hover:text-blue-600" />
+                   <div className="text-red-600 font-semibold cursor-pointer text-sm md:text-base">
+  Hello, {firstName}!
+</div>
+
                   </Dropdown>
                 </>
               ) : (
@@ -155,78 +145,9 @@ const Navbar = () => {
           suffix={searchValue ? (
             <CloseOutlined className="text-gray-400 cursor-pointer" onClick={() => setSearchValue('')} />
           ) : null}
-          className="w-full"
+          className="w-full rounded-full"
         />
       </Modal>
-
-      <div className="bg-red-500 text-white items-start">
-        <div className="max-w-7xl mx-auto">
-          <div className="md:hidden p-4">
-            <Button 
-              type="text" 
-              icon={<MenuOutlined className="text-white" />}
-              onClick={() => setIsMenuOpen(true)}
-              className="text-white"
-            />
-            Categories
-          </div>
-
-          <div className="hidden md:flex items-start overflow-x-auto">
-            {status === 'loading' ? (
-              <p>Loading categories...</p>
-            ) : (
-              categories.map((category) => (
-                <Dropdown
-                  key={category.categoryId}
-                  overlay={(
-                    <Menu>
-                      {brands.filter((brand) => brand.categoryId === category.categoryId).map((brand) => (
-                        <Menu.Item key={brand.brandId} onClick={() => navigate(`/brand/${brand.brandId}`)}>
-                          {brand.brandName}
-                        </Menu.Item>
-                      ))}
-                    </Menu>
-                  )}
-                  trigger={['hover']}
-                >
-                  <span className="px-4 py-3 hover:bg-red-600 cursor-pointer flex items-center gap-2 whitespace-nowrap text-white no-underline">
-                    {category.categoryName}
-                  </span>
-                </Dropdown>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-
-      <Drawer
-        title="Categories"
-        placement="left"
-        width={250}
-        onClose={() => setIsMenuOpen(false)}
-        visible={isMenuOpen}
-      >
-        {categories.map((category) => (
-          <div key={category.categoryId} className="p-4 border-b border-gray-200">
-            <div
-              className="flex justify-between items-center cursor-pointer"
-              onClick={() => setExpandedCategoryId(expandedCategoryId === category.categoryId ? null : category.categoryId)}
-            >
-              <span>{category.categoryName}</span>
-              {expandedCategoryId === category.categoryId ? <CloseOutlined /> : <CaretDownOutlined />}
-            </div>
-            {expandedCategoryId === category.categoryId && (
-              <Menu>
-                {brands.map((brand) => brand.categoryId === category.categoryId && (
-                  <Menu.Item key={brand.brandId} onClick={() => navigate(`/brand/${brand.brandId}`)}>
-                    {brand.brandName}
-                  </Menu.Item>
-                ))}
-              </Menu>
-            )}
-          </div>
-        ))}
-      </Drawer>
     </div>
   );
 };

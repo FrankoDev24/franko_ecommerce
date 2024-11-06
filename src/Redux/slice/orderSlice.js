@@ -42,7 +42,7 @@ export const updateOrderTransition = createAsyncThunk(
   "orders/updateOrderTransition",
   async ({ cycleName, orderId }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
+      const response = await axios.get(
         `${API_BASE_URL}/Order/UpdateOrderTransition/${cycleName}/${orderId}`
       );
       return response.data;
@@ -190,12 +190,16 @@ const orderSlice = createSlice({
 
     // Handle updateOrderTransition similarly
     .addCase(updateOrderTransition.pending, (state) => {
-      state.loading.orders = true;
+      state.loading = true;
       state.error.orders = null;
     })
-    .addCase(updateOrderTransition.fulfilled, (state) => {
-      state.loading.orders = false; // Ensure to update loading state
-      // Handle additional logic after successful update if needed
+   .addCase(updateOrderTransition.fulfilled, (state, action) => {
+    state.loading = false;
+      const updatedOrder = action.payload; // Ensure `payload` is an order object
+      const index = state.orders.findIndex(order => order.orderId === updatedOrder.orderId);
+      if (index !== -1) {
+        state.orders[index] = updatedOrder; // Update the order in place
+      }
     })
     .addCase(updateOrderTransition.rejected, (state, action) => {
       state.loading.orders = false;

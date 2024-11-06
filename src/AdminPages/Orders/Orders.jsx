@@ -23,7 +23,7 @@ const { Search } = Input;
 
 const Orders = () => {
   const dispatch = useDispatch();
-  const { orders, loading } = useSelector((state) => state.orders);
+  const { orders = [], loading } = useSelector((state) => state.orders);
   const [dateRange, setDateRange] = useState([null, null]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -83,15 +83,13 @@ const Orders = () => {
             cycleName: newCycle,
             orderId: selectedOrderId,
           })
-        );
+        ).unwrap(); // Unwraps the action result for error handling
         message.success("Order cycle updated successfully");
         setIsModalOpen(false);
         setNewCycle("");
-        fetchCurrentMonthOrders();
+        fetchCurrentMonthOrders(); // Refresh orders after update
       } catch (err) {
-        message.error(
-          `Error updating cycle: ${err.message || "An error occurred"}`
-        );
+        message.error(`Error updating cycle: ${err.message || "An error occurred"}`);
       }
     } else {
       message.error("Please select a cycle");
@@ -115,8 +113,10 @@ const Orders = () => {
   );
 
   const filteredOrders = groupedOrders.filter((order) => {
-    const fullNameMatch = order.fullName.toLowerCase().includes(searchText);
-    const statusMatch = order.orderCycle.toLowerCase().includes(searchText);
+    const fullNameMatch =
+      order.fullName && order.fullName.toLowerCase().includes(searchText);
+    const statusMatch =
+      order.orderCycle && order.orderCycle.toLowerCase().includes(searchText);
     return fullNameMatch || statusMatch;
   });
 
