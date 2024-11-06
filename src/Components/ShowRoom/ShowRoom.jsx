@@ -13,18 +13,18 @@ const ShowroomPage = () => {
   const navigate = useNavigate();
   const { showrooms, loading, error } = useSelector((state) => state.showrooms);
   const { productsByShowroom = {}, loading: loadingProducts, error: errorProducts } = useSelector((state) => state.products);
-  
+
   // Use shallow copy to avoid mutation
   const sortedProducts = showrooms.map((showroom) => {
     const showroomProducts = productsByShowroom[showroom.showRoomID] || [];
     return {
       ...showroom,
-      products: [...showroomProducts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10)
+      products: [...showroomProducts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10),
     };
   });
 
   useEffect(() => {
-    dispatch(fetchShowrooms()).unwrap().catch(error => console.error('Error fetching showrooms:', error));
+    dispatch(fetchShowrooms()).unwrap().catch((error) => console.error('Error fetching showrooms:', error));
   }, [dispatch]);
 
   useEffect(() => {
@@ -85,12 +85,12 @@ const ShowroomPage = () => {
     .filter((showroom) => showroom.products.length > 0)
     .map((showroom) => (
       <div key={showroom.showRoomID} className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <button className="text-md font-semibold text-white bg-red-500 py-2 px-4 rounded-full">
-            {showroom.showRoomName}
-          </button>
+        <div className="flex justify-between items-center mb-4 bg-gray-800 py-2 px-4 rounded-full ">
+        <button className="text-sm sm:text-lg font-semibold text-white">
+  {showroom.showRoomName}
+</button>
 
-          <Link to={`/showroom/${showroom.showRoomID}`} className="text-red-500 flex items-center">
+          <Link to={`/showroom/${showroom.showRoomID}`} className="text-sm font-semibold text-white flex items-center">
             <span>View More</span>
             <ArrowRightOutlined />
           </Link>
@@ -108,42 +108,47 @@ const ShowroomPage = () => {
             style={{ scrollBehavior: 'smooth' }}
           >
             {showroom.products.map((product) => (
-              <div key={product.productID} className="flex-shrink-0 w-1/4 p-2 relative group">
-                <Card
-                  hoverable
-                  className="border rounded-lg shadow-lg flex flex-col h-full transition-transform transform hover:scale-105 relative p-4"
-                  cover={
-                    <div
-                      onClick={() => navigate(`/product/${product.productID}`)}
-                      className="cursor-pointer"
-                    >
-                      {renderImage(product.productImage)}
-                    </div>
-                  }
-                >
-                  <Card.Meta
-                    title={<p className="text-gray-700 font-semibold text-xs truncate">{product.productName}</p>}
-                    description={
-                      <div className="flex flex-col mt-1">
-                        <p className="text-xs font-bold text-red-500">{`₵${formatCurrency(product.price)}`}</p>
-                        {product.oldPrice > 0 && (
-                          <div className="text-xs text-gray-500 line-through flex flex-col md:flex-row">
-                            <p>{`₵${formatCurrency(product.oldPrice)}`}</p>
-                          </div>
-                        )}
-                      </div>
-                    }
-                  />
-                  <Button
-                    shape="circle"
-                    icon={<ShoppingCartOutlined />}
-                    className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-red-500 text-white group-hover:opacity-100"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToCart(product);
-                    }}
-                  />
-                </Card>
+              <div
+                key={product.productID}
+                className="flex-shrink-0 w-1/2 sm:w-1/3 md:w-1/4 p-2 relative group" // 2 cols on mobile (w-1/2), 3 cols on small screen (sm:w-1/3), and 4 cols on larger screens (md:w-1/4)
+              >
+<Card
+  hoverable
+  className="border rounded-lg shadow-lg flex flex-col transition-transform transform hover:scale-105 relative p-2 sm:p-4"
+  style={{ height: 'auto' }}
+  cover={
+    <div onClick={() => navigate(`/product/${product.productID}`)} className="cursor-pointer">
+      <div className="w-full h-40 sm:h-56 md:h-72 overflow-hidden">
+        {renderImage(product.productImage)}
+      </div>
+    </div>
+  }
+>
+  <Card.Meta
+    title={<p className="text-gray-700 font-semibold text-xs truncate">{product.productName}</p>}
+    description={
+      <div className="flex flex-col mt-1">
+        <p className="text-xs font-bold text-red-500">{`₵${formatCurrency(product.price)}`}</p>
+        {product.oldPrice > 0 && (
+          <div className="text-xs text-gray-500 line-through flex flex-col md:flex-row">
+            <p>{`₵${formatCurrency(product.oldPrice)}`}</p>
+          </div>
+        )}
+      </div>
+    }
+  />
+  <Button
+    shape="circle"
+    icon={<ShoppingCartOutlined />}
+    className="absolute bottom-2 right-2 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-red-500 text-white group-hover:opacity-100"
+    onClick={(e) => {
+      e.stopPropagation();
+      handleAddToCart(product);
+    }}
+  />
+</Card>
+
+
               </div>
             ))}
           </div>
@@ -158,7 +163,6 @@ const ShowroomPage = () => {
     ))}
 </div>
 
- 
   );
 };
 

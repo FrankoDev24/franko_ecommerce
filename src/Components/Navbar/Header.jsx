@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, Carousel } from 'antd';
 import { MenuOutlined, AppstoreOutlined, CaretDownOutlined, CloseOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../Redux/slice/categorySlice';
 import { fetchBrands } from '../../Redux/slice/brandSlice';
+import caro1 from '../../assets/slide1.jpg'
+import caro2 from '../../assets/slide2.jpg'
+import caro3 from '../../assets/slide3.jpg'
+import caro4 from '../../assets/slide4.jpg'
+import caro5 from '../../assets/slide5.jpg'
 
 import './Header.css';
 
@@ -52,98 +57,113 @@ const Header = () => {
   };
 
   return (
-    <div className="header-container flex flex-col md:flex-row relative bg-gray-50">
-      {/* Categories Block on the Left (Desktop View) */}
-      <div className="categories-block hidden md:flex flex-col w-1/4 bg-gray-100 p-6 rounded-lg shadow-lg  top-0 relative">
-        <h3 className="text-lg font-semibold mb-4 text-red-500">Categories</h3>
-        {status === 'loading' ? (
-          <p>Loading categories...</p>
-        ) : (
-          <div className="categories-list">
-            {categories.map((category) => (
-              <div
-                key={category.categoryId}
-                className={`category-item flex items-center justify-between cursor-pointer py-2 relative rounded-md ${activeCategoryId === category.categoryId ? 'bg-green-100 text-green-700' : 'bg-white text-gray-700'} hover:bg-green-50`}
-                onClick={() => handleCategoryClick(category.categoryId)}
-              >
-                <span className="flex items-center">
-                  <AppstoreOutlined />
-                  <span className="ml-2 font-semibold">{category.categoryName}</span>
-                </span>
-                <CaretDownOutlined className="text-gray-400" />
-                {activeCategoryId === category.categoryId && renderBrands(category.categoryId)}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Carousel on the Right for Desktop View */}
-      <div className="carousel hidden md:block w-3/4 h-full">
-        <img src="carousel-image-url" alt="Carousel" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" />
-      </div>
-
-      {/* Mobile View: Carousel and Menu Button */}
-      <div className="mobile-header md:hidden w-full relative">
-        <div className="mobile-menu-button sticky top-0 left-0 w-full z-50 bg-red-500 p-4 mb-5">
-          <Button
-            type="text"
-            icon={<MenuOutlined />}
-            onClick={() => setIsMenuOpen(true)}
-            className="menu-button text-sm text-white flex items-center justify-center  focus:bg-red-500"
-          >
-            <span className="ml-2">Categories</span>
-          </Button>
+    <div className="container mx-auto p-4">
+      <div className="header-container flex flex-col md:flex-row relative bg-gray-50">
+        
+        {/* Categories Block on the Left (Desktop View) */}
+        <div className="categories-block hidden md:flex flex-col w-1/4 p-6 rounded-lg shadow-lg top-0 relative">
+          <h3 className="text-lg font-semibold mb-4 text-red-500">Categories</h3>
+          {status === 'loading' ? (
+            <p>Loading categories...</p>
+          ) : (
+            <div className="categories-list">
+              {categories.map((category) => (
+                <div
+                  key={category.categoryId}
+                  className={`category-item flex items-center justify-between cursor-pointer py-2 relative rounded-md ${activeCategoryId === category.categoryId ? 'bg-green-100 text-green-700' : 'bg-white text-gray-700'} hover:bg-green-50`}
+                  onClick={() => handleCategoryClick(category.categoryId)}
+                >
+                  <span className="flex items-center">
+                    <AppstoreOutlined />
+                    <span className="ml-2 font-semibold">{category.categoryName}</span>
+                  </span>
+                  <CaretDownOutlined className="text-gray-400" />
+                  {activeCategoryId === category.categoryId && renderBrands(category.categoryId)}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="carousel w-full h-48 mt-4">
-          <img src="carousel-image-url" alt="Carousel" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" />
-        </div>
-      </div>
+        {/* Carousel Block on the Right for Desktop View */}
+        <div className="carousel hidden md:block w-3/4 h-2/4">  {/* Reduced height for desktop */}
+  <Carousel autoplay>
+    <div><img src={caro1} alt="Carousel 1" className="carousel-image w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
+    <div><img src={caro2} alt="Carousel 2" className="carousel-image  w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
+    <div><img src={caro3} alt="Carousel 3" className="carousel-image  w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
+    <div><img src={caro4} alt="Carousel 4" className="carousel-image  w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
+    <div><img src={caro5} alt="Carousel 5" className="carousel-image  w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
+  </Carousel>
+</div>
 
-      {/* Drawer for Mobile View */}
-      <Drawer
-        title="Categories"
-        placement="left"
-        width={300}
-        onClose={() => setIsMenuOpen(false)}
-        visible={isMenuOpen}
-        headerStyle={{ backgroundColor: '#00796b', color: 'white' }}
-        drawerStyle={{ backgroundColor: '#f4f6f8' }}
-      >
-        {categories.map((category) => (
-          <div key={category.categoryId} className="category-drawer-item">
-            <div
-              className={`category-title flex items-center justify-between cursor-pointer py-2 rounded-md ${expandedCategoryId === category.categoryId ? 'bg-green-200' : ''}`}
-              onClick={() => setExpandedCategoryId(expandedCategoryId === category.categoryId ? null : category.categoryId)}
+        {/* Mobile View: Carousel and Menu Button */}
+        <div className="mobile-header md:hidden w-full relative">
+          <div className="mobile-menu-button sticky top-0 left-0 w-full z-50 bg-red-500 p-4 mb-5">
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              onClick={() => setIsMenuOpen(true)}
+              className="menu-button text-sm text-white flex items-center justify-center focus:bg-red-500"
             >
-              <span className="text-gray-700">
-                <AppstoreOutlined /> <span className="ml-2">{category.categoryName}</span>
-              </span>
-              {expandedCategoryId === category.categoryId ? (
-                <CloseOutlined onClick={() => setExpandedCategoryId(null)} />
-              ) : (
-                <CaretDownOutlined />
+              <span className="ml-2">Categories</span>
+            </Button>
+          </div>
+
+          <div className="carousel w-full h-48 mt-4">
+            <Carousel autoplay>
+              <div><img src={caro1} alt="Carousel 1" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
+              <div><img src={caro2} alt="Carousel 2" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
+              <div><img src={caro3} alt="Carousel 3" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
+              <div><img src={caro4} alt="Carousel 4" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
+              <div><img src={caro5} alt="Carousel 5" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
+            </Carousel>
+          </div>
+        </div>
+
+        {/* Drawer for Mobile View */}
+        <Drawer
+          title="Categories"
+          placement="left"
+          width={300}
+          onClose={() => setIsMenuOpen(false)}
+          visible={isMenuOpen}
+          headerStyle={{ backgroundColor: '#00796b', color: 'white' }}
+          drawerStyle={{ backgroundColor: '#f4f6f8' }}
+        >
+          {categories.map((category) => (
+            <div key={category.categoryId} className="category-drawer-item">
+              <div
+                className={`category-title flex items-center justify-between cursor-pointer py-2 rounded-md ${expandedCategoryId === category.categoryId ? 'bg-green-200' : ''}`}
+                onClick={() => setExpandedCategoryId(expandedCategoryId === category.categoryId ? null : category.categoryId)}
+              >
+                <span className="text-gray-700">
+                  <AppstoreOutlined /> <span className="ml-2">{category.categoryName}</span>
+                </span>
+                {expandedCategoryId === category.categoryId ? (
+                  <CloseOutlined onClick={() => setExpandedCategoryId(null)} />
+                ) : (
+                  <CaretDownOutlined />
+                )}
+              </div>
+              {expandedCategoryId === category.categoryId && (
+                <div className="ml-4 grid grid-cols-3 gap-3 overflow-y-auto max-h-40">
+                  {brands
+                    .filter((brand) => brand.categoryId === category.categoryId)
+                    .map((brand) => (
+                      <div
+                        key={brand.brandId}
+                        className="brand-item py-2 cursor-pointer text-center hover:bg-gray-100 rounded-md bg-white"
+                        onClick={() => navigate(`/brand/${brand.brandId}`)}
+                      >
+                        {brand.brandName}
+                      </div>
+                    ))}
+                </div>
               )}
             </div>
-            {expandedCategoryId === category.categoryId && (
-              <div className="ml-4 grid grid-cols-3 gap-3 overflow-y-auto max-h-40">
-                {brands
-                  .filter((brand) => brand.categoryId === category.categoryId)
-                  .map((brand) => (
-                    <div
-                      key={brand.brandId}
-                      className="brand-item py-2 cursor-pointer text-center hover:bg-gray-100 rounded-md bg-white"
-                      onClick={() => navigate(`/brand/${brand.brandId}`)}
-                    >
-                      {brand.brandName}
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </Drawer>
+          ))}
+        </Drawer>
+      </div>
     </div>
   );
 };
