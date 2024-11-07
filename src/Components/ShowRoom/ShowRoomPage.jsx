@@ -76,23 +76,23 @@ const ShowroomProductsPage = () => {
       {error ? (
         <div className="text-center text-red-500 mt-6">Error fetching products</div>
       ) : currentProducts.length > 0 || loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-4">
           {currentProducts.map((product, index) => (
             <div
               ref={index === currentProducts.length - 1 ? lastProductRef : null}
               key={product.productID || index} // fallback key for skeleton
-              className="relative group p-4 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer"
+              className="relative group p-3 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer"
               onClick={() => navigate(`/product/${product.productID}`)}
             >
               {loading ? (
                 <div className="animate-pulse">
-                  <div className="bg-gray-300 h-48 md:h-60 rounded-lg mb-4"></div>
-                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                  <div className="bg-gray-300 h-36 md:h-44 rounded-lg mb-2"></div>
+                  <div className="h-3 bg-gray-300 rounded w-3/4 mb-1"></div>
+                  <div className="h-3 bg-gray-300 rounded w-1/2"></div>
                 </div>
               ) : (
                 <>
-                  <div className="h-48 md:h-60 lg:h-72 flex items-center justify-center mb-4">
+                  <div className="h-36 md:h-44 lg:h-52 flex items-center justify-center mb-3">
                     <img
                       src={`https://api.salesmate.app/Media/Products_Images/${product.productImage
                         .split("\\")
@@ -102,11 +102,11 @@ const ShowroomProductsPage = () => {
                     />
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <h2 className="text-base md:text-lg font-semibold text-gray-800 truncate">
+                    <h2 className="text-sm md:text-base font-semibold text-gray-800 truncate">
                       {product.productName}
                     </h2>
                     <div className="flex md:items-center md:flex-row flex-col md:space-x-2">
-                      <span className="text-lg md:text-xl font-bold text-gray-900">
+                      <span className="text-lg md:text-xl font-bold text-red-500">
                         {`₵${formatPrice(product.price)}`}
                       </span>
                       {product.oldPrice > 0 && (

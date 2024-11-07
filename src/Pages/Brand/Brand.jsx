@@ -69,12 +69,12 @@ const Brand = () => {
     <div className="container mx-auto p-4">
       <div className="mt-12"></div>
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="animate-pulse border rounded-lg shadow p-4">
-              <div className="h-48 bg-gray-200 rounded-lg mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div key={index} className="animate-pulse border rounded-lg shadow p-3">
+              <div className="h-36 bg-gray-200 rounded-lg mb-3"></div>
+              <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
             </div>
           ))}
         </div>
@@ -82,15 +82,15 @@ const Brand = () => {
         <div className="text-center text-red-500">Error fetching products</div>
       ) : products.length > 0 ? (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             {products.slice(0, visibleProducts).map((product, index) => (
               <div
                 key={product.productID}
                 ref={index === visibleProducts - 1 ? lastProductRef : null}
-                className="relative group p-4 bg-white border border-gray-200 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 cursor-pointer"
+                className="relative group p-3 bg-white border border-gray-200 rounded-lg shadow-lg transition-transform duration-300 transform hover:scale-105 cursor-pointer"
                 onClick={() => handleCardClick(product)}
               >
-                <div className="h-48 md:h-64 flex items-center justify-center mb-4">
+                <div className="h-36 md:h-48 flex items-center justify-center mb-3">
                   <img
                     src={renderImage(product.productImage)}
                     alt={product.productName}
@@ -99,15 +99,15 @@ const Brand = () => {
                 </div>
 
                 <div className="flex flex-col space-y-1">
-                  <h2 className="text-base md:text-lg font-semibold text-gray-800 truncate">
+                  <h2 className="text-sm md:text-base font-semibold text-gray-800 truncate">
                     {product.productName}
                   </h2>
                   <div className="flex items-center space-x-2">
-                    <span className="text-lg font-bold text-red-500">
+                    <span className="text-sm md:text-lg font-bold text-red-500">
                       {`₵${formatPrice(product.price.toFixed(2))}`}
                     </span>
                     {product.oldPrice > 0 && (
-                      <span className="text-sm line-through text-gray-500">
+                      <span className="text-xs line-through text-gray-500">
                         {`₵${formatPrice(product.oldPrice.toFixed(2))}`}
                       </span>
                     )}
@@ -120,7 +120,7 @@ const Brand = () => {
                     handleAddToCart(product);
                   }}
                 >
-                  <ShoppingCartOutlined className="text-2xl text-red-500 hover:text-red-600 transition-colors duration-200" />
+                  <ShoppingCartOutlined className="text-xl md:text-2xl text-red-500 hover:text-red-600 transition-colors duration-200" />
                 </div>
               </div>
             ))}

@@ -5,6 +5,9 @@ import Footer from '../../Components/Footer/Footer'
 import ShopByBrandsBanner from '../../Components/BrandsBanner'
 import RecentProducts from '../../Components/RecentProducts'
 import Header from '../../Components/Navbar/Header'
+import InfoBanner from '../../Components/InfoBanner';  // Correct for default export
+
+
 
 
 export default function Home() {
@@ -13,9 +16,14 @@ export default function Home() {
       <div>
 <Header/>
 </div>
+<ShopByBrandsBanner/>
         <ShowRoom />
-        <ShopByBrandsBanner/>
+   
+         <InfoBanner/>
+     
+     
      <RecentProducts/>
+
         <div>
           
 

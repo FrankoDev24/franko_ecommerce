@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Input, Badge, Button, Dropdown, Menu, Modal } from 'antd';
+import { Input, Badge, Button, Dropdown, Menu, Modal, Avatar, message } from 'antd';
 import {
   SearchOutlined,
   ShoppingCartOutlined,
@@ -15,10 +15,17 @@ import { logoutCustomer } from '../../Redux/slice/customerSlice';
 import frankoLoge from '../../assets/frankoIcon.png';
 import './Navbar.css';
 
-const AccountDropdown = ({ onLogout }) => (
+const AccountDropdown = ({ onLogout, customer }) => (
   <Menu>
-    <Menu.Item icon={<UserOutlined />} onClick={() => { /* Add profile navigation here */ }}>
-      Profile
+    <Menu.Item key="firstName">
+      <strong>{customer.firstName}</strong>
+    </Menu.Item>
+    <Menu.Item key="email">
+      <span>{customer.email}</span>
+    </Menu.Item>
+    <Menu.Divider />
+    <Menu.Item icon={<UserOutlined />} onClick={() => {/* Add profile navigation here */}}>
+      Profile Settings
     </Menu.Item>
     <Menu.Item icon={<LogoutOutlined />} onClick={onLogout}>
       Logout
@@ -33,7 +40,7 @@ const Navbar = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   const totalItems = useSelector((state) => state.cart.totalItems);
   const currentCustomer = useSelector((state) => state.customer.currentCustomer);
 
@@ -52,11 +59,18 @@ const Navbar = () => {
     localStorage.removeItem('cartId');
     localStorage.removeItem('customerDetails');
     dispatch(logoutCustomer());
-    window.location.reload();
+    navigate('/');
   };
 
-  const isUserLoggedIn = !!(localStorage.getItem('userId') || currentCustomer);
-  const firstName = currentCustomer?.firstName || JSON.parse(localStorage.getItem('customerDetails'))?.firstName || '';
+  const customerDetails = currentCustomer || JSON.parse(localStorage.getItem('customerDetails')) || {};
+  const isUserLoggedIn = currentCustomer !== null; // Check if user is logged in from Redux state
+  const initials = customerDetails?.firstName?.[0] || '';
+
+  const handleSearch = () => {
+    if (searchValue) {
+      message.info(`Searching for "${searchValue}"...`);
+    }
+  };
 
   return (
     <div className="flex flex-col w-full sticky-navbar">
@@ -78,16 +92,17 @@ const Navbar = () => {
                 <CloseOutlined className="text-gray-400 cursor-pointer" onClick={() => setSearchValue('')} />
               ) : null}
               className="w-full rounded-full"
+              onPressEnter={handleSearch}
             />
           </div>
 
           <div className="flex items-center gap-6">
             <div className="hidden lg:flex flex-col items-end">
               <div className="text-sm text-gray-500">Call Us Now</div>
-              <div className="text-green-800 font-semibold flex items-center gap-1">
+              <a href="tel:+233302752020" className="text-green-800 font-semibold flex items-center gap-1">
                 <PhoneOutlined />
                 +233 030 2752020
-              </div>
+              </a>
             </div>
 
             <div className="flex items-center gap-4 relative">
@@ -96,27 +111,25 @@ const Navbar = () => {
                   className="text-xl text-gray-400 cursor-pointer"
                   onClick={() => setIsSearchModalOpen(true)}
                 />
-                <PhoneOutlined className="text-xl text-green-800 cursor-pointer" />
+                <a href="https://wa.me/233302752020" target="_blank" rel="noopener noreferrer">
+                  <PhoneOutlined className="text-xl text-green-800 cursor-pointer" />
+                </a>
               </div>
 
               {isUserLoggedIn ? (
-                <>
-                  <Dropdown 
-                    overlay={<AccountDropdown onLogout={handleLogout} />} 
-                    trigger={['hover']}
-                    visible={isAccountDropdownVisible}
-                    onMouseEnter={() => setAccountDropdownVisible(true)}
-                    onMouseLeave={() => setAccountDropdownVisible(false)}
-                  >
-                   <div className="text-red-600 font-semibold cursor-pointer text-sm md:text-base">
-  Hello, {firstName}!
-</div>
-
-                  </Dropdown>
-                </>
+                <Dropdown
+                  overlay={<AccountDropdown onLogout={handleLogout} customer={customerDetails} />}
+                  trigger={['click']}
+                  visible={isAccountDropdownVisible}
+                  onVisibleChange={(visible) => setAccountDropdownVisible(visible)}
+                >
+                  <div className="flex items-center cursor-pointer">
+                    <Avatar className='bg-green-800'>{initials}</Avatar>
+                  </div>
+                </Dropdown>
               ) : (
-                <Button 
-                  onClick={() => navigate('/sign-in')} 
+                <Button
+                  onClick={() => navigate('/sign-in')}
                   className="text-white bg-green-800 hover:bg-green-600"
                 >
                   Login
@@ -124,7 +137,10 @@ const Navbar = () => {
               )}
 
               <Badge count={totalItems || 0} className="cursor-pointer">
-                <ShoppingCartOutlined className="text-xl hover:text-blue-600" onClick={() => navigate(`/cart/${localStorage.getItem('cartId')}`)} />
+                <ShoppingCartOutlined
+                  className="text-xl hover:text-blue-600"
+                  onClick={() => navigate(`/cart/${localStorage.getItem('cartId')}`)}
+                />
               </Badge>
             </div>
           </div>
@@ -146,6 +162,7 @@ const Navbar = () => {
             <CloseOutlined className="text-gray-400 cursor-pointer" onClick={() => setSearchValue('')} />
           ) : null}
           className="w-full rounded-full"
+          onPressEnter={handleSearch}
         />
       </Modal>
     </div>

@@ -96,7 +96,7 @@ const Header = () => {
         </div>
 
         {/* Carousel Block on the Right for Desktop View */}
-        <div className="carousel-container hidden md:block w-3/4" style={{ height: '300px' }}>
+        <div className="carousel-container hidden md:block w-3/4 mb-10"  style={{ height: '300px' }}>
   <Carousel autoplay>
     {[caro1, caro2, caro3, caro4, caro5].map((image, index) => (
       <div key={index}>

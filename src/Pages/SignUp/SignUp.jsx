@@ -67,13 +67,13 @@ const RegistrationPage = () => {
           <h2 className="text-2xl font-bold mb-4 text-center">Register</h2> {/* Centered heading */}
         </div>
 
-        <Form.Item label="Account Number">
           <Input
             name="customerAccountNumber"
             value={formData.customerAccountNumber} // Ensure the account number is displayed
             readOnly // Make account number read-only
+            hidden
           />
-        </Form.Item>
+       
 
         <Form.Item label="First Name" name="firstName" rules={[{ required: true, message: 'Please input your first name!' }]}>
           <Input 

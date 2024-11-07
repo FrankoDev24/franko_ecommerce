@@ -25,7 +25,7 @@ export const updateProduct = createAsyncThunk('products/updateProduct', async (p
     }
   );
 
-  console.log("Updated product response:", response.data); // Log the response for debugging
+  
   return response.data;
 });
 
@@ -48,33 +48,41 @@ export const updateProductImage = createAsyncThunk(
       }
     );
     
-    console.log("Updated product image response:", response.data); // Log the response for debugging
+
     return response.data; // Assuming the response returns the updated product
   }
+
 );
 
 // Async thunk for fetching all products
+
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
   const response = await axios.get(`${API_BASE_URL}/Product/Product-Get`);
-  return response.data; // Assuming the response data contains the product list
+
+  // Assuming response.data contains the product list and each product has a `createdAt` field
+  const sortedProducts = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  
+  return sortedProducts;
 });
 
 // Async thunk for fetching products by brand
 export const fetchProductsByBrand = createAsyncThunk('products/fetchProductsByBrand', async (brandId) => {
   const response = await axios.get(`${API_BASE_URL}/Product/Product-Get-by-Brand/${brandId}`);
-  return response.data; // Assuming the response data contains the filtered product list
+  
+  // Sort by `createdAt` or `updatedAt`
+  const sortedProducts = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  
+  return sortedProducts;
 });
 
-// Async thunk for fetching products by showroom
-// Inside your productSlice
-export const fetchProductsByShowroom = createAsyncThunk(
-  'products/fetchProductsByShowroom',
-  async (showRoomID) => {
-    const response = await axios.get(`https://api.salesmate.app/Product/Product-Get-by-ShowRoom/${showRoomID}`);
-    console.log("Fetched products:", response.data); // Log the response
-    return { showRoomID, products: response.data };
-  }
-);
+export const fetchProductsByShowroom = createAsyncThunk('products/fetchProductsByShowroom', async (showRoomID) => {
+  const response = await axios.get(`${API_BASE_URL}/Product/Product-Get-by-ShowRoom/${showRoomID}`);
+
+  const sortedProducts = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  return { showRoomID, products: sortedProducts };
+});
+
 
 
 
@@ -181,7 +189,7 @@ const productSlice = createSlice({
     // Inside extraReducers
 .addCase(fetchProductsByShowroom.fulfilled, (state, action) => {
   const { showRoomID, products } = action.payload;
-  console.log("Products for showroom:", products); // Log the products for this showroom
+
   state.productsByShowroom[showRoomID] = products; // Update products for that showroom
   state.loading = false;
 })

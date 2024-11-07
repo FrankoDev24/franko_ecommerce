@@ -1,21 +1,19 @@
-import React, { useEffect, } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts } from '../Redux/slice/productSlice'; // Adjust the import path according to your project structure
-import {  Empty, message, Button } from 'antd'; // Using Ant Design components for UI
+import { fetchProducts } from '../Redux/slice/productSlice';
+import { Empty, message, Button } from 'antd';
 import { ShoppingCartOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
-import { addToCart } from '../Redux/slice/cartSlice'; // Adjust path based on your project structure
+import { addToCart } from '../Redux/slice/cartSlice';
 
 const RecentProducts = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { products, loading, error } = useSelector((state) => state.products);
 
-
   useEffect(() => {
-    dispatch(fetchProducts()); // Fetch products on component mount
+    dispatch(fetchProducts());
   }, [dispatch]);
-
 
   const handleAddToCart = (product) => {
     const cartData = {
@@ -38,27 +36,27 @@ const RecentProducts = () => {
       });
   };
 
-  // Get the 12 most recent products (last 12 items)
-  const recentProducts = products.slice(-12); // Adjusting the slice to show only the last 12 products
+  // Get the 12 most recent products
+  const recentProducts = products.slice(-12);
 
-  // Function to format price with commas
+  // Format price with commas
   const formatPrice = (price) =>
     price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   return (
     <div className="container mx-auto p-4 md:p-6">
-      <h1 className="text-2xl md:text-2xl font-semibold mb-4 text-red-500">Recently Added</h1>
+      <h1 className="text-xl md:text-2xl font-semibold mb-4 text-red-500">Recently Added</h1>
 
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-4">
           {Array.from({ length: 12 }).map((_, index) => (
             <div
               key={index}
-              className="animate-pulse p-4 border rounded-lg shadow-md bg-gray-50"
+              className="animate-pulse p-2 md:p-3 border rounded-lg shadow-md bg-gray-50"
             >
-              <div className="bg-gray-300 h-48 md:h-60 rounded-lg mb-4"></div>
-              <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+              <div className="bg-gray-300 h-32 md:h-48 rounded-lg mb-3"></div>
+              <div className="h-3 bg-gray-300 rounded w-3/4 mb-1"></div>
+              <div className="h-3 bg-gray-300 rounded w-1/2"></div>
             </div>
           ))}
         </div>
@@ -68,14 +66,14 @@ const RecentProducts = () => {
         </div>
       ) : recentProducts.length > 0 ? (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-4">
             {recentProducts.map((product) => (
               <div
                 key={product.productID}
-                className="relative group p-4 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer"
+                className="relative group p-2 md:p-3 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer"
                 onClick={() => navigate(`/product/${product.productID}`)}
               >
-                <div className="h-48 md:h-60 lg:h-72 flex items-center justify-center mb-4">
+                <div className="h-32 md:h-48 lg:h-56 flex items-center justify-center mb-3">
                   <img
                     src={`https://api.salesmate.app/Media/Products_Images/${product.productImage
                       .split("\\")
@@ -85,15 +83,15 @@ const RecentProducts = () => {
                   />
                 </div>
                 <div className="flex flex-col space-y-1">
-                  <h2 className="text-base md:text-lg font-semibold text-gray-800 truncate">
+                  <h2 className="text-sm md:text-base font-semibold text-gray-800 truncate">
                     {product.productName}
                   </h2>
                   <div className="flex md:items-center md:flex-row flex-col md:space-x-2">
-                    <span className="text-lg md:text-xl font-bold text-red-500">
+                    <span className="text-base md:text-lg font-bold text-red-500">
                       {`₵${formatPrice(product.price)}`}
                     </span>
                     {product.oldPrice > 0 && (
-                      <span className="text-sm line-through text-gray-500 md:inline-block block mt-1 md:mt-0">
+                      <span className="text-xs line-through text-gray-500 md:inline-block block mt-1 md:mt-0">
                         {`₵${formatPrice(product.oldPrice)}`}
                       </span>
                     )}
@@ -106,12 +104,11 @@ const RecentProducts = () => {
                     handleAddToCart(product);
                   }}
                 >
-                  <ShoppingCartOutlined className="text-xl md:text-2xl text-red-500 hover:text-red-600 transition-colors duration-200" />
+                  <ShoppingCartOutlined className="text-lg md:text-xl text-red-500 hover:text-red-600 transition-colors duration-200" />
                 </div>
               </div>
             ))}
           </div>
-        
         </>
       ) : (
         <div className="flex flex-col items-center justify-center mt-10">
@@ -122,21 +119,20 @@ const RecentProducts = () => {
               </span>
             }
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            imageStyle={{ height: 200, marginBottom: 6 }}
+            imageStyle={{ height: 150, marginBottom: 6 }}
           />
         </div>
       )}
-<div className="flex justify-center mt-6">
-  <Button 
-    shape="round" 
-    icon={<ArrowRightOutlined />} 
-    className="text-sm bg-red-500 text-white px-4 py-2 md:px-6 md:py-4 md:text-base"
-    onClick={() => navigate('/products')} // Navigate to products page on click
-  >
-    View All Products
-  </Button>
-</div>
-
+      <div className="flex justify-center mt-6">
+        <Button
+          shape="round"
+          icon={<ArrowRightOutlined />}
+          className="text-xs md:text-sm bg-red-500 text-white px-3 py-2 md:px-4 md:py-3"
+          onClick={() => navigate('/products')}
+        >
+          Shop Now
+        </Button>
+      </div>
     </div>
   );
 };
