@@ -10,8 +10,10 @@ import Header from '../../Components/Navbar/Header'
 export default function Home() {
   return (
     <div>
+      <div>
 <Header/>
-        <ShowRoom/>
+</div>
+        <ShowRoom />
         <ShopByBrandsBanner/>
      <RecentProducts/>
         <div>

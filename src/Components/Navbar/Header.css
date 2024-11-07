@@ -1,7 +1,4 @@
-.category-item:hover {
-    background-color: #f0fdf4; /* Light green background for hover */
-  }
-  
+
   .brands-list {
     display: flex;
     flex-direction: column;
@@ -55,4 +52,23 @@
   .brand-item:hover {
     background-color: #e6e6e6;
   }
+  /* Header.css */
+.carousel-container {
+    height: 300px;
+  }
   
+  .carousel-image {
+    height: 300px;
+    object-fit: cover;
+  }
+  @media (max-width: 768px) {
+    .carousel-container {
+        height: 180px; /* Adjust as needed for mobile view */
+        margin-bottom: 100px;
+    }
+
+    .carousel-image {
+        height: 180px;
+        object-fit: cover;
+    }
+}

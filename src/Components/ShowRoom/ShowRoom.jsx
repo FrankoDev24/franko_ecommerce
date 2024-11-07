@@ -58,7 +58,7 @@ const ShowroomPage = () => {
 
   if (loading || loadingProducts) {
     return (
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 mt-12">
         <Row gutter={16}>
           {Array.from({ length: 4 }).map((_, index) => (
             <Col key={index} xs={12} sm={12} md={8} lg={6} style={{ marginBottom: '20px' }}>
@@ -84,7 +84,7 @@ const ShowroomPage = () => {
     .sort((a, b) => (a.showRoomName === 'Flash sales' ? -1 : b.showRoomName === 'Flash sales' ? 1 : 0)) // Ensure 'Flash Sales' is first
     .filter((showroom) => showroom.products.length > 0)
     .map((showroom) => (
-      <div key={showroom.showRoomID} className="mb-8">
+      <div key={showroom.showRoomID} className="mb-2">
         <div className="flex justify-between items-center mb-4 bg-gray-800 py-2 px-4 rounded-full ">
         <button className="text-sm sm:text-lg font-semibold text-white">
   {showroom.showRoomName}

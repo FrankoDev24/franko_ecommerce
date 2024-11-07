@@ -1,26 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Drawer, Carousel } from 'antd';
 import { MenuOutlined, AppstoreOutlined, CaretDownOutlined, CloseOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../Redux/slice/categorySlice';
 import { fetchBrands } from '../../Redux/slice/brandSlice';
-import caro1 from '../../assets/slide1.jpg'
-import caro2 from '../../assets/slide2.jpg'
-import caro3 from '../../assets/slide3.jpg'
-import caro4 from '../../assets/slide4.jpg'
-import caro5 from '../../assets/slide5.jpg'
-
+import caro1 from '../../assets/slide1.jpg';
+import caro2 from '../../assets/slide2.jpg';
+import caro3 from '../../assets/slide3.jpg';
+import caro4 from '../../assets/slide4.jpg';
+import caro5 from '../../assets/slide5.jpg';
 import './Header.css';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeCategoryId, setActiveCategoryId] = useState(null);
   const [expandedCategoryId, setExpandedCategoryId] = useState(null);
+  const [carouselHeight, setCarouselHeight] = useState('auto');
+  
+  const categoriesRef = useRef(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { categories, status } = useSelector((state) => state.categories);
   const { brands } = useSelector((state) => state.brands);
 
@@ -29,12 +30,18 @@ const Header = () => {
     dispatch(fetchBrands());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (categoriesRef.current) {
+      setCarouselHeight(categoriesRef.current.clientHeight);
+    }
+  }, [categories, brands]);
+
   const renderBrands = (categoryId) => {
     const filteredBrands = brands.filter((brand) => brand.categoryId === categoryId);
     if (filteredBrands.length === 0) return null;
 
     return (
-      <div className="brands-list p-4 bg-white shadow-lg rounded-lg absolute top-0 left-full ml-2 w-72 grid grid-cols-3 gap-4 overflow-y-auto max-h-48">
+      <div className="brands-list p-4 bg-white shadow-lg rounded-lg absolute top-0 left-full ml-2 w-72 grid grid-cols-3 gap-4 overflow-y-auto max-h-48 z-10">
         <CloseOutlined
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 cursor-pointer md:block hidden"
           onClick={() => setActiveCategoryId(null)}
@@ -57,11 +64,14 @@ const Header = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mb-12">
       <div className="header-container flex flex-col md:flex-row relative bg-gray-50">
         
         {/* Categories Block on the Left (Desktop View) */}
-        <div className="categories-block hidden md:flex flex-col w-1/4 p-6 rounded-lg shadow-lg top-0 relative">
+        <div
+          className="categories-block hidden md:flex flex-col w-1/4 p-6 rounded-lg shadow-lg relative"
+          ref={categoriesRef}
+        >
           <h3 className="text-lg font-semibold mb-4 text-red-500">Categories</h3>
           {status === 'loading' ? (
             <p>Loading categories...</p>
@@ -86,18 +96,23 @@ const Header = () => {
         </div>
 
         {/* Carousel Block on the Right for Desktop View */}
-        <div className="carousel hidden md:block w-3/4 h-2/4">  {/* Reduced height for desktop */}
+        <div className="carousel-container hidden md:block w-3/4" style={{ height: '300px' }}>
   <Carousel autoplay>
-    <div><img src={caro1} alt="Carousel 1" className="carousel-image w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
-    <div><img src={caro2} alt="Carousel 2" className="carousel-image  w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
-    <div><img src={caro3} alt="Carousel 3" className="carousel-image  w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
-    <div><img src={caro4} alt="Carousel 4" className="carousel-image  w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
-    <div><img src={caro5} alt="Carousel 5" className="carousel-image  w-3/4 h-2/4 object-cover rounded-lg shadow-lg" /></div>
+    {[caro1, caro2, caro3, caro4, caro5].map((image, index) => (
+      <div key={index}>
+        <img 
+          src={image} 
+          alt={`Carousel ${index + 1}`} 
+          className="carousel-image w-full object-cover rounded-lg shadow-lg" 
+          style={{ height: '530px' }} 
+        />
+      </div>
+    ))}
   </Carousel>
 </div>
 
         {/* Mobile View: Carousel and Menu Button */}
-        <div className="mobile-header md:hidden w-full relative">
+        <div className="mobile-header md:hidden w-full relative mb-8">
           <div className="mobile-menu-button sticky top-0 left-0 w-full z-50 bg-red-500 p-4 mb-5">
             <Button
               type="text"
@@ -109,15 +124,20 @@ const Header = () => {
             </Button>
           </div>
 
-          <div className="carousel w-full h-48 mt-4">
-            <Carousel autoplay>
-              <div><img src={caro1} alt="Carousel 1" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
-              <div><img src={caro2} alt="Carousel 2" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
-              <div><img src={caro3} alt="Carousel 3" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
-              <div><img src={caro4} alt="Carousel 4" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
-              <div><img src={caro5} alt="Carousel 5" className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" /></div>
-            </Carousel>
-          </div>
+          <div className="carousel w-full h-24 mt-0.5 mb-4">
+  <Carousel autoplay>
+    {[caro1, caro2, caro3, caro4, caro5].map((image, index) => (
+      <div key={index}>
+        <img 
+          src={image} 
+          alt={`Carousel ${index + 1}`} 
+          className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" 
+        />
+      </div>
+    ))}
+  </Carousel>
+</div>
+
         </div>
 
         {/* Drawer for Mobile View */}
