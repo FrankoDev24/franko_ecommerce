@@ -119,7 +119,7 @@ const ShowroomPage = () => {
                 </div>
               )}
               <Link to={`/showroom/${showroom.showRoomID}`} className="flex items-center text-xs sm:text-sm">
-                <span className="mr-1">View More</span>
+                <span className="mr-1">Shop Now</span>
                 <RightOutlined />
               </Link>
             </div>
@@ -145,9 +145,15 @@ const ShowroomPage = () => {
                       className="rounded-lg shadow-lg transition-transform transform hover:scale-105"
                       cover={
                         <div onClick={() => navigate(`/product/${product.productID}`)} className="cursor-pointer">
-                          <div className="w-full h-24 sm:h-32 overflow-hidden rounded-lg">
-                            {renderImage(product.productImage)}
-                          </div>
+                          <div className="h-32 md:h-48 lg:h-56 flex items-center justify-center mb-3">
+                  <img
+                    src={`https://api.salesmate.app/Media/Products_Images/${product.productImage
+                      .split("\\")
+                      .pop()}`}
+                    alt={product.productName}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
                         </div>
                       }
                     >

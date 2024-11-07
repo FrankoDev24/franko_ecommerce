@@ -10,7 +10,6 @@ const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [address, setAddress] = useState("");
-  const [geoLocation, setGeoLocation] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [loading, setLoading] = useState(false); // Loading state
@@ -34,15 +33,15 @@ const CheckoutPage = () => {
       });
       return;
     }
-  
-    if (!geoLocation) {
+
+    if (!address) {
       notification.warning({
-        message: "Geo Location Required",
-        description: "Please enter your geo location to proceed.",
+        message: "Address Required",
+        description: "Please enter your delivery address to proceed.",
       });
       return;
     }
-  
+
     setLoading(true); // Start loading
 
     try {
@@ -52,29 +51,26 @@ const CheckoutPage = () => {
           customerId,
           orderId,
           address,
-          geoLocation,
           paymentMethod,
         })
       ).unwrap();
-  
-      await dispatch(
+      dispatch(
         orderAddress({
           address,
           customerId,
           OrderCode: orderId,
-          GeoLocation: geoLocation,
         })
       );
-  
+
       notification.success({
         message: "Checkout Successful",
         description: "Your order has been placed successfully!",
       });
-  
+
       dispatch(clearCart());
       localStorage.removeItem("cart");
       localStorage.removeItem("cartId");
-  
+
       setCartItems([]);
       setSuccessModalVisible(true); // Show success modal
     } catch (error) {
@@ -122,7 +118,8 @@ const CheckoutPage = () => {
           headStyle={{
             fontSize: "1.5rem",
             fontWeight: "bold",
-            background: "#f5f5f5",
+            background: "#006838",
+            color: "#fff",
             padding: "0.5rem 1rem",
           }}
         >
@@ -179,19 +176,6 @@ const CheckoutPage = () => {
               className="w-full p-2 border border-gray-300 rounded mt-1"
             />
           </div>
-          <div className="mb-6">
-            <label htmlFor="geoLocation" className="block text-gray-700">
-              Geo Location:
-            </label>
-            <input
-              type="text"
-              id="geoLocation"
-              value={geoLocation}
-              onChange={(e) => setGeoLocation(e.target.value)}
-              placeholder="Enter your geo location (latitude, longitude)"
-              className="w-full p-2 border border-gray-300 rounded mt-1"
-            />
-          </div>
 
           {/* Payment Method Section */}
           <div className="mb-4">
@@ -214,9 +198,10 @@ const CheckoutPage = () => {
           </div>
 
           <Button
-            type="primary"
+       
             onClick={handleCheckout}
-            className="w-full mt-4 py-2 text-lg font-semibold"
+            
+            className="w-full mt-4 py-2 text-lg font-semibold bg-green-800 text-white hover:bg-green-700"
           >
             Confirm Checkout
           </Button>
