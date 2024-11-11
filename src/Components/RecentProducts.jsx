@@ -75,7 +75,7 @@ const RecentProducts = () => {
               >
                 <div className="h-32 md:h-48 lg:h-56 flex items-center justify-center mb-3">
                   <img
-                    src={`https://api.salesmate.app/Media/Products_Images/${product.productImage
+                    src={`https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage
                       .split("\\")
                       .pop()}`}
                     alt={product.productName}

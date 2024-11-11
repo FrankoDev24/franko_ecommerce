@@ -15,7 +15,7 @@ export const updateProduct = createAsyncThunk('products/updateProduct', async (p
   const { Productid, ...restData } = productData;
 
   const response = await axios.post(
-    `https://api.salesmate.app/Product/Product_Put/${Productid}`,
+    `https://smfteapi.salesmate.app/Product/Product_Put/${Productid}`,
     restData,
     {
       headers: {
@@ -97,18 +97,37 @@ const productSlice = createSlice({
   name: 'products',
   initialState: {
     products: [],
-    productsByShowroom: {}, // Initialize productsByShowroom as an empty object
-    currentProduct: null, // Add state for current product details
+    filteredProducts: [], // Add filteredProducts here to avoid undefined errors
+    productsByShowroom: {},
+    currentProduct: null,
     loading: false,
     error: null,
   },
   reducers: {
     clearProducts: (state) => {
       state.products = [];
-      state.productsByShowroom = {}; // Clear productsByShowroom on clear
-      state.currentProduct = null; // Clear current product on clear
+      state.filteredProducts = []; // Clear filteredProducts on clear
+      state.productsByShowroom = {};
+      state.currentProduct = null;
       state.error = null;
     },
+    searchProducts: (state, action) => {
+      const { query, brand, category } = action.payload;
+    
+      // Filter products by name, brand, or category
+      state.filteredProducts = state.products.filter((product) => {
+        const name = product.name ? product.name.toLowerCase() : ''; // Ensure name exists before calling .toLowerCase()
+        const productBrand = product.brand ? product.brand.toLowerCase() : ''; // Ensure brand exists before calling .toLowerCase()
+        const productCategory = product.category ? product.category.toLowerCase() : ''; // Ensure category exists before calling .toLowerCase()
+    
+        const matchesName = name.includes(query.toLowerCase());
+        const matchesBrand = brand ? productBrand.includes(brand.toLowerCase()) : true;
+        const matchesCategory = category ? productCategory.includes(category.toLowerCase()) : true;
+        
+        return matchesName && matchesBrand && matchesCategory;
+      });
+    }
+    
   },
   extraReducers: (builder) => {
     // Handle adding a product
@@ -214,7 +233,7 @@ const productSlice = createSlice({
 });
 
 // Export the clearProducts action
-export const { clearProducts } = productSlice.actions;
+export const { clearProducts , searchProducts} = productSlice.actions;
 
 // Export the reducer
 export default productSlice.reducer;

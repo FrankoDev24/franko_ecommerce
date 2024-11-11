@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Input, Badge, Button, Dropdown, Menu, Modal, Avatar, message } from 'antd';
+import { Input, Badge, Button, Dropdown, Menu, Avatar } from 'antd';
 import {
   SearchOutlined,
   ShoppingCartOutlined,
-  CloseOutlined,
   PhoneOutlined,
   UserOutlined,
   LogoutOutlined,
@@ -12,8 +11,11 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { getCartById } from '../../Redux/slice/cartSlice';
 import { logoutCustomer } from '../../Redux/slice/customerSlice';
-import frankoLoge from '../../assets/frankoIcon.png';
+import frankoLogo from '../../assets/frankoIcon.png';
 import './Navbar.css';
+
+// Import the SearchModal component
+import SearchModal from '../SearchModal';
 
 const AccountDropdown = ({ onLogout, customer }) => (
   <Menu>
@@ -35,7 +37,6 @@ const AccountDropdown = ({ onLogout, customer }) => (
 
 const Navbar = () => {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
   const [isAccountDropdownVisible, setAccountDropdownVisible] = useState(false);
 
   const dispatch = useDispatch();
@@ -63,14 +64,8 @@ const Navbar = () => {
   };
 
   const customerDetails = currentCustomer || JSON.parse(localStorage.getItem('customerDetails')) || {};
-  const isUserLoggedIn = currentCustomer !== null; // Check if user is logged in from Redux state
+  const isUserLoggedIn = currentCustomer !== null;
   const initials = customerDetails?.firstName?.[0] || '';
-
-  const handleSearch = () => {
-    if (searchValue) {
-      message.info(`Searching for "${searchValue}"...`);
-    }
-  };
 
   return (
     <div className="flex flex-col w-full sticky-navbar">
@@ -78,21 +73,17 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="text-2xl font-bold text-blue-600">
             <Link to="/">
-              <img src={frankoLoge} className="h-12 w-auto object-contain my-2" alt="Franko Trading" />
+              <img src={frankoLogo} className="h-12 w-auto object-contain my-2" alt="Franko Trading" />
             </Link>
           </div>
 
           <div className="flex-grow mx-8 max-w-2xl hidden md:block">
+            {/* Main search bar */}
             <Input
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Enter Keyword or Item"
               prefix={<SearchOutlined className="text-gray-400" />}
-              suffix={searchValue ? (
-                <CloseOutlined className="text-gray-400 cursor-pointer" onClick={() => setSearchValue('')} />
-              ) : null}
               className="w-full rounded-full"
-              onPressEnter={handleSearch}
+              onClick={() => setIsSearchModalOpen(true)}  // Open the modal when the search bar is clicked
             />
           </div>
 
@@ -109,7 +100,7 @@ const Navbar = () => {
               <div className="flex items-center gap-4 md:hidden">
                 <SearchOutlined
                   className="text-xl text-gray-400 cursor-pointer"
-                  onClick={() => setIsSearchModalOpen(true)}
+                  onClick={() => setIsSearchModalOpen(true)}  // Open the search modal
                 />
                 <a href="https://wa.me/233302752020" target="_blank" rel="noopener noreferrer">
                   <PhoneOutlined className="text-xl text-green-800 cursor-pointer" />
@@ -147,24 +138,11 @@ const Navbar = () => {
         </div>
       </div>
 
-      <Modal
-        visible={isSearchModalOpen}
-        footer={null}
-        onCancel={() => setIsSearchModalOpen(false)}
-        title="Search"
-      >
-        <Input
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          placeholder="Enter Keyword or Item"
-          prefix={<SearchOutlined className="text-gray-400" />}
-          suffix={searchValue ? (
-            <CloseOutlined className="text-gray-400 cursor-pointer" onClick={() => setSearchValue('')} />
-          ) : null}
-          className="w-full rounded-full"
-          onPressEnter={handleSearch}
-        />
-      </Modal>
+      {/* Modal for search functionality */}
+      <SearchModal
+        isVisible={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+      />
     </div>
   );
 };

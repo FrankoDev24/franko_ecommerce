@@ -56,7 +56,7 @@ const Brand = () => {
   };
 
   const renderImage = (imagePath) => {
-    const backendBaseURL = 'https://api.salesmate.app';
+    const backendBaseURL = 'https://smfteapi.salesmate.app';
     return `${backendBaseURL}/Media/Products_Images/${imagePath.split('\\').pop()}`;
   };
 

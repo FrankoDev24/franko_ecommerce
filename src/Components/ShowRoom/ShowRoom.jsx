@@ -61,12 +61,6 @@ const ShowroomPage = () => {
     console.log(`Product ${product.productName} added to cart`);
   };
 
-  const renderImage = (imagePath) => {
-    const backendBaseURL = 'https://api.salesmate.app';
-    const imageUrl = `${backendBaseURL}/Media/Products_Images/${imagePath.split('\\').pop()}`;
-    return <img src={imageUrl} alt="Product" className="w-full h-24 sm:h-32 object-cover rounded-lg" />;
-  };
-
   const formatCurrency = (amount) => amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const scrollRef = useRef({});
@@ -147,7 +141,7 @@ const ShowroomPage = () => {
                         <div onClick={() => navigate(`/product/${product.productID}`)} className="cursor-pointer">
                           <div className="h-32 md:h-48 lg:h-56 flex items-center justify-center mb-3">
                   <img
-                    src={`https://api.salesmate.app/Media/Products_Images/${product.productImage
+                    src={`https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage
                       .split("\\")
                       .pop()}`}
                     alt={product.productName}

@@ -94,7 +94,7 @@ const ShowroomProductsPage = () => {
                 <>
                   <div className="h-36 md:h-44 lg:h-52 flex items-center justify-center mb-3">
                     <img
-                      src={`https://api.salesmate.app/Media/Products_Images/${product.productImage
+                      src={`https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage
                         .split("\\")
                         .pop()}`}
                       alt={product.productName}

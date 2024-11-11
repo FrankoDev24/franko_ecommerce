@@ -88,7 +88,7 @@ const Cart = () => {
       return <img src="path/to/placeholder/image.png" alt="Placeholder" className="w-full h-full object-cover" />;
     }
     
-    const backendBaseURL = 'https://api.salesmate.app';
+    const backendBaseURL = 'https://smfteapi.salesmate.app';
     const imageUrl = `${backendBaseURL}/Media/Products_Images/${imagePath.split('\\').pop()}`;
     
     return <img src={imageUrl} alt="Product" className="w-full h-full object-cover" />;

@@ -39,7 +39,7 @@ export const addToCart = createAsyncThunk(
         quantity: item.quantity,
       };
 
-      const response = await axios.post('https://api.salesmate.app/Cart/Add-To-Cart', cartItem);
+      const response = await axios.post('https://smfteapi.salesmate.app/Cart/Add-To-Cart', cartItem);
       return { ...cartItem, ...response.data }; 
     } catch (error) {
       return rejectWithValue(error.response ? error.response.data : error.message);
@@ -51,7 +51,7 @@ export const getCartById = createAsyncThunk(
   'cart/getCartById',
   async (cartId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://api.salesmate.app/Cart/Cart-GetbyID/${cartId}`);
+      const response = await axios.get(`https://smfteapi.salesmate.app/Cart/Cart-GetbyID/${cartId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -64,7 +64,7 @@ export const updateCartItem = createAsyncThunk(
   async ({ cartId, productId, quantity }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `https://api.salesmate.app/Cart/Cart-Update/${cartId}/${productId}/${quantity}`
+        `https://smfteapi.salesmate.app/Cart/Cart-Update/${cartId}/${productId}/${quantity}`
       );
       return response.data; // Assuming the backend returns the updated data
     } catch (error) {
@@ -77,7 +77,7 @@ export const deleteCartItem = createAsyncThunk(
   'cart/deleteCartItem',
   async ({ cartId, productId }, { rejectWithValue }) => {
     try {
-      await axios.post(`https://api.salesmate.app/Cart/Cart-Delete/${cartId}/${productId}`);
+      await axios.post(`https://smfteapi.salesmate.app/Cart/Cart-Delete/${cartId}/${productId}`);
       return { cartId, productId };
     } catch (error) {
       return rejectWithValue(error.message);

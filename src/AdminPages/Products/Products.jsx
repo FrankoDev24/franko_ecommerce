@@ -23,7 +23,7 @@ const Products = () => {
   const [fullImageUrl, setFullImageUrl] = useState("");
   const [descriptionText, setDescriptionText] = useState("");
 
-  const backendBaseURL = "https://api.salesmate.app";
+  const backendBaseURL = "https://smfteapi.salesmate.app";
 
   const fetchProductData = useCallback(async () => {
     try {

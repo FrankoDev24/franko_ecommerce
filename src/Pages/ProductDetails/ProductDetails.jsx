@@ -57,7 +57,7 @@ const ProductDetail = () => {
   if (!currentProduct || !Array.isArray(currentProduct) || currentProduct.length === 0) return <div>No product found</div>;
 
   const product = currentProduct[0];
-  const backendBaseURL = 'https://api.salesmate.app';
+  const backendBaseURL = 'https://smfteapi.salesmate.app';
   const imageUrl = `${backendBaseURL}/Media/Products_Images/${product.productImage.split('\\').pop()}`;
 
   const handleAddToCart = () => {

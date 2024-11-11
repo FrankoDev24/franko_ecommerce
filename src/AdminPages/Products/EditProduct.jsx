@@ -29,7 +29,7 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
 
       // Construct the URL for the existing product image
       const imagePath = product.productImage; // Assuming this is the field for image path
-      const imageUrl = `https://api.salesmate.app//Media/Products_Images/${imagePath.split("\\").pop()}`;
+      const imageUrl = `https://smfteapi.salesmate.app/Media/Products_Images/${imagePath.split("\\").pop()}`;
       setExistingImageUrl(imageUrl); // Set the existing image URL
 
       setImageFile(null); // Reset image file when product changes
