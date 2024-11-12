@@ -24,35 +24,55 @@ export const updateProduct = createAsyncThunk('products/updateProduct', async (p
       },
     }
   );
-
-  
-  return response.data;
+return response.data;
 });
 
 // Async thunk for updating a product's image
 export const updateProductImage = createAsyncThunk(
   'products/updateProductImage',
-  async ({ Productid, ImageName }) => {
+  async ({ productID, imageFile }) => {
     const formData = new FormData();
-    formData.append('Productid', Productid);
-    formData.append('ImageName', ImageName); // assuming ImageName is a File object
 
-    const response = await axios.post(
-      `${API_BASE_URL}/Product/Product-Image-Edit`,
-      formData,
-      {
-        headers: {
-          'accept': 'text/plain',
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
-    
+    // Append the ProductId as a string
+    formData.append('ProductId', productID.toString());  // Ensure it's a string
 
-    return response.data; // Assuming the response returns the updated product
+    // Convert the image file to binary format and append it
+    const binaryData = await convertFileToBinary(imageFile);
+    formData.append('ImageName', binaryData);  // Append binary data for ImageName
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/Product/Product-Image-Edit`,
+        formData,
+        {
+          headers: {
+            'accept': 'text/plain',  // You can adjust the accept header if needed
+            // Do not set Content-Type here, as it will be set by FormData
+          },
+        }
+      );
+      return response.data; // Assuming this returns the updated product or success
+    } catch (error) {
+      console.error("Error updating product image:", error);
+      throw error;  // Propagate error for rejection handling
+    }
   }
-
 );
+
+// Helper function to convert file to binary data
+const convertFileToBinary = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const binaryData = reader.result;
+      resolve(binaryData);
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsArrayBuffer(file);  // Reads the file as binary data
+  });
+};
+
+
 
 // Async thunk for fetching all products
 
@@ -82,8 +102,6 @@ export const fetchProductsByShowroom = createAsyncThunk('products/fetchProductsB
 
   return { showRoomID, products: sortedProducts };
 });
-
-
 
 
 // Async thunk for fetching a product by its ID
@@ -161,22 +179,24 @@ const productSlice = createSlice({
         state.error = action.error.message;
       })
       // Handle updating a product's image
-      .addCase(updateProductImage.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(updateProductImage.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.products.findIndex(product => product.Productid === action.payload.Productid);
+        state.product = action.payload;  // Store the updated product data
+      
+        // Optional: You can also update the product in the state if it's in the products array
+        const index = state.products.findIndex(item => item.Productid === action.payload.Productid);
         if (index !== -1) {
-          state.products[index] = action.payload; // Update the product's image
-        } else {
-          console.error('Product not found for image update:', action.payload);
+          state.products[index] = action.payload; // Replace the old product data with the updated one
         }
+      
+        state.success = true; // You can use this flag for success handling
       })
       .addCase(updateProductImage.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.error.message;  // Capture any errors
+        state.success = false; // Set success to false in case of an error
       })
+      
       // Handle fetching all products
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;

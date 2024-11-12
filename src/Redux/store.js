@@ -14,7 +14,7 @@ export const store = configureStore({
     products: productReducer,    // Add the product slice reducer here
     showrooms: showroomReducer,  // Add the showroom slice reducer here
     orders: orderReducer,        // Add the order slice reducer here
-    user: userReducer,  
+    user: userReducer,          
     customer: customerReducer,
     cart: cartReducer
 

@@ -33,10 +33,27 @@ export const fetchCustomers = createAsyncThunk(
 // Async thunk for customer login
 export const loginCustomer = createAsyncThunk(
   'customers/loginCustomer',
-  async ({ contact_number, password }, { rejectWithValue }) => {
+  async ({ contact_number, password }, { dispatch, getState, rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/Users/CustomerLogin/${contact_number}/${password}`);
-      return response.data; // Return the response data directly
+
+      if (response.data.ResponseCode === '1') {
+        // Login successful, now fetch all customers to get detailed information
+        const fetchCustomersResult = await dispatch(fetchCustomers());
+
+        if (fetchCustomersResult.payload) {
+          // Find the customer with matching contact_number and password
+          const matchingCustomer = fetchCustomersResult.payload.find(
+            (customer) => customer.contact_number === contact_number && customer.password === password
+          );
+
+          if (matchingCustomer) {
+            // Return both login response and the matching customer details
+            return { ...response.data, customerDetails: matchingCustomer };
+          }
+        }
+      }
+      return response.data; // Return only the response data if no matching customer is found
     } catch (error) {
       return rejectWithValue(error.response?.data || "An unknown error occurred.");
     }
@@ -53,46 +70,41 @@ const initialState = {
   currentCustomerDetails: null, // This will store the customer details
 };
 
-
 // Create the customer slice
 const customerSlice = createSlice({
   name: 'customer',
   initialState,
   reducers: {
-    // Clear customer data from Redux state but keep it in local storage when logging out
     logoutCustomer: (state) => {
-      state.currentCustomer = null; // Clear the current customer in Redux state
-      state.currentCustomerDetails = null; // Clear customer details in Redux state
-      // Do not remove the customer data from local storage on logout
+      state.currentCustomer = null;
+      state.currentCustomerDetails = null;
     },
     clearCustomers: (state) => {
-      state.customerList = []; // Reset the customer list
+      state.customerList = [];
     },
     setCustomer: (state, action) => {
-      state.selectedCustomer = action.payload; // Set the selected customer details
+      state.selectedCustomer = action.payload;
     },
     clearSelectedCustomer: (state) => {
-      state.selectedCustomer = null; // Clear the selected customer details
+      state.selectedCustomer = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Handle creating a customer
       .addCase(createCustomer.pending, (state) => {
         state.loading = true;
-        state.error = null; // Clear any previous errors
+        state.error = null;
       })
       .addCase(createCustomer.fulfilled, (state, action) => {
         state.loading = false;
 
         if (action.payload && action.payload.ResponseCode === '1') {
           const newCustomer = {
-            ...action.meta.arg, // Merge with the original customer details
-            ...action.payload // Include the response from the API
+            ...action.meta.arg,
+            ...action.payload,
           };
-
-          state.currentCustomer = newCustomer; // Store the newly created customer as currentCustomer
-          localStorage.setItem('customer', JSON.stringify(newCustomer)); // Store the customer data in local storage
+          state.currentCustomer = newCustomer;
+          localStorage.setItem('customer', JSON.stringify(newCustomer));
         } else {
           state.error = "Failed to create customer.";
         }
@@ -101,10 +113,9 @@ const customerSlice = createSlice({
         state.loading = false;
         state.error = action.error?.message || "An unknown error occurred.";
       })
-      // Handle fetching all customers
       .addCase(fetchCustomers.pending, (state) => {
         state.loading = true;
-        state.error = null; // Clear any previous errors
+        state.error = null;
       })
       .addCase(fetchCustomers.fulfilled, (state, action) => {
         state.loading = false;
@@ -114,22 +125,19 @@ const customerSlice = createSlice({
         state.loading = false;
         state.error = action.error?.message || "An unknown error occurred.";
       })
-      // Handle customer login
       .addCase(loginCustomer.pending, (state) => {
         state.loading = true;
-        state.error = null; // Clear any previous errors
+        state.error = null;
       })
       .addCase(loginCustomer.fulfilled, (state, action) => {
         state.loading = false;
 
-        // Store the customer data in state
         if (action.payload && action.payload.ResponseCode === '1') {
-          const customerDetails = action.payload; // Fetch customer details based on login
-          state.currentCustomer = customerDetails; // Update current customer with login details
-          state.currentCustomerDetails = customerDetails; // Store customer details
+          const customerDetails = action.payload.customerDetails || action.payload;
+          state.currentCustomer = customerDetails;
+          state.currentCustomerDetails = customerDetails;
 
-          // Store the customer data in local storage
-          localStorage.setItem('customer', JSON.stringify(customerDetails)); // Store customer details on login
+          localStorage.setItem('customer', JSON.stringify(customerDetails));
         } else {
           state.error = "Login failed.";
         }
@@ -146,4 +154,3 @@ export const { logoutCustomer, clearCustomers, setCustomer, clearSelectedCustome
 
 // Export the reducer
 export default customerSlice.reducer;
-

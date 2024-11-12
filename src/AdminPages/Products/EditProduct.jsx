@@ -11,9 +11,10 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
-  // State to manage the image file
+  // State to manage the image file and the new image URL
   const [imageFile, setImageFile] = useState(null);
   const [existingImageUrl, setExistingImageUrl] = useState('');
+  const [newImageUrl, setNewImageUrl] = useState(''); // New state to handle the uploaded image URL
 
   useEffect(() => {
     if (product) {
@@ -33,6 +34,7 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
       setExistingImageUrl(imageUrl); // Set the existing image URL
 
       setImageFile(null); // Reset image file when product changes
+      setNewImageUrl(''); // Reset new image URL when product changes
     }
   }, [product, form]);
 
@@ -46,52 +48,64 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
       brandId: values.BrandId,
       showRoomId: values.ShowRoomId,
     };
-  
+
     // Ensure the payload has the necessary productID
     if (!payload.Productid) {
       message.error('Product ID is missing!');
       return;
     }
-  
+
     try {
       // Dispatch update product action
       await dispatch(updateProduct(payload)).unwrap();
       message.success('Product updated successfully!');
-  
+
       // Handle image update if an image file was selected
       if (imageFile) {
-        const imagePayload = {
-          Productid: payload.Productid,
-          ImageName: imageFile, // Assuming the API expects the file object here
-        };
-  
-        await dispatch(updateProductImage(imagePayload)).unwrap();
+        const formData = new FormData();
+        formData.append('Productid', payload.Productid);
+        formData.append('ImageName', imageFile);
+
+        const response = await dispatch(updateProductImage(formData)).unwrap();
+        // Assuming the API returns the image URL upon successful upload
+        const uploadedImageUrl = response.imageUrl; // Adjust based on your API response
+        setNewImageUrl(uploadedImageUrl); // Set the new image URL
         message.success('Product image updated successfully!');
       }
-  
+
       // Clear form and image state after update
       onClose();
       form.resetFields();
       setImageFile(null);
       setExistingImageUrl(''); // Clear the existing image display
+      setNewImageUrl(''); // Clear the new image display
     } catch (err) {
       console.error('Error updating product:', err);
       message.error('Failed to update product.');
     }
   };
-  
+
   const handleImageChange = (info) => {
+    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB limit
+  
     if (info.file.status === 'done') {
+      if (info.file.size > MAX_SIZE) {
+        message.error('File size exceeds the 5MB limit.');
+        return;
+      }
+  
       setImageFile(info.file.originFileObj); // Store the file object
       message.success(`${info.file.name} file uploaded successfully`);
     } else if (info.file.status === 'error') {
       message.error(`${info.file.name} file upload failed.`);
     }
   };
+  
 
   const handleRemoveImage = () => {
     setImageFile(null); // Clear the uploaded image file
     setExistingImageUrl(''); // Clear the existing image URL
+    setNewImageUrl(''); // Clear the new image URL
   };
 
   return (
@@ -196,7 +210,26 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
                 <Button icon={<UploadOutlined />}>Click to upload image</Button>
               </Upload>
               {/* Display the existing image */}
-              {existingImageUrl && (
+              {newImageUrl ? (
+                <div style={{ position: 'relative', marginTop: 10 }}>
+                  <img
+                    src={newImageUrl}
+                    alt="Updated Product"
+                    style={{ width: '100%', height: 'auto', maxHeight: 150, objectFit: 'cover' }}
+                  />
+                  <CloseCircleOutlined
+                    onClick={handleRemoveImage}
+                    style={{
+                      position: 'absolute',
+                      top: 5,
+                      right: 5,
+                      color: 'red',
+                      cursor: 'pointer',
+                      zIndex: 1,
+                    }}
+                  />
+                </div>
+              ) : existingImageUrl && (
                 <div style={{ position: 'relative', marginTop: 10 }}>
                   <img
                     src={existingImageUrl}
@@ -233,9 +266,9 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
 UpdateProduct.propTypes = {
   visible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  product: PropTypes.object,
-  brands: PropTypes.arrayOf(PropTypes.object).isRequired,
-  showrooms: PropTypes.arrayOf(PropTypes.object).isRequired,
+  product: PropTypes.object.isRequired,
+  brands: PropTypes.array.isRequired,
+  showrooms: PropTypes.array.isRequired,
 };
 
 export default UpdateProduct;
