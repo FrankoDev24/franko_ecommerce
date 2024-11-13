@@ -7,7 +7,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 // Async thunk for adding a new product
 export const addProduct = createAsyncThunk('products/addProduct', async (productData) => {
   const response = await axios.post(`${API_BASE_URL}/Product/Product-Post`, productData);
-  return response.data; // Assuming the response returns the added product
+  return response.data;
 });
 
 // Async thunk for updating a product
@@ -24,7 +24,7 @@ export const updateProduct = createAsyncThunk('products/updateProduct', async (p
       },
     }
   );
-return response.data;
+  return response.data;
 });
 
 // Async thunk for updating a product's image
@@ -32,30 +32,14 @@ export const updateProductImage = createAsyncThunk(
   'products/updateProductImage',
   async ({ productID, imageFile }) => {
     const formData = new FormData();
-
-    // Append the ProductId as a string
-    formData.append('ProductId', productID.toString());  // Ensure it's a string
-
-    // Convert the image file to binary format and append it
+    formData.append('ProductId', productID.toString());
     const binaryData = await convertFileToBinary(imageFile);
-    formData.append('ImageName', binaryData);  // Append binary data for ImageName
+    formData.append('ImageName', binaryData);
 
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/Product/Product-Image-Edit`,
-        formData,
-        {
-          headers: {
-            'accept': 'text/plain',  // You can adjust the accept header if needed
-            // Do not set Content-Type here, as it will be set by FormData
-          },
-        }
-      );
-      return response.data; // Assuming this returns the updated product or success
-    } catch (error) {
-      console.error("Error updating product image:", error);
-      throw error;  // Propagate error for rejection handling
-    }
+    const response = await axios.post(`${API_BASE_URL}/Product/Product-Image-Edit`, formData, {
+      headers: { 'accept': 'text/plain' },
+    });
+    return response.data;
   }
 );
 
@@ -63,51 +47,33 @@ export const updateProductImage = createAsyncThunk(
 const convertFileToBinary = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onloadend = () => {
-      const binaryData = reader.result;
-      resolve(binaryData);
-    };
-    reader.onerror = (error) => reject(error);
-    reader.readAsArrayBuffer(file);  // Reads the file as binary data
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
   });
 };
 
-
-
 // Async thunk for fetching all products
-
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
   const response = await axios.get(`${API_BASE_URL}/Product/Product-Get`);
-
-  // Assuming response.data contains the product list and each product has a `createdAt` field
-  const sortedProducts = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  
-  return sortedProducts;
+  return response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 });
 
 // Async thunk for fetching products by brand
 export const fetchProductsByBrand = createAsyncThunk('products/fetchProductsByBrand', async (brandId) => {
   const response = await axios.get(`${API_BASE_URL}/Product/Product-Get-by-Brand/${brandId}`);
-  
-  // Sort by `createdAt` or `updatedAt`
-  const sortedProducts = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  
-  return sortedProducts;
+  return response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 });
 
 export const fetchProductsByShowroom = createAsyncThunk('products/fetchProductsByShowroom', async (showRoomID) => {
   const response = await axios.get(`${API_BASE_URL}/Product/Product-Get-by-ShowRoom/${showRoomID}`);
-
-  const sortedProducts = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-  return { showRoomID, products: sortedProducts };
+  return { showRoomID, products: response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) };
 });
-
 
 // Async thunk for fetching a product by its ID
 export const fetchProductById = createAsyncThunk('products/fetchProductById', async (productId) => {
   const response = await axios.get(`${API_BASE_URL}/Product/Product-Get-by-Product_ID/${productId}`);
-  return response.data; // Assuming the response data contains the product details
+  return response.data;
 });
 
 // Create the product slice
@@ -115,7 +81,8 @@ const productSlice = createSlice({
   name: 'products',
   initialState: {
     products: [],
-    filteredProducts: [], // Add filteredProducts here to avoid undefined errors
+
+    filteredProducts: [],
     productsByShowroom: {},
     currentProduct: null,
     loading: false,
@@ -124,38 +91,26 @@ const productSlice = createSlice({
   reducers: {
     clearProducts: (state) => {
       state.products = [];
-      state.filteredProducts = []; // Clear filteredProducts on clear
+      state.filteredProducts = [];
       state.productsByShowroom = {};
       state.currentProduct = null;
       state.error = null;
     },
-    searchProducts: (state, action) => {
-      const query = action.payload.toLowerCase();
-  
-      // Filter products based only on the product name
-      state.filteredProducts = state.products.filter((product) => {
-          const name = product.name ? product.name.toLowerCase() : '';
-          return name.includes(query);
-      });
-  },
-  
-    
+   
   },
   extraReducers: (builder) => {
-    // Handle adding a product
     builder
       .addCase(addProduct.pending, (state) => {
         state.loading = true;
       })
       .addCase(addProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.products.push(action.payload); // Add the new product to the state
+        state.products.push(action.payload);
       })
       .addCase(addProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-      // Handle updating a product
       .addCase(updateProduct.pending, (state) => {
         state.loading = true;
       })
@@ -163,35 +118,24 @@ const productSlice = createSlice({
         state.loading = false;
         const index = state.products.findIndex(item => item.Productid === action.payload.Productid);
         if (index !== -1) {
-          state.products[index] = action.payload; // Update the existing product
-        } else {
-          console.error('Product not found for update:', action.payload);
+          state.products[index] = action.payload;
         }
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-      // Handle updating a product's image
       .addCase(updateProductImage.fulfilled, (state, action) => {
         state.loading = false;
-        state.product = action.payload;  // Store the updated product data
-      
-        // Optional: You can also update the product in the state if it's in the products array
         const index = state.products.findIndex(item => item.Productid === action.payload.Productid);
         if (index !== -1) {
-          state.products[index] = action.payload; // Replace the old product data with the updated one
+          state.products[index] = action.payload;
         }
-      
-        state.success = true; // You can use this flag for success handling
       })
       .addCase(updateProductImage.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;  // Capture any errors
-        state.success = false; // Set success to false in case of an error
+        state.error = action.error.message;
       })
-      
-      // Handle fetching all products
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
       })
@@ -203,7 +147,6 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      // Handle fetching products by brand
       .addCase(fetchProductsByBrand.pending, (state) => {
         state.loading = true;
       })
@@ -215,29 +158,24 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      // Handle fetching products by showroom
       .addCase(fetchProductsByShowroom.pending, (state) => {
         state.loading = true;
       })
-    // Inside extraReducers
-.addCase(fetchProductsByShowroom.fulfilled, (state, action) => {
-  const { showRoomID, products } = action.payload;
-
-  state.productsByShowroom[showRoomID] = products; // Update products for that showroom
-  state.loading = false;
-})
-
+      .addCase(fetchProductsByShowroom.fulfilled, (state, action) => {
+        state.loading = false;
+        const { showRoomID, products } = action.payload;
+        state.productsByShowroom[showRoomID] = products;
+      })
       .addCase(fetchProductsByShowroom.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-      // Handle fetching a product by ID
       .addCase(fetchProductById.pending, (state) => {
         state.loading = true;
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentProduct = action.payload; // Set the current product details
+        state.currentProduct = action.payload;
       })
       .addCase(fetchProductById.rejected, (state, action) => {
         state.loading = false;
@@ -246,8 +184,9 @@ const productSlice = createSlice({
   },
 });
 
-// Export the clearProducts action
-export const { clearProducts , searchProducts} = productSlice.actions;
 
-// Export the reducer
+
+
+// Export the reducer and actions
+export const { clearProducts, setFilteredProducts } = productSlice.actions;
 export default productSlice.reducer;

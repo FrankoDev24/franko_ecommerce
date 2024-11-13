@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Input, Badge, Button, Dropdown, Menu, Avatar } from 'antd';
+import { Badge, Button, Dropdown, Menu, Avatar } from 'antd';
 import {
   SearchOutlined,
   ShoppingCartOutlined,
@@ -54,15 +54,10 @@ const Navbar = () => {
   }, [dispatch]);
 
   const handleLogout = () => {
-    // Clear all relevant data from local storage
     localStorage.removeItem('userId');
     localStorage.removeItem('cartId');
     localStorage.removeItem('customerDetails');
-    
-    // Clear customer data from Redux
     dispatch(logoutCustomer());
-    
-    // Redirect to home page
     navigate('/');
   };
 
@@ -80,16 +75,16 @@ const Navbar = () => {
             </Link>
           </div>
 
-          <div className="flex-grow mx-8 max-w-2xl hidden md:block">
-            <Input
-              placeholder="Enter Keyword or Item"
-              prefix={<SearchOutlined className="text-gray-400" />}
-              className="w-full rounded-full"
-              onClick={() => setIsSearchModalOpen(true)} // Open modal when clicked
-            />
-          </div>
+       
 
+          {/* Action Icons */}
           <div className="flex items-center gap-6">
+             {/* Search Icon and Contact in Large View */}
+             <div className="flex items-center gap-12">
+              <SearchOutlined
+                className="text-2xl text-gray-400 cursor-pointer"
+                onClick={() => setIsSearchModalOpen(true)} // Open modal when clicked
+              />
             <div className="hidden lg:flex flex-col items-end">
               <div className="text-sm text-gray-500">Call Us Now</div>
               <a href="tel:+233302752020" className="text-green-800 font-semibold flex items-center gap-1">
@@ -98,17 +93,13 @@ const Navbar = () => {
               </a>
             </div>
 
-            <div className="flex items-center gap-4 relative">
-              <div className="flex items-center gap-4 md:hidden">
-                <SearchOutlined
-                  className="text-xl text-gray-400 cursor-pointer"
-                  onClick={() => setIsSearchModalOpen(true)} // Open modal when clicked
-                />
-                <a href="https://wa.me/233302752020" target="_blank" rel="noopener noreferrer">
-                  <PhoneOutlined className="text-xl text-green-800 cursor-pointer" />
-                </a>
-              </div>
+           
+              <a href="https://wa.me/233302752020" target="_blank" rel="noopener noreferrer">
+                <PhoneOutlined className="text-xl text-green-800 cursor-pointer md:hidden" />
+              </a>
+            </div>
 
+            <div className="flex items-center gap-4 relative">
               {isUserLoggedIn ? (
                 <Dropdown
                   overlay={<AccountDropdown onLogout={handleLogout} customer={customerDetails} />}
@@ -140,8 +131,9 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Search Modal */}
       <SearchModal
-        isVisible={isSearchModalOpen} // Controls the visibility of the modal
+        visible={isSearchModalOpen} // Controls the visibility of the modal
         onClose={() => setIsSearchModalOpen(false)} // Close modal when triggered
       />
     </div>
