@@ -65,14 +65,14 @@ const Header = () => {
 
   return (
     <div className="container mx-auto p-4 mb-12">
-      <div className="header-container flex flex-col md:flex-row relative bg-gray-50">
+      <div className="header-container flex flex-col md:flex-row relative bg-gray-30">
         
         {/* Categories Block on the Left (Desktop View) */}
         <div
-          className="categories-block hidden md:flex flex-col w-1/4 p-6 rounded-lg shadow-lg relative"
+          className="categories-block hidden md:flex flex-col w-1/4 p-6 rounded-lg shadow-xl relative mr-10  top-0 z-50"
           ref={categoriesRef}
         >
-          <h3 className="text-lg font-semibold mb-4 text-red-500">Categories</h3>
+          <h3 className="text-xl font-semibold mb-4 text-red-500">Categories</h3>
           {status === 'loading' ? (
             <p>Loading categories...</p>
           ) : (
@@ -80,12 +80,12 @@ const Header = () => {
               {categories.map((category) => (
                 <div
                   key={category.categoryId}
-                  className={`category-item flex items-center justify-between cursor-pointer py-2 relative rounded-md ${activeCategoryId === category.categoryId ? 'bg-green-100 text-green-700' : 'bg-white text-gray-700'} hover:bg-green-50`}
+                  className={`category-item flex items-center justify-between cursor-pointer py-2 relative rounded-md ${activeCategoryId === category.categoryId ? 'bg-green-300 text-gray-900' : 'bg-white text-gray-500'} hover:bg-green-400`}
                   onClick={() => handleCategoryClick(category.categoryId)}
                 >
                   <span className="flex items-center">
                     <AppstoreOutlined />
-                    <span className="ml-2 font-semibold">{category.categoryName}</span>
+                    <span className="ml-2 text-sm">{category.categoryName}</span>
                   </span>
                   <CaretDownOutlined className="text-gray-400" />
                   {activeCategoryId === category.categoryId && renderBrands(category.categoryId)}
@@ -96,20 +96,20 @@ const Header = () => {
         </div>
 
         {/* Carousel Block on the Right for Desktop View */}
-        <div className="carousel-container hidden md:block w-3/4 mb-10"  style={{ height: '300px' }}>
-  <Carousel autoplay>
-    {[caro1, caro2, caro3, caro4, caro5].map((image, index) => (
-      <div key={index}>
-        <img 
-          src={image} 
-          alt={`Carousel ${index + 1}`} 
-          className="carousel-image w-full object-cover rounded-lg shadow-lg" 
-          style={{ height: '530px' }} 
-        />
-      </div>
-    ))}
-  </Carousel>
-</div>
+        <div className="carousel-container hidden md:block w-3/4 mb-10" style={{ height: '300px' }}>
+          <Carousel autoplay>
+            {[caro1, caro2, caro3, caro4, caro5].map((image, index) => (
+              <div key={index}>
+                <img 
+                  src={image} 
+                  alt={`Carousel ${index + 1}`} 
+                  className="carousel-image w-full object-cover rounded-lg shadow-lg" 
+                  style={{ height: '520px' }} 
+                />
+              </div>
+            ))}
+          </Carousel>
+        </div>
 
         {/* Mobile View: Carousel and Menu Button */}
         <div className="mobile-header md:hidden w-full relative mb-8">
@@ -125,19 +125,18 @@ const Header = () => {
           </div>
 
           <div className="carousel w-full h-24 mt-0.5 mb-4">
-  <Carousel autoplay>
-    {[caro1, caro2, caro3, caro4, caro5].map((image, index) => (
-      <div key={index}>
-        <img 
-          src={image} 
-          alt={`Carousel ${index + 1}`} 
-          className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" 
-        />
-      </div>
-    ))}
-  </Carousel>
-</div>
-
+            <Carousel autoplay>
+              {[caro1, caro2, caro3, caro4, caro5].map((image, index) => (
+                <div key={index}>
+                  <img 
+                    src={image} 
+                    alt={`Carousel ${index + 1}`} 
+                    className="carousel-image w-full h-full object-cover rounded-lg shadow-lg" 
+                  />
+                </div>
+              ))}
+            </Carousel>
+          </div>
         </div>
 
         {/* Drawer for Mobile View */}
@@ -156,7 +155,7 @@ const Header = () => {
                 className={`category-title flex items-center justify-between cursor-pointer py-2 rounded-md ${expandedCategoryId === category.categoryId ? 'bg-green-200' : ''}`}
                 onClick={() => setExpandedCategoryId(expandedCategoryId === category.categoryId ? null : category.categoryId)}
               >
-                <span className="text-gray-700">
+                <span className="text-gray-500">
                   <AppstoreOutlined /> <span className="ml-2">{category.categoryName}</span>
                 </span>
                 {expandedCategoryId === category.categoryId ? (
@@ -172,7 +171,7 @@ const Header = () => {
                     .map((brand) => (
                       <div
                         key={brand.brandId}
-                        className="brand-item py-2 cursor-pointer text-center hover:bg-gray-100 rounded-md bg-white"
+                        className="brand-item py-6 cursor-pointer text-center hover:bg-gray-100 rounded-md bg-gray-200"
                         onClick={() => navigate(`/brand/${brand.brandId}`)}
                       >
                         {brand.brandName}

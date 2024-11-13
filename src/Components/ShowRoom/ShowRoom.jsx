@@ -76,12 +76,10 @@ const ShowroomPage = () => {
   if (loading || loadingProducts) {
     return (
       <div className="container mx-auto p-4 mt-12">
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="w-1/2 sm:w-1/3 md:w-1/4 animate-pulse">
-              <div className="bg-gray-200 h-24 sm:h-32 rounded-lg mb-4 flex items-center justify-center text-lg font-semibold text-gray-400">
-                Loading
-              </div>
+            <div key={index} className="animate-pulse">
+              <div className="bg-gray-200 h-32 rounded-lg mb-4"></div>
               <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
               <div className="h-4 bg-gray-200 rounded w-1/2"></div>
             </div>
@@ -140,14 +138,14 @@ const ShowroomPage = () => {
                       cover={
                         <div onClick={() => navigate(`/product/${product.productID}`)} className="cursor-pointer">
                           <div className="h-32 md:h-48 lg:h-56 flex items-center justify-center mb-3">
-                  <img
-                    src={`https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage
-                      .split("\\")
-                      .pop()}`}
-                    alt={product.productName}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
+                            <img
+                              src={`https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage
+                                .split("\\")
+                                .pop()}`}
+                              alt={product.productName}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          </div>
                         </div>
                       }
                     >

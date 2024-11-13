@@ -32,12 +32,11 @@ const ShopByBrandsBanner = () => {
 
   return (
     <div className="container mx-auto px-4">
-    <div className="bg-gray-800 p-6 rounded-xl shadow-md mt-8">
-      {/* Full container wrapping the entire background and logos */}
-      <h5 className="text-red-500 text-lg font-semibold mb-4">Exclusive Brand Partners</h5>
-     
+      <div className="bg-gray-800 p-6 rounded-xl shadow-md mt-8">
+        {/* Full container wrapping the entire background and logos */}
+        <h5 className="text-red-500 text-lg font-semibold mb-4">Exclusive Brand Partners</h5>
+
         {/* Inside container, all content is now centered */}
-   
         <div className="relative">
           {/* Horizontal Scroll Wrapper for Small Screens */}
           <div className="flex gap-4 overflow-x-auto no-scrollbar md:grid md:grid-cols-6 md:gap-4 brand-scroll-container">
@@ -46,7 +45,7 @@ const ShopByBrandsBanner = () => {
               onClick={() => navigateToBrand('760af684-7a19-46ab-acc5-7445ef32073a')}
               className="min-w-[100px] md:min-w-0 flex items-center justify-center cursor-pointer bg-white p-4 md:p-6 rounded-lg shadow hover:shadow-lg transition-transform transform hover:scale-105"
             >
-              <img src={SamsungLogo} alt="Samsung" className="h-12 md:h-16 w-auto" />
+              <img src={SamsungLogo} alt="Samsung" className="h-10 md:h-14 w-auto" />
             </div>
 
             {/* Infinix Brand */}
@@ -54,7 +53,7 @@ const ShopByBrandsBanner = () => {
               onClick={() => navigateToBrand("c163ee86-1d24-4c97-943b-1f82a09c6066")}
               className="min-w-[100px] md:min-w-0 flex items-center justify-center cursor-pointer bg-white p-4 md:p-6 rounded-lg shadow hover:shadow-lg transition-transform transform hover:scale-105"
             >
-              <img src={InfinixLogo} alt="Infinix" className="h-12 md:h-16 w-auto" />
+              <img src={InfinixLogo} alt="Infinix" className="h-10 md:h-14 w-auto" />
             </div>
 
             {/* HMD Brand */}
@@ -62,7 +61,7 @@ const ShopByBrandsBanner = () => {
               onClick={() => navigateToBrand('a85aa52a-2bf9-4fb5-ab36-8cd9bba4baa8')}
               className="min-w-[100px] md:min-w-0 flex items-center justify-center cursor-pointer bg-white p-4 md:p-6 rounded-lg shadow hover:shadow-lg transition-transform transform hover:scale-105"
             >
-              <img src={HmdLogo} alt="HMD" className="h-12 md:h-16 w-auto" />
+              <img src={HmdLogo} alt="HMD" className="h-10 md:h-14 w-auto" />
             </div>
 
             {/* Tecno Brand */}
@@ -70,7 +69,7 @@ const ShopByBrandsBanner = () => {
               onClick={() => navigateToBrand('86cca959-70a4-448e-86f1-3601309f49a6')}
               className="min-w-[100px] md:min-w-0 flex items-center justify-center cursor-pointer bg-white p-4 md:p-6 rounded-lg shadow hover:shadow-lg transition-transform transform hover:scale-105"
             >
-              <img src={TecnoLogo} alt="Tecno" className="h-12 md:h-16 w-auto" />
+              <img src={TecnoLogo} alt="Tecno" className="h-10 md:h-14 w-auto" />
             </div>
 
             {/* Apple Brand */}
@@ -78,7 +77,7 @@ const ShopByBrandsBanner = () => {
               onClick={() => navigateToBrand('brandIdForApple')}
               className="min-w-[100px] md:min-w-0 flex items-center justify-center cursor-pointer bg-white p-4 md:p-6 rounded-lg shadow hover:shadow-lg transition-transform transform hover:scale-105"
             >
-              <img src={AppleLogo} alt="Apple" className="h-12 md:h-16 w-auto" />
+              <img src={AppleLogo} alt="Apple" className="h-10 md:h-14 w-auto" />
             </div>
 
             {/* Huawei Brand */}
@@ -86,7 +85,7 @@ const ShopByBrandsBanner = () => {
               onClick={() => navigateToBrand('brandIdForHuawei')}
               className="min-w-[100px] md:min-w-0 flex items-center justify-center cursor-pointer bg-white p-4 md:p-6 rounded-lg shadow hover:shadow-lg transition-transform transform hover:scale-105"
             >
-              <img src={HuaweiLogo} alt="Huawei" className="h-12 md:h-16 w-auto" />
+              <img src={HuaweiLogo} alt="Huawei" className="h-10 md:h-14 w-auto" />
             </div>
           </div>
 
