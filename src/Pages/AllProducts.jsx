@@ -68,7 +68,7 @@ const ProductsPage = () => {
                 <div className="h-24 md:h-36 flex items-center justify-center mb-2">
                   <img
                     loading="lazy"
-                    src={`https://api.salesmate.app/Media/Products_Images/${product.productImage.split("\\").pop()}`}
+                    src={`https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage.split("\\").pop()}`}
                     alt={product.productName}
                     className="w-full h-full object-cover rounded-lg"
                   />

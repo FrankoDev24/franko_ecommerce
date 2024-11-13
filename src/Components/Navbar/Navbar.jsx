@@ -13,8 +13,6 @@ import { getCartById } from '../../Redux/slice/cartSlice';
 import { logoutCustomer } from '../../Redux/slice/customerSlice';
 import frankoLogo from '../../assets/frankoIcon.png';
 import './Navbar.css';
-
-// Import the SearchModal component
 import SearchModal from '../SearchModal';
 
 const AccountDropdown = ({ onLogout, customer }) => (
@@ -56,10 +54,15 @@ const Navbar = () => {
   }, [dispatch]);
 
   const handleLogout = () => {
+    // Clear all relevant data from local storage
     localStorage.removeItem('userId');
     localStorage.removeItem('cartId');
     localStorage.removeItem('customerDetails');
+    
+    // Clear customer data from Redux
     dispatch(logoutCustomer());
+    
+    // Redirect to home page
     navigate('/');
   };
 
@@ -78,12 +81,11 @@ const Navbar = () => {
           </div>
 
           <div className="flex-grow mx-8 max-w-2xl hidden md:block">
-            {/* Main search bar */}
             <Input
               placeholder="Enter Keyword or Item"
               prefix={<SearchOutlined className="text-gray-400" />}
               className="w-full rounded-full"
-              onClick={() => setIsSearchModalOpen(true)}  // Open the modal when the search bar is clicked
+              onClick={() => setIsSearchModalOpen(true)} // Open modal when clicked
             />
           </div>
 
@@ -100,7 +102,7 @@ const Navbar = () => {
               <div className="flex items-center gap-4 md:hidden">
                 <SearchOutlined
                   className="text-xl text-gray-400 cursor-pointer"
-                  onClick={() => setIsSearchModalOpen(true)}  // Open the search modal
+                  onClick={() => setIsSearchModalOpen(true)} // Open modal when clicked
                 />
                 <a href="https://wa.me/233302752020" target="_blank" rel="noopener noreferrer">
                   <PhoneOutlined className="text-xl text-green-800 cursor-pointer" />
@@ -138,10 +140,9 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Modal for search functionality */}
       <SearchModal
-        isVisible={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
+        isVisible={isSearchModalOpen} // Controls the visibility of the modal
+        onClose={() => setIsSearchModalOpen(false)} // Close modal when triggered
       />
     </div>
   );

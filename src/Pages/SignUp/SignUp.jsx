@@ -45,12 +45,17 @@ const RegistrationPage = () => {
       imagePath: formData.imagePath,
       customerAccountNumber: formData.customerAccountNumber,
     };
-
+  
     setLoading(true);
     try {
       const result = await dispatch(createCustomer(finalData)).unwrap();
       message.success('Registration successful!');
-      navigate('/sign-in');
+      
+      // Extract contact number and password from the form data
+      const { contactNumber, password } = finalData;
+  
+      // Navigate to login page with contact number and password as URL parameters
+      navigate(`/sign-in/${contactNumber}/${password}`);
       console.log('Registration result:', result); // Log the entire result
     } catch (error) {
       message.error('Registration failed: ' + error.message);
@@ -59,6 +64,7 @@ const RegistrationPage = () => {
       setLoading(false);
     }
   };
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
       <Form layout="vertical" onFinish={handleSubmit} className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">

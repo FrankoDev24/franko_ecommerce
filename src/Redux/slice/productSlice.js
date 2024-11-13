@@ -130,21 +130,15 @@ const productSlice = createSlice({
       state.error = null;
     },
     searchProducts: (state, action) => {
-      const { query, brand, category } = action.payload;
-    
-      // Filter products by name, brand, or category
+      const query = action.payload.toLowerCase();
+  
+      // Filter products based only on the product name
       state.filteredProducts = state.products.filter((product) => {
-        const name = product.name ? product.name.toLowerCase() : ''; // Ensure name exists before calling .toLowerCase()
-        const productBrand = product.brand ? product.brand.toLowerCase() : ''; // Ensure brand exists before calling .toLowerCase()
-        const productCategory = product.category ? product.category.toLowerCase() : ''; // Ensure category exists before calling .toLowerCase()
-    
-        const matchesName = name.includes(query.toLowerCase());
-        const matchesBrand = brand ? productBrand.includes(brand.toLowerCase()) : true;
-        const matchesCategory = category ? productCategory.includes(category.toLowerCase()) : true;
-        
-        return matchesName && matchesBrand && matchesCategory;
+          const name = product.name ? product.name.toLowerCase() : '';
+          return name.includes(query);
       });
-    }
+  },
+  
     
   },
   extraReducers: (builder) => {

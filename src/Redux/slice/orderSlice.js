@@ -104,17 +104,17 @@ export const updateOrderDelivery = createAsyncThunk(
 
 export const orderAddress = createAsyncThunk(
   "orders/OrderAddress",
-  async ({ customerId, orderCode, address, geoLocation }, { rejectWithValue }) => {
+  async (
+    { customerId, orderCode, address, geoLocation },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/Order/OrderAddress`,
-        {
-          customerid: customerId,
-          orderCode: orderCode,
-          address: address,
-          geoLocation: geoLocation,
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/Order/OrderAddress`, {
+        customerid: customerId,
+        orderCode: orderCode,
+        address: address,
+        geoLocation: geoLocation,
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -144,7 +144,7 @@ const orderSlice = createSlice({
   name: "orders",
   initialState: {
     orders: [],
-    salesOrder: null, 
+    salesOrder: null,
     lifeCycle: null,
     deliveryAddress: null,
     deliveryUpdate: null,
@@ -176,35 +176,37 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    .addCase(fetchOrdersByDate.pending, (state) => {
-      state.loading = true;
-    })
-    .addCase(fetchOrdersByDate.fulfilled, (state, action) => {
-      state.loading = false;
-      state.orders = action.payload; // or whatever your payload structure is
-    })
-    .addCase(fetchOrdersByDate.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.error; // Store error information
-    })
+      .addCase(fetchOrdersByDate.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchOrdersByDate.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload; // or whatever your payload structure is
+      })
+      .addCase(fetchOrdersByDate.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error; // Store error information
+      })
 
-    // Handle updateOrderTransition similarly
-    .addCase(updateOrderTransition.pending, (state) => {
-      state.loading = true;
-      state.error.orders = null;
-    })
-   .addCase(updateOrderTransition.fulfilled, (state, action) => {
-    state.loading = false;
-      const updatedOrder = action.payload; // Ensure `payload` is an order object
-      const index = state.orders.findIndex(order => order.orderId === updatedOrder.orderId);
-      if (index !== -1) {
-        state.orders[index] = updatedOrder; // Update the order in place
-      }
-    })
-    .addCase(updateOrderTransition.rejected, (state, action) => {
-      state.loading.orders = false;
-      state.error.orders = action.payload; // Capture error message
-    })
+      // Handle updateOrderTransition similarly
+      .addCase(updateOrderTransition.pending, (state) => {
+        state.loading = true;
+        state.error.orders = null;
+      })
+      .addCase(updateOrderTransition.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedOrder = action.payload; // Ensure `payload` is an order object
+        const index = state.orders.findIndex(
+          (order) => order.orderId === updatedOrder.orderId
+        );
+        if (index !== -1) {
+          state.orders[index] = updatedOrder; // Update the order in place
+        }
+      })
+      .addCase(updateOrderTransition.rejected, (state, action) => {
+        state.loading.orders = false;
+        state.error.orders = action.payload; // Capture error message
+      })
 
       .addCase(fetchOrderLifeCycle.pending, (state) => {
         state.loading.lifeCycle = true;
@@ -231,8 +233,6 @@ const orderSlice = createSlice({
         state.loading.orders = false;
         state.error.orders = action.payload;
       })
-
-   
 
       .addCase(fetchSalesOrderById.pending, (state) => {
         state.loading = true;

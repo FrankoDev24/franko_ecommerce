@@ -1,17 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { useDispatch } from 'react-redux';
-import { loginCustomer } from '../../Redux/slice/customerSlice'; // Adjust the import based on your file structure
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import { loginCustomer } from '../../Redux/slice/customerSlice';
+import { useNavigate, useParams } from 'react-router-dom'; // Import useParams for URL parameters
 import logo from "../../assets/frankoIcon.png";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Initialize navigate for navigation
+  const navigate = useNavigate();
+  const { contactNumber, password } = useParams(); // Retrieve parameters from URL
+
+  // Initialize form data with URL parameters as defaults
   const [formData, setFormData] = useState({
-    Contact_number: '',
-    password: '',
+    Contact_number: contactNumber || '',
+    password: password || '',
   });
+
+  // Update form data state when URL params change
+  useEffect(() => {
+    setFormData({
+      Contact_number: contactNumber || '',
+      password: password || '',
+    });
+  }, [contactNumber, password]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,9 +31,9 @@ const LoginPage = () => {
 
   const handleSubmit = async (values) => {
     try {
-      await dispatch(loginCustomer(values)).unwrap(); // Use values directly from the onFinish
+      await dispatch(loginCustomer(values)).unwrap();
       message.success('Login successful!');
-      navigate('/'); // Navigate to home page upon successful login
+      navigate('/franko'); // Navigate to home page upon successful login
     } catch (error) {
       message.error('Login failed: ' + error.message);
     }
@@ -30,12 +41,12 @@ const LoginPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
-     
       <Form layout="vertical" onFinish={handleSubmit} className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
-      <div className="flex flex-col items-center justify-center"> {/* Centering container */}
-          <img src={logo} alt="Logo" className="w-32 mb-4" /> {/* Logo */}
-          <h2 className="text-2xl font-bold mb-4 text-center">Login</h2> {/* Centered heading */}
+        <div className="flex flex-col items-center justify-center">
+          <img src={logo} alt="Logo" className="w-32 mb-4" />
+          <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
         </div>
+
         <Form.Item label="Contact Number" required>
           <Input
             name="Contact_number"
@@ -55,22 +66,21 @@ const LoginPage = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button  htmlType="submit" block className="bg-green-800 text-white ">
+          <Button htmlType="submit" block className="bg-green-800 text-white ">
             Login
           </Button>
         </Form.Item>
+        
         <p className="mt-4 text-center">
-        Don’t have an account?{' '}
-        <span
-          onClick={() => navigate('/sign-up')} // Correct usage of navigate
-          className="text-blue-500 cursor-pointer hover:underline"
-        >
-          Register
-        </span>
-      </p>
+          Don’t have an account?{' '}
+          <span
+            onClick={() => navigate('/sign-up')}
+            className="text-blue-500 cursor-pointer hover:underline"
+          >
+            Register
+          </span>
+        </p>
       </Form>
-
-    
     </div>
   );
 };
