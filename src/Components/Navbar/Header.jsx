@@ -112,8 +112,8 @@ const Header = () => {
         </div>
 
         {/* Mobile View: Carousel and Menu Button */}
-        <div className="mobile-header md:hidden w-full relative mb-8">
-          <div className="mobile-menu-button sticky top-0 left-0 w-full z-50 bg-red-500 p-4 mb-5">
+        <div className="mobile-header md:hidden w-full relative mb-12">
+          <div className="mobile-menu-button sticky top-0 left-0 w-full z-50 bg-red-500 p-4 mb-2 rounded-xl" style={{marginTop: '-8px'}}>
             <Button
               type="text"
               icon={<MenuOutlined />}

@@ -83,11 +83,11 @@ const RecentProducts = () => {
                   />
                 </div>
                 <div className="flex flex-col space-y-1">
-                  <h2 className="text-sm md:text-base font-semibold text-gray-800 truncate">
+                  <h2 className="text-sm md:text-md  text-gray-800 truncate">
                     {product.productName}
                   </h2>
                   <div className="flex md:items-center md:flex-row flex-col md:space-x-2">
-                    <span className="text-base md:text-lg font-bold text-red-500">
+                    <span className="text-base md:text-sm font-bold text-red-500">
                       {`₵${formatPrice(product.price)}`}
                     </span>
                     {product.oldPrice > 0 && (

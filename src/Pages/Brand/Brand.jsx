@@ -92,7 +92,7 @@ const Brand = () => {
                 key={brand.brandId}
                 className={`${
                   brand.brandId === brandId ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700'
-                } px-4 py-2 rounded-full text-sm cursor-pointer hover:bg-blue-400`}
+                } px-4 py-2 rounded-full text-sm cursor-pointer hover:bg-red-500 text-gray-700 hover:text-white`}
                 onClick={() => navigate(`/brand/${brand.brandId}`)}
               >
                 {brand.brandName}
@@ -164,7 +164,7 @@ const Brand = () => {
               </div>
 
               <div className="flex flex-col space-y-1">
-                <Tag color="red" className="absolute top-2 left-2">{product.showRoomName}</Tag>
+              
                 <h2 className="text-sm md:text-base  text-gray-800 truncate">
                   {product.productName}
                 </h2>
@@ -178,7 +178,11 @@ const Brand = () => {
                     </span>
                   )}
                 </div>
+                <div className="mt-2">
+                  <Tag color="red">{product.showRoomName}</Tag>
+                </div>
               </div>
+             
               <div
                 className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 onClick={(e) => {
@@ -188,6 +192,7 @@ const Brand = () => {
               >
                 <ShoppingCartOutlined className="text-xl md:text-2xl text-red-500 hover:text-red-600 transition-colors duration-200" />
               </div>
+          
             </div>
           ))}
         </div>

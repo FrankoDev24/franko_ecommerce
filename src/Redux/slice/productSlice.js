@@ -125,6 +125,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+      
       .addCase(updateProductImage.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.products.findIndex(item => item.Productid === action.payload.Productid);
@@ -180,7 +181,9 @@ const productSlice = createSlice({
       .addCase(fetchProductById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-      });
+      })
+      
+      
   },
 });
 
