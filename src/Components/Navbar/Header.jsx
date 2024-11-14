@@ -69,31 +69,33 @@ const Header = () => {
         
         {/* Categories Block on the Left (Desktop View) */}
         <div
-          className="categories-block hidden md:flex flex-col w-1/4 p-6 rounded-lg shadow-xl relative mr-10  top-0 z-50"
-          ref={categoriesRef}
+  className="categories-block hidden md:flex flex-col md:w-1/3 lg:w-1/4 p-6 rounded-lg shadow-xl relative mr-6 top-0 z-50"
+  ref={categoriesRef}
+>
+  <h3 className="text-xl font-semibold mb-4 text-red-500">Categories</h3>
+  {status === 'loading' ? (
+    <p>Loading categories...</p>
+  ) : (
+    <div className="categories-list">
+      {categories.map((category) => (
+        <div
+          key={category.categoryId}
+          className={`category-item flex items-center justify-between cursor-pointer py-2 relative rounded-md ${activeCategoryId === category.categoryId ? 'bg-green-300 text-gray-900' : 'bg-white text-gray-500'} hover:bg-green-400`}
+          onClick={() => handleCategoryClick(category.categoryId)}
         >
-          <h3 className="text-xl font-semibold mb-4 text-red-500">Categories</h3>
-          {status === 'loading' ? (
-            <p>Loading categories...</p>
-          ) : (
-            <div className="categories-list">
-              {categories.map((category) => (
-                <div
-                  key={category.categoryId}
-                  className={`category-item flex items-center justify-between cursor-pointer py-2 relative rounded-md ${activeCategoryId === category.categoryId ? 'bg-green-300 text-gray-900' : 'bg-white text-gray-500'} hover:bg-green-400`}
-                  onClick={() => handleCategoryClick(category.categoryId)}
-                >
-                  <span className="flex items-center">
-                    <AppstoreOutlined />
-                    <span className="ml-2 text-sm">{category.categoryName}</span>
-                  </span>
-                  <CaretDownOutlined className="text-gray-400" />
-                  {activeCategoryId === category.categoryId && renderBrands(category.categoryId)}
-                </div>
-              ))}
-            </div>
-          )}
+          <span className="flex items-center">
+            <AppstoreOutlined />
+            <span className="ml-2 text-sm">{category.categoryName}</span>
+          </span>
+          <CaretDownOutlined className="text-gray-400" />
+          {activeCategoryId === category.categoryId && renderBrands(category.categoryId)}
         </div>
+      ))}
+    </div>
+  )}
+</div>
+
+
 
         {/* Carousel Block on the Right for Desktop View */}
         <div className="carousel-container hidden md:block w-3/4 mb-10" style={{ height: '300px' }}>

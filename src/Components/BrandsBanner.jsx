@@ -38,8 +38,8 @@ const ShopByBrandsBanner = () => {
 
         {/* Inside container, all content is now centered */}
         <div className="relative">
-          {/* Horizontal Scroll Wrapper for Small Screens */}
-          <div className="flex gap-4 overflow-x-auto no-scrollbar md:grid md:grid-cols-6 md:gap-4 brand-scroll-container">
+          {/* Horizontal Scroll Wrapper for Small Screens and Grid Layout for Medium Screens */}
+          <div className="flex gap-4 overflow-x-auto no-scrollbar md:grid md:grid-cols-3 lg:grid-cols-6 md:gap-4 brand-scroll-container">
             {/* Samsung Brand */}
             <div
               onClick={() => navigateToBrand('760af684-7a19-46ab-acc5-7445ef32073a')}

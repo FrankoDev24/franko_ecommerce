@@ -37,12 +37,11 @@ const ShowroomPage = () => {
   }, []);
 
   const formatTime = (time) => (time < 10 ? `0${time}` : time);
-
   const sortedProducts = showrooms.map((showroom) => {
     const showroomProducts = productsByShowroom[showroom.showRoomID] || [];
     return {
       ...showroom,
-      products: [...showroomProducts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10),
+      products: [...showroomProducts].sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated)).slice(0, 10),
     };
   });
 
@@ -73,15 +72,18 @@ const ShowroomPage = () => {
     scrollRef.current[id].scrollLeft += 200;
   };
 
+  // Loading Skeleton
   if (loading || loadingProducts) {
     return (
       <div className="container mx-auto p-4 mt-12">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="animate-pulse">
-              <div className="bg-gray-200 h-32 rounded-lg mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
+          {Array.from({ length: 15 }).map((_, index) => (
+            <div key={index} className="animate-pulse border rounded-lg shadow p-3 relative bg-gray-100">
+              <div className="h-32 md:h-32 lg:h-32 flex items-center justify-center mb-3 bg-gray-200 rounded-lg">
+                <span className="text-gray-500 text-2xl font-bold">Franko</span>
+              </div>
+              <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
             </div>
           ))}
         </div>
@@ -130,20 +132,20 @@ const ShowroomPage = () => {
                 {showroom.products.map((product) => (
                   <div
                     key={product.productID}
-                    className="flex-shrink-0 w-1/2 sm:w-1/3 md:w-1/6 lg:w-1/6 p-2 relative group"
+                    className="flex-shrink-0 w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5 p-2 relative group"
                   >
                     <Card
                       hoverable
-                      className="rounded-lg shadow-lg transition-transform transform hover:scale-105"
+                      className="rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-lg w-42"
                       cover={
                         <div onClick={() => navigate(`/product/${product.productID}`)} className="cursor-pointer">
-                          <div className="h-32 md:h-48 lg:h-56 flex items-center justify-center mb-3">
+                          <div className="h-32 md:h-32 lg:h-32 flex items-center justify-center mb-3">
                             <img
                               src={`https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage
                                 .split("\\")
                                 .pop()}`}
                               alt={product.productName}
-                              className="w-full h-full object-cover rounded-lg"
+                              className="w-48 md:w-24 lg:w-32 object-cover rounded-lg"
                             />
                           </div>
                         </div>
