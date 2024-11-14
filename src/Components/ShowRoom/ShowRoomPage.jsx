@@ -124,7 +124,7 @@ const ShowroomProductsPage = () => {
           {Array.from({ length: 12 }).map((_, index) => (
             <div key={index} className="animate-pulse border rounded-lg shadow p-3 relative bg-gray-100">
               <div className="h-36 md:h-44 lg:h-52 flex items-center justify-center mb-3 bg-gray-200 rounded-lg">
-                <span className="text-gray-500 text-2xl font-bold">Loading</span>
+                <span className="text-gray-500 text-2xl font-bold">Franko</span>
               </div>
               <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
               <div className="h-3 bg-gray-200 rounded w-1/2"></div>
