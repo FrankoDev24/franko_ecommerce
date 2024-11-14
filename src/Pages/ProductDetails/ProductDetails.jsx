@@ -3,10 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProductById, fetchProducts } from "../../Redux/slice/productSlice";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Tabs, Modal, Card } from "antd";
-import { ShoppingCartOutlined, HeartOutlined, BarChartOutlined, MailOutlined, CheckCircleFilled } from "@ant-design/icons";
+import { ShoppingCartOutlined, CheckCircleFilled } from "@ant-design/icons";
 import { addToCart } from "../../Redux/slice/cartSlice";
 import { FacebookShareButton, WhatsappShareButton } from "react-share";
 import { FacebookOutlined, WhatsAppOutlined } from "@ant-design/icons";
+import ProductDetailSkeleton from "./ProductDetailSkeleton";
 const formatPrice = (price) => {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
@@ -56,7 +57,7 @@ const ProductDetail = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <ProductDetailSkeleton/>
   }
 
   if (error) return <div>Error: {error}</div>;
@@ -75,7 +76,12 @@ const ProductDetail = () => {
     if (!recentProducts || recentProducts.length === 0) return null;
     return (
       <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4 text-red-500">Related Products</h2>
+<div className="w-full bg-red-500 py-2 px-4 rounded-md mb-4">
+  <h2 className="text-md lg:text-xl font-semibold  text-white">
+    Related Products
+  </h2>
+</div>
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {recentProducts.map((product) => (
             <Card
@@ -146,8 +152,8 @@ const ProductDetail = () => {
 
         {/* Right Column - Product Info */}
         <div className="lg:w-1/2">
-          <h1 className="text-xl font-bold mb-4">{product.productName}</h1>
-          <div className="bg-red-100 p-4 rounded-lg inline-block mb-2">
+          <h1 className="text-lg md:text-2xl font-bold mb-4">{product.productName}</h1>
+          <div className="bg-red-100 p-2 rounded-lg inline-block mb-2">
             <span className="text-2xl font-bold">₵{formatPrice(product.price)}.00</span>
             {product.oldPrice > 0 && (
               <span className="line-through text-gray-500 ml-8">
