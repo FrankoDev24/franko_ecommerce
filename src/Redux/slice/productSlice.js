@@ -56,18 +56,18 @@ const convertFileToBinary = (file) => {
 // Async thunk for fetching all products
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
   const response = await axios.get(`${API_BASE_URL}/Product/Product-Get`);
-  return response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return response.data.sort((a, b) => new Date(b.created) - new Date(a.created));
 });
 
 // Async thunk for fetching products by brand
 export const fetchProductsByBrand = createAsyncThunk('products/fetchProductsByBrand', async (brandId) => {
   const response = await axios.get(`${API_BASE_URL}/Product/Product-Get-by-Brand/${brandId}`);
-  return response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return response.data.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
 });
 
 export const fetchProductsByShowroom = createAsyncThunk('products/fetchProductsByShowroom', async (showRoomID) => {
   const response = await axios.get(`${API_BASE_URL}/Product/Product-Get-by-ShowRoom/${showRoomID}`);
-  return { showRoomID, products: response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) };
+  return { showRoomID, products: response.data.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated)) };
 });
 
 // Async thunk for fetching a product by its ID
@@ -182,14 +182,8 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
-      
-      
-  },
+},
 });
-
-
-
-
 // Export the reducer and actions
 export const { clearProducts, setFilteredProducts } = productSlice.actions;
 export default productSlice.reducer;

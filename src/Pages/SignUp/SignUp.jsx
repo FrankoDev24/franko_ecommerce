@@ -55,7 +55,7 @@ const RegistrationPage = () => {
       const { contactNumber, password } = finalData;
   
       // Navigate to login page with contact number and password as URL parameters
-      navigate(`/sign-in/${contactNumber}/${password}`);
+      navigate("/sign-in", { state: { contactNumber, password } });
       console.log('Registration result:', result); // Log the entire result
     } catch (error) {
       message.error('Registration failed: ' + error.message);

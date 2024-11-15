@@ -65,12 +65,14 @@ const Header = () => {
 
   return (
     <div className="container mx-auto p-4 mb-12">
-      <div className="header-container flex flex-col md:flex-row relative bg-gray-30">
+      <div className="header-container flex flex-col md:flex-row relative bg-gray-30" >
         
         {/* Categories Block on the Left (Desktop View) */}
         <div
-  className="categories-block hidden md:flex flex-col md:w-1/3 lg:w-1/4 p-6 rounded-lg shadow-xl relative mr-6 top-0 z-50"
-  ref={categoriesRef}
+  
+className="categories-block hidden md:flex flex-col md:w-1/3 lg:w-1/4 p-6 bg-white rounded-lg shadow-xl relative mr-6 top-0 z-50"
+style={{ height:"520px" }}
+ref={categoriesRef}
 >
   <h3 className="text-xl font-semibold mb-4 text-red-500">Categories</h3>
   {status === 'loading' ? (

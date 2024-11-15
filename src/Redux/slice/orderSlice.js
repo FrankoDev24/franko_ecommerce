@@ -109,20 +109,35 @@ export const orderAddress = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/Order/OrderAddress`, {
-        customerid: customerId,
-        orderCode: orderCode,
-        address: address,
-        geoLocation: geoLocation,
-      });
+      // Create both camelCase and PascalCase fields
+      const requestData = {
+        // camelCase version
+        customerId,
+        orderCode,
+        address,
+        geoLocation,
+        
+        // PascalCase version
+        OrderCode: orderCode,
+        GeoLocation: geoLocation,
+      };
+
+      // Log request data to verify both formats
+      console.log("Sending request data with both casing styles:", requestData);
+
+      const response = await axios.post(`${API_BASE_URL}/Order/OrderAddress`, requestData);
+
+      // Return the response data if the request is successful
       return response.data;
     } catch (error) {
+      // Return the error response if the request fails
       return rejectWithValue(
         error.response?.data || "Failed to update order address"
       );
     }
   }
 );
+
 export const fetchOrderDeliveryAddress = createAsyncThunk(
   "orders/fetchOrderDeliveryAddress",
   async (orderCode, { rejectWithValue }) => {

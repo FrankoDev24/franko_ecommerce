@@ -93,13 +93,13 @@ const ShopByBrandsBanner = () => {
           <Button
             icon={<LeftOutlined />}
             shape="circle"
-            className="absolute top-1/2 transform -translate-y-1/2 left-2 bg-gray-300 z-10 shadow hover:bg-gray-400 transition-all duration-300 md:hidden"
+            className="absolute top-1/2 transform -translate-y-1/2 left-1 bg-gray-300 z-10 shadow hover:bg-gray-400 transition-all duration-300 md:hidden"
             onClick={scrollLeft}
           />
           <Button
             icon={<RightOutlined />}
             shape="circle"
-            className="absolute top-1/2 transform -translate-y-1/2 right-2 bg-gray-300 z-10 shadow hover:bg-gray-400 transition-all duration-300 md:hidden"
+            className="absolute top-1/2 transform -translate-y-1/2 right-1 bg-gray-300 z-10 shadow hover:bg-gray-400 transition-all duration-300 md:hidden"
             onClick={scrollRight}
           />
         </div>

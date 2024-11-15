@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add custom styles for all pages */
+@layer base {
+  body {
+    @apply bg-gray-100 text-gray-800 font-sans;
+  }
+}

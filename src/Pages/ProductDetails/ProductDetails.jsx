@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductById, fetchProducts } from "../../Redux/slice/productSlice";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, Tabs, Modal, Card } from "antd";
+import { Button, Tabs, Modal, Card, message} from "antd";
 import { ShoppingCartOutlined, CheckCircleFilled } from "@ant-design/icons";
 import { addToCart } from "../../Redux/slice/cartSlice";
-import { FacebookShareButton, WhatsappShareButton } from "react-share";
-import { FacebookOutlined, WhatsAppOutlined } from "@ant-design/icons";
+import { FacebookOutlined, WhatsAppOutlined, ShareAltOutlined } from "@ant-design/icons";
 import ProductDetailSkeleton from "./ProductDetailSkeleton";
+
 const formatPrice = (price) => {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
@@ -22,23 +22,55 @@ const ProductDetail = () => {
   const cartId = useSelector((state) => state.cart.cartId);
 
   const [isImageModalVisible, setImageModalVisible] = useState(false);
+  const [isShareModalVisible, setShareModalVisible] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProducts()); // Fetch products
     dispatch(fetchProductById(productId)); // Fetch current product by ID
+    window.scrollTo(0, 0); // Scroll to top on page load
   }, [dispatch, productId]);
 
   const recentProducts = products.slice(-12); // Get the last 12 products as related products
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = () => {
+    setIsAddingToCart(true);
     const cartData = {
       cartId,
-      productId: product.productID,
-      price: product.price,
+      productId: currentProduct[0].productID,
+      price: currentProduct[0].price,
       quantity: 1,
     };
-    dispatch(addToCart(cartData));
+
+    dispatch(addToCart(cartData))
+      .then(() => {
+        message.success('Product added to cart successfully!');
+      })
+      .catch((error) => {
+        message.error(`Failed to add product to cart: ${error.message}`);
+      })
+      .finally(() => {
+        setIsAddingToCart(false);
+      });
+  };
+
+  const productUrl = window.location.href; // Get the current product URL
+
+  // Share logic for Facebook
+  const handleFacebookShare = () => {
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}`,
+      '_blank'
+    );
+  };
+
+  // Share logic for WhatsApp
+  const handleWhatsAppShare = () => {
+    window.open(
+      `https://api.whatsapp.com/send?text=${encodeURIComponent(productUrl)}`,
+      '_blank'
+    );
   };
 
   const handleStickyButton = () => {
@@ -57,7 +89,7 @@ const ProductDetail = () => {
   }, []);
 
   if (loading) {
-    return <ProductDetailSkeleton/>
+    return <ProductDetailSkeleton />;
   }
 
   if (error) return <div>Error: {error}</div>;
@@ -76,11 +108,11 @@ const ProductDetail = () => {
     if (!recentProducts || recentProducts.length === 0) return null;
     return (
       <div className="mt-8">
-<div className="w-full bg-red-500 py-2 px-4 rounded-md mb-4">
-  <h2 className="text-md lg:text-xl font-semibold  text-white">
-    Related Products
-  </h2>
-</div>
+        <div className="w-full bg-red-400 py-2 px-4 rounded-md mb-4">
+          <h2 className="text-md lg:text-xl font-semibold text-white">
+            Related Products
+          </h2>
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {recentProducts.map((product) => (
@@ -92,7 +124,6 @@ const ProductDetail = () => {
                 <div onClick={() => navigate(`/product/${product.productID}`)} className="cursor-pointer relative">
                   {product.oldPrice > 0 && (
                     <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-1">
-                    
                     </div>
                   )}
                   <div className="h-32 md:h-32 lg:h-48 flex items-center justify-center mb-3">
@@ -184,70 +215,94 @@ const ProductDetail = () => {
             ]}
           />
 
-<div className="flex flex-col lg:flex-row lg:items-center gap-2 mb-6 mt-10">
-  {/* Add to Cart Button */}
-  <Button
-  icon={<ShoppingCartOutlined />}
-  size="large"
-  className="hidden lg:flex bg-red-500 hover:bg-green-600 text-white px-6 py-3 flex-shrink-0"
-  onClick={handleAddToCart}
->
-  Add to Cart
-</Button>
+          {/* Add to Cart Button and Share */}
+          <div className="hidden lg:flex flex-row lg:flex-row lg:items-center gap-8 mb-4 mt-4">
+            <Button
+              icon={<ShoppingCartOutlined />}
+              size="large"
+              className="lg:block bg-red-400 hover:bg-green-600 text-white px-6 py-2 flex-shrink-0"
+              onClick={handleAddToCart}
+              loading={isAddingToCart}
+            >
+              Add to Cart
+            </Button>
 
-  {/* Share This Product Section */}
-  <div className=" lg:flex-row lg:items-center lg:ml-8">
-    <h3 className="text-sm font-semibold">Share this product</h3>
-    <div className="flex gap-4 items-center">
-      <FacebookShareButton url={window.location.href}>
-        <Button icon={<FacebookOutlined />} type="primary" className="bg-blue-600 text-white">
-          Facebook
-        </Button>
-      </FacebookShareButton>
-      <WhatsappShareButton url={window.location.href}>
-        <Button icon={<WhatsAppOutlined />} type="primary" className="bg-green-500 text-white">
-          WhatsApp
-        </Button>
-      </WhatsappShareButton>
-    </div>
-  </div>
-</div>
-
-
-        
-          
+            {/* Share this product */}
+            <Button
+              icon={<ShareAltOutlined />}
+              className=" flex items-center lg:block   bg-green-800 text-white px-10 py-1 flex-shrink-0 "
+              onClick={() => setShareModalVisible(true)}
+            >
+              Share this Product
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Render related products */}
+      {/* Related Products */}
       {renderRelatedProducts()}
 
       {/* Image Modal */}
       <Modal
-        title={product.productName}
         visible={isImageModalVisible}
-        onCancel={() => setImageModalVisible(false)}
         footer={null}
-        width={800} // Increase modal size
+        onCancel={() => setImageModalVisible(false)}
+        width={800}
       >
-        <img
-          src={imageUrl}
-          alt={product.productName}
-          style={{ width: "100%", height: "auto", objectFit: "contain" }}
-        />
+        <img src={imageUrl} alt={product.productName} className="w-full h-auto object-contain" />
       </Modal>
 
-      {/* Sticky Add to Cart Button on Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg z-5 md:hidden">
+      {/* Share Modal */}
+      <Modal
+        title="Share this product"
+        visible={isShareModalVisible}
+        onCancel={() => setShareModalVisible(false)}
+        footer={null}
+      >
+        <div className=" md:ml-4 flex flex-col justify-center mt-4 gap-4">
+          <Button
+            icon={<FacebookOutlined />}
+            size="large"
+            onClick={handleFacebookShare}
+       className="flex items-center bg-blue-600 text-white"   >
+            Share on Facebook
+          </Button>
+          <Button
+            icon={<WhatsAppOutlined />}
+            size="large"
+            onClick={handleWhatsAppShare}
+       className="flex items-center bg-green-800 text-white"   >
+            Share on WhatsApp
+          </Button>
+        </div>
+      </Modal>
+       {/* Sticky Add to Cart Button on Mobile */}
+       <div className="fixed bottom-0 left-0 right-0 bg-white p-3 shadow-lg z-5 md:hidden">
+      <div className="flex justify-between items-center gap-2">
+        {/* Add to Cart Button */}
         <Button
           icon={<ShoppingCartOutlined />}
           size="large"
-          className="bg-red-400 hover:bg-green-600 text-white w-full"
+          className="bg-red-400 hover:bg-green-600 text-white w-48 flex-shrink-0"
           onClick={handleAddToCart}
+          loading={isAddingToCart}
         >
           Add to Cart
         </Button>
+
+        {/* Share This Product Section */}
+        
+        <div className="flex gap-1 ">
+        <Button
+              icon={<ShareAltOutlined />}
+              className=" flex items-center lg:block   bg-green-800 text-white px-2 py-1 flex-shrink-0  "
+              onClick={() => setShareModalVisible(true)}
+            >
+              Share this Product
+            </Button>
+        </div>
       </div>
+    </div>
     </div>
   );
 };

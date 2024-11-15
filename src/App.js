@@ -21,6 +21,7 @@ import RegistrationPage from './Pages/SignUp/SignUp';
 import CartUpdatePage from './Pages/Cart/CartUpdate';
 import LoginPage from './Pages/LogIn/Signin';
 import ProductsPage from './Pages/AllProducts';
+import OrderHistory from './Pages/OrderHistory';
 
 const App = () => {
     return (
@@ -40,6 +41,7 @@ const App = () => {
                 <Route path="/product/:productId" element={<ProductDetail />} />
                 <Route path="/order-status" element={<OrderCycle />} />
                 <Route path="/cart/update/:cartId/:productId/:quantity" element={<CartUpdatePage />} />
+                <Route path="/order-history" element={<OrderHistory />} />
                 <Route path="/products" element={<ProductsPage/>} />
                 
                 {/* Admin routes */}
