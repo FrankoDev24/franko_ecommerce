@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Form, Input, Button, message } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, HomeOutlined, PhoneOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { createCustomer } from '../../Redux/slice/customerSlice';
 import { useNavigate } from 'react-router-dom';
@@ -14,10 +14,9 @@ const RegistrationPage = () => {
     firstName: '',
     lastName: '',
     contactNumber: '',
-    email: '',
+    address: '',
     password: '',
     confirmPassword: '',
-    address: '',
     imagePath: '',
     accountType: '',
   });
@@ -102,10 +101,10 @@ const RegistrationPage = () => {
           />
         </Form.Item>
 
-        <Form.Item label="Email" name="email">
+        <Form.Item label="Address" name="address">
           <Input 
-            type="email" 
-            prefix={<MailOutlined />} // Add email icon
+            type="address" 
+            prefix={<HomeOutlined />} // Add address icon
             onChange={handleChange} 
           />
         </Form.Item>

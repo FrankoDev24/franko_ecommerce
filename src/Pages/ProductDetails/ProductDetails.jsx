@@ -142,10 +142,10 @@ const ProductDetail = () => {
                 title={<p className="font-semibold text-xs sm:text-sm truncate">{product.productName}</p>}
                 description={
                   <div className="mt-1">
-                    <p className="text-red-500 font-bold text-xs sm:text-sm">{`₵${formatPrice(product.price)}`}</p>
+                    <p className="text-red-500 font-bold text-xs sm:text-sm">{`₵${formatPrice(product.price)}`}.00</p>
                     {product.oldPrice > 0 && (
                       <p className="text-gray-500 text-xs line-through sm:inline-block md:flex">
-                        {`₵${formatPrice(product.oldPrice)}`}
+                        {`₵${formatPrice(product.oldPrice)}`}.00
                       </p>
                     )}
                   </div>
@@ -205,7 +205,7 @@ const ProductDetail = () => {
             items={[
               {
                 key: "1",
-                label: <span style={{ color: "red" }}>Product Details</span>,
+                label: <span style={{ color: "red" }}>Product Description</span>,
                 children: (
                   <div className="p-4" style={{ maxHeight: "250px", overflowY: "auto" }}>
                     {productDescription}

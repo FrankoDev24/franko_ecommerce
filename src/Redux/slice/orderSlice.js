@@ -158,7 +158,7 @@ export const fetchOrderDeliveryAddress = createAsyncThunk(
 const orderSlice = createSlice({
   name: "orders",
   initialState: {
-    orders: [],
+    orders: [], // Local orders stored here
     salesOrder: null,
     lifeCycle: null,
     deliveryAddress: null,
@@ -179,6 +179,65 @@ const orderSlice = createSlice({
     },
   },
   reducers: {
+    // Reducer to add a new order locally
+     // Store the local order
+     storeLocalOrder: (state, action) => {
+      const { userId, orderId } = action.payload;
+    
+      // Retrieve existing orders from localStorage
+      const storedOrders = JSON.parse(localStorage.getItem("userOrders")) || [];
+    
+      // Check if the order already exists
+      const existingOrderIndex = storedOrders.findIndex(
+        (order) => order.userId === userId && order.orderId === orderId
+      );
+    
+      // If the order exists, update it, otherwise, add a new order
+      if (existingOrderIndex !== -1) {
+        storedOrders[existingOrderIndex] = action.payload; // Update existing order
+      } else {
+        storedOrders.push(action.payload); // Add a new order
+      }
+    
+      // Update the state with the new order list
+      state.orders = storedOrders;
+    
+      // Store the updated orders in localStorage without clearing previous ones
+      localStorage.setItem("userOrders", JSON.stringify(storedOrders));
+    
+      console.log("Orders after storeLocalOrder:", storedOrders);
+    },
+    
+  
+    
+    // Set loading state for orders
+    setLoading: (state, action) => {
+      state.loading = action.payload;
+    },
+
+    // Set error state for orders
+    setError: (state, action) => {
+      state.error = action.payload;
+    },
+  
+    fetchOrdersByUser(state, action) {
+      const userId = action.payload;
+      console.log("UserID for filter:", userId);
+      console.log("Orders before filter:", state.orders);
+    
+      // Filter orders based on the userId
+      const filteredOrders = state.orders.filter(
+        (order) => order.userId === userId
+      );
+      
+      console.log("Orders after filter:", filteredOrders);
+    
+      // Update the state with filtered orders
+      state.orders = filteredOrders;
+    },
+    
+
+
     clearOrders(state) {
       state.orders = [];
       state.salesOrder = null;
@@ -188,16 +247,16 @@ const orderSlice = createSlice({
       state.error = {};
       state.loading = {};
     },
-  },
-  extraReducers: (builder) => {
+  },  extraReducers: (builder) => {
     builder
       .addCase(fetchOrdersByDate.pending, (state) => {
         state.loading = true;
       })
       .addCase(fetchOrdersByDate.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload; // or whatever your payload structure is
+        state.orders = Array.isArray(action.payload) ? action.payload : []; // Ensure it's an array
       })
+      
       .addCase(fetchOrdersByDate.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error; // Store error information
@@ -242,7 +301,7 @@ const orderSlice = createSlice({
       })
       .addCase(checkOutOrder.fulfilled, (state, action) => {
         state.loading.orders = false;
-        state.orders = action.payload;
+        state.orders = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(checkOutOrder.rejected, (state, action) => {
         state.loading.orders = false;
@@ -303,5 +362,5 @@ const orderSlice = createSlice({
   },
 });
 
-export const { clearOrders } = orderSlice.actions;
+export const { storeLocalOrder, fetchOrdersByUser, clearOrders } = orderSlice.actions;
 export default orderSlice.reducer;

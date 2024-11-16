@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { checkOutOrder, orderAddress } from "../../Redux/slice/orderSlice";
+import { checkOutOrder, orderAddress, storeLocalOrder } from "../../Redux/slice/orderSlice";
 import { clearCart } from "../../Redux/slice/cartSlice";
 import { message, Card, List, Button, Checkbox } from "antd";
 import { CreditCardOutlined } from "@ant-design/icons";
@@ -22,7 +22,6 @@ const CheckoutPage = () => {
   const customerId = customerData?.customerAccountNumber;
   const orderId = uuidv4();
 
-
   useEffect(() => {
     const storedCartItems = JSON.parse(localStorage.getItem("cart")) || [];
     setCartItems(storedCartItems);
@@ -31,14 +30,9 @@ const CheckoutPage = () => {
   const fetchGeoLocation = async (address) => {
     const API_KEY = "47b3126317b94cb4b1f9f9a9b0a95865"; // Replace with your OpenCage API Key
     const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=${API_KEY}`;
-  
     try {
       const response = await fetch(url);
       const data = await response.json();
-  
-      // Log the API response to inspect the structure
-      console.log("Geolocation API Response:", data);
-  
       if (data.results && data.results.length > 0) {
         const { lat, lng } = data.results[0].geometry;
         return `${lat},${lng}`;
@@ -51,44 +45,30 @@ const CheckoutPage = () => {
       return null;
     }
   };
-  
 
   const handleCheckout = async () => {
     if (!paymentMethod) {
       message.warning("Please select a payment method to proceed.");
       return;
     }
-  
+
     if (!address) {
       message.warning("Please enter your delivery address to proceed.");
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       const geoLocation = await fetchGeoLocation(address);
       if (!geoLocation) {
         setLoading(false);
         return;
       }
-  
-      // Prepare payload with both camelCase and PascalCase field names
-      const payload = {
-        // camelCase fields
-        customerId: customerId,
-        orderCode: orderId,   // camelCase version of OrderCode
-        address: address,
-        geoLocation: geoLocation,  // camelCase version of GeoLocation
-  
-        // PascalCase fields
-        OrderCode: orderId,       // PascalCase version of orderCode
-        GeoLocation: geoLocation, // PascalCase version of geoLocation
-      };
-  
-      console.log(payload);  // Log to verify both casing styles
-  
-      // Dispatch the checkout action
+
+      const totalAmount = cartItems.reduce((total, item) => total + (item.total || 0), 0) + 5;
+
+      // Dispatch actions for checkout
       await dispatch(
         checkOutOrder({
           cartId,
@@ -98,17 +78,33 @@ const CheckoutPage = () => {
           paymentMethod,
         })
       ).unwrap();
-  
-      // Dispatch the order address action with the payload
-      await dispatch(orderAddress(payload));  // Pass the payload here
-  
+
+      const payload = {
+        customerId,
+        orderCode: orderId,
+        address,
+        geoLocation,
+      };
+
+      await dispatch(orderAddress(payload));
+
+      // Dispatch to store the order in the Redux reducer
+      dispatch(
+        storeLocalOrder({
+          userId: customerId,
+          orderId,
+          items: cartItems,
+          totalAmount,
+          date: new Date().toISOString(),
+        })
+      );
+
       message.success("Your order has been placed successfully!");
-  
-      // Clear the cart and other relevant data
+
+      // Clear the cart
       dispatch(clearCart());
       localStorage.removeItem("cart");
       localStorage.removeItem("cartId");
-  
       setCartItems([]);
       setLoading(false);
       navigate("/order-history");
