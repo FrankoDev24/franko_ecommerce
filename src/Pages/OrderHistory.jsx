@@ -81,15 +81,19 @@ const OrderHistory = () => {
       ellipsis: true,
     },
     {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      render: (date) => moment(date).format("YYYY-MM-DD"),
+      responsive: ["xs", "sm", "md", "lg"],
+    },
+    {
       title: "Product",
       dataIndex: "items",
       key: "items",
       render: (items) => (
         <div className="flex items-center space-x-2">
-          <Avatar
-            src={`${backendBaseURL}/Media/Products_Images/${items[0]?.imagePath.split("\\").pop()}`}
-            alt={items[0]?.productName}
-          />
+         
           <span>{items[0]?.productName || "N/A"}</span>
         </div>
       ),
@@ -122,13 +126,7 @@ const OrderHistory = () => {
       render: (total) => `₵${total.toLocaleString()}`,
       responsive: ["xs", "sm", "md", "lg"],
     },
-    {
-      title: "Date Added",
-      dataIndex: "date",
-      key: "date",
-      render: (date) => moment(date).format("YYYY-MM-DD"),
-      responsive: ["xs", "sm", "md", "lg"],
-    },
+   
     {
       title: "Action",
       key: "action",
@@ -203,17 +201,19 @@ const OrderHistory = () => {
   visible={isModalVisible}
   onCancel={handleCloseModal}
   footer={null}
-  width={600}
+  width={500}
   bodyStyle={{ padding: '24px 24px 16px' }}
 >
   {selectedOrder && (
     <div className="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg space-y-6">
       {/* Order ID and Status */}
-      <div className="flex flex-col items-center space-y-2 w-full">
-        <h3 className="text-xl font-semibold text-gray-800">Order ID: #{selectedOrder.orderId}</h3>
-        <Tag color="blue" className="text-sm font-medium">
-          {selectedOrder.status}
-        </Tag>
+      <div className="flex flex-col  space-y-2 w-full">
+        <h3 className="text-xl font-semibold text-gray-800">Order ID: {selectedOrder.orderId}</h3>
+        <div className="w-full border-t border-gray-200"></div>
+        <p className="text-sm text-gray-500">
+          <CalendarOutlined className="inline-block mr-2" />
+          <strong>Date:</strong> {moment(selectedOrder.date).format("YYYY-MM-DD")}
+        </p>
       </div>
 
       {/* Separator line */}
@@ -240,7 +240,7 @@ const OrderHistory = () => {
               <h4 className="font-medium text-gray-800">{item.productName}</h4>
               <div className="text-sm text-gray-600 space-y-2">
                 <p><strong>Price:</strong> ₵{item.price.toLocaleString()}</p>
-                <p><strong>Quantity:</strong> {item.quantity}</p>
+                <p><strong>Qty:</strong> {item.quantity}</p>
                 <p><strong>Total:</strong> ₵{item.total.toLocaleString()}</p>
               </div>
             </div>
@@ -253,11 +253,8 @@ const OrderHistory = () => {
 
       {/* Additional Order Information */}
       <div className="w-full text-center">
-        <p className="text-sm text-gray-500">
-          <CalendarOutlined className="inline-block mr-2" />
-          <strong>Date:</strong> {moment(selectedOrder.date).format("YYYY-MM-DD")}
-        </p>
-        <p className="text-sm text-gray-500">
+       
+        <p className="text-sm text-red-500">
           <DollarOutlined className="inline-block mr-2" />
           <strong>Total Amount:</strong> ₵{selectedOrder.totalAmount.toLocaleString()}
         </p>
