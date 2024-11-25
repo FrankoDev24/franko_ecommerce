@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Table, Tag, Tooltip, Modal, Avatar, Input, DatePicker, Empty } from "antd";
+import { Table, Tag, Tooltip, Modal, Input, DatePicker, Empty } from "antd";
 import { EyeOutlined,DownloadOutlined, ShoppingCartOutlined, CalendarOutlined, DollarOutlined } from "@ant-design/icons";
 import { fetchOrdersByUser } from "../Redux/slice/orderSlice";
 import moment from "moment";

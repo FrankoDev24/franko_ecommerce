@@ -1,0 +1,43 @@
+.site-layout-content {
+    margin-top: 50px;
+    padding: 24px;
+
+  }
+  
+  .contact-card {
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  
+  .contact-card .anticon {
+    margin-bottom: 8px;
+  }
+  a{
+    text-decoration: none;
+    color: inherit;
+  }
+
+.social-icons{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+  @media (max-width: 768px) {
+    .contact-card {
+      margin-bottom: 16px;
+    }
+  }
+  
+
+  .contact-card {
+    text-align: center;
+  }
+  
+  .social-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

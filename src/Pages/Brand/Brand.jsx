@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductsByBrand } from "../../Redux/slice/productSlice";
 import { fetchBrands } from "../../Redux/slice/brandSlice";
-import { addToCart } from "../../Redux/slice/cartSlice";
-import { Empty, message, Input, Button } from 'antd';
+
+import { Empty, Input, Button } from 'antd';
 import { ShoppingCartOutlined, FilterOutlined } from '@ant-design/icons';
 
 const Brand = () => {
@@ -50,24 +50,7 @@ const Brand = () => {
     [loading]
   );
 
-  const handleAddToCart = (product) => {
-    const cartData = {
-      productId: product.productID,
-      productName: product.productName,
-      quantity: 1,
-      price: product.price,
-      image: product.productImage,
-    };
-
-    dispatch(addToCart(cartData))
-      .unwrap()
-      .then(() => {
-        message.success(`${product.productName} added to cart!`);
-      })
-      .catch((error) => {
-        message.error(`Failed to add ${product.productName} to cart: ${error.message}`);
-      });
-  };
+ ;
 
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -187,7 +170,7 @@ const Brand = () => {
                   className="absolute bottom-2 right-2 bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleAddToCart(product);
+      
                   }}
                 />
               </div>

@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { checkOutOrder, orderAddress, storeLocalOrder } from "../../Redux/slice/orderSlice";
 import { clearCart } from "../../Redux/slice/cartSlice";
-import { message, Card, List, Button, Checkbox } from "antd";
-import { CreditCardOutlined } from "@ant-design/icons";
+import { message, Card, List, Button, Checkbox, Modal } from "antd";
+import { CreditCardOutlined,CheckCircleOutlined } from "@ant-design/icons";
 import { GrDeliver } from "react-icons/gr";
 import mobileMoney from "../../assets/download.png";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
+import "./Checkout.css";
 
 const CheckoutPage = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const cartId = localStorage.getItem("cartId");
   const customerData = JSON.parse(localStorage.getItem("customer"));
@@ -68,7 +70,6 @@ const CheckoutPage = () => {
 
       const totalAmount = cartItems.reduce((total, item) => total + (item.total || 0), 0) + 5;
 
-      // Dispatch actions for checkout
       await dispatch(
         checkOutOrder({
           cartId,
@@ -88,7 +89,6 @@ const CheckoutPage = () => {
 
       await dispatch(orderAddress(payload));
 
-      // Dispatch to store the order in the Redux reducer
       dispatch(
         storeLocalOrder({
           userId: customerId,
@@ -100,20 +100,29 @@ const CheckoutPage = () => {
       );
 
       message.success("Your order has been placed successfully!");
-
-      // Clear the cart
       dispatch(clearCart());
       localStorage.removeItem("cart");
       localStorage.removeItem("cartId");
       setCartItems([]);
       setLoading(false);
-      navigate("/order-history");
+
+      // Show Thank You Modal
+      setIsModalVisible(true);
     } catch (error) {
       message.error(error.message || "An error occurred during checkout.");
       setLoading(false);
     }
   };
-  
+
+  const handleContinueShopping = () => {
+    setIsModalVisible(false);
+    navigate("/");
+  };
+
+  const handleViewOrderSummary = () => {
+    setIsModalVisible(false);
+    navigate("/order-history");
+  };
 
   const renderImage = (imagePath) => {
     const backendBaseURL = "https://smfteapi.salesmate.app";
@@ -230,13 +239,13 @@ const CheckoutPage = () => {
               </Checkbox>
             </div>
 
-            <div className="flex items-center">
+            <div className="flex items-center mb-2">
               <Checkbox
                 checked={paymentMethod === "Credit Card"}
                 onChange={() => setPaymentMethod("Credit Card")}
               >
                 <div className="flex items-center">
-                  <CreditCardOutlined style={{ color: "purple", marginRight: "8px" }} />
+                  <CreditCardOutlined style={{ color: "blue", marginRight: "8px" }} />
                   <span>Credit Card</span>
                 </div>
               </Checkbox>
@@ -245,14 +254,62 @@ const CheckoutPage = () => {
 
           <Button
             type="primary"
-            loading={loading}
-            className="w-full mt-4 bg-green-600 text-white hover:bg-green-800"
+            size="large"
+            block
+            className="mt-4 bg-red-500 hover:bg-red-600"
             onClick={handleCheckout}
           >
             Place Order
           </Button>
         </Card>
       </div>
+
+      {/* Thank You Modal */}
+      <Modal
+  title={
+    <div className="flex items-center gap-2">
+      <CheckCircleOutlined style={{ color: "#52c41a", fontSize: "24px" }} />
+      <span className="text-lg font-bold text-gray-700">
+        Thank You for Your Purchase!
+      </span>
+    </div>
+  }
+  visible={isModalVisible}
+  onCancel={() => setIsModalVisible(false)}
+  footer={[
+    <Button
+      key="continue"
+      type="primary"
+      onClick={handleContinueShopping}
+      className="bg-gradient-to-r from-green-400 to-green-500 text-white rounded-lg px-6 py-2 hover:from-green-500 hover:to-green-600"
+    >
+      Continue Shopping
+    </Button>,
+    <Button
+      key="summary"
+      onClick={handleViewOrderSummary}
+      className="bg-gradient-to-r from-red-400 to-red-500 text-white rounded-lg px-6 py-2 hover:from-blue-500 hover:to-blue-600"
+    >
+      View Order Summary
+    </Button>,
+  ]}
+  className="rounded-lg shadow-lg"
+>
+  <div className="text-center">
+    <CheckCircleOutlined
+      style={{
+        color: "#52c41a",
+        fontSize: "60px",
+        marginBottom: "16px",
+        animation: "pop 0.3s ease-in-out",
+      }}
+    />
+    <p className="text-md text-gray-600">
+      Your order has been placed successfully. We appreciate your business!
+    </p>
+  
+  </div>
+</Modal>
     </div>
   );
 };

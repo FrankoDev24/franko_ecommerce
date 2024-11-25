@@ -37,7 +37,26 @@ export const checkOutOrder = createAsyncThunk(
     }
   }
 );
-
+// New async thunk for fetching orders by customer or agent
+export const fetchOrdersByCustomerOrAgent = createAsyncThunk(
+  "orders/fetchOrdersByCustomerOrAgent",
+  async ({ from, to, customerId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/Users/GetOrderByCustomerOrAgent`,
+        {
+          params: { from, to, customerId },
+        }
+      );
+      return response.data; // Ensure this returns the expected data format
+    } catch (error) {
+      console.error("Error fetching orders by customer or agent:", error); // Log the error for debugging
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch orders by customer or agent"
+      );
+    }
+  }
+);
 export const updateOrderTransition = createAsyncThunk(
   "orders/updateOrderTransition",
   async ({ cycleName, orderId }, { rejectWithValue }) => {
@@ -358,6 +377,18 @@ const orderSlice = createSlice({
       .addCase(updateOrderDelivery.rejected, (state, action) => {
         state.loading.deliveryUpdate = false;
         state.error.deliveryUpdate = action.payload;
+      })
+      .addCase(fetchOrdersByCustomerOrAgent.pending, (state) => {
+        state.loading.orders = true; // Use a loading state specific to orders
+        state.error.orders = null;
+      })
+      .addCase(fetchOrdersByCustomerOrAgent.fulfilled, (state, action) => {
+        state.loading.orders = false;
+        state.orders = Array.isArray(action.payload) ? action.payload : [];
+      })
+      .addCase(fetchOrdersByCustomerOrAgent.rejected, (state, action) => {
+        state.loading.orders = false;
+        state.error.orders = action.payload;
       });
   },
 });

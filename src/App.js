@@ -11,7 +11,6 @@ import Brand from "./Pages/Brand/Brand";
 import ShowRoomProducts from "./Components/ShowRoom/ShowRoomPage";
 import ProductDetail from "./Pages/ProductDetails/ProductDetails";
 import OrderCycle from "./Pages/Orders/OrderCycle";
-
 // Import admin components
 import AdminPage from "./AdminPages/AdminPage";
 import AdminLogin from './AdminPages/Login';
@@ -22,6 +21,11 @@ import CartUpdatePage from './Pages/Cart/CartUpdate';
 import LoginPage from './Pages/LogIn/Signin';
 import ProductsPage from './Pages/AllProducts';
 import OrderHistory from './Pages/OrderHistory';
+import About from './Pages/About/About';
+import Contact from './Pages/Contact/Contact';
+import Policies from './Pages/Policy';
+import Footer from './Components/Footer/Footer';
+import UserProfile from './Pages/Profile';
 
 const App = () => {
     return (
@@ -43,6 +47,10 @@ const App = () => {
                 <Route path="/cart/update/:cartId/:productId/:quantity" element={<CartUpdatePage />} />
                 <Route path="/order-history" element={<OrderHistory />} />
                 <Route path="/products" element={<ProductsPage/>} />
+                <Route path ="/about" element={<About />} />
+                <Route path ="/contact" element={<Contact/>} />
+                <Route path ="/terms" element={<Policies/>} />
+                <Route path="/profile" element= {<UserProfile/>} />
                 
                 {/* Admin routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
@@ -57,7 +65,9 @@ const App = () => {
                 <Route path="/products" element={<Navigate to="/admin/products" />} />
                 <Route path="/users" element={<Navigate to="/admin/users" />} />
                 <Route path="/customers" element={<Navigate to="/admin/customers" />} />
+             
             </Routes>
+            <ConditionalFooter />
         </Router>
     );
 };
@@ -76,6 +86,24 @@ const ConditionalNavbar = () => {
         <>
             {/* Render the Navbar only if the current path is not in hiddenPaths and not an admin path */}
             {!hiddenPaths.includes(location.pathname) && !isAdminPath && <Navbar />}
+        </>
+    );
+};
+
+// New component to conditionally render the Footer
+const ConditionalFooter = () => {
+    const location = useLocation();
+
+    // Define paths where the Footer should be hidden
+    const hiddenPaths = ['/admin/login', '/admin/register', "/sign-in", "/sign-up"];
+
+    // Check if the current path starts with '/admin/'
+    const isAdminPath = location.pathname.startsWith('/admin/');
+
+    return (
+        <>
+            {/* Render the Footer only if the current path is not in hiddenPaths and not an admin path */}
+            {!hiddenPaths.includes(location.pathname) && !isAdminPath && <Footer />}
         </>
     );
 };

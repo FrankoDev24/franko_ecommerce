@@ -5,11 +5,10 @@ import { MenuOutlined, AppstoreOutlined, CaretDownOutlined, CloseOutlined } from
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../Redux/slice/categorySlice';
 import { fetchBrands } from '../../Redux/slice/brandSlice';
-import caro1 from '../../assets/slide1.jpg';
-import caro2 from '../../assets/slide2.jpg';
-import caro3 from '../../assets/slide3.jpg';
-import caro4 from '../../assets/slide4.jpg';
-import caro5 from '../../assets/slide5.jpg';
+import caro1 from '../../assets/img1.jpg';
+import caro2 from '../../assets/img2.jpg';
+import caro3 from '../../assets/img3.jpg';
+
 import './Header.css';
 
 const Header = () => {
@@ -102,7 +101,8 @@ ref={categoriesRef}
         {/* Carousel Block on the Right for Desktop View */}
         <div className="carousel-container hidden md:block w-3/4 mb-10" style={{ height: '300px' }}>
           <Carousel autoplay>
-            {[caro1, caro2, caro3, caro4, caro5].map((image, index) => (
+            {[caro1, caro2, caro3
+             ].map((image, index) => (
               <div key={index}>
                 <img 
                   src={image} 
@@ -116,8 +116,8 @@ ref={categoriesRef}
         </div>
 
         {/* Mobile View: Carousel and Menu Button */}
-        <div className="mobile-header md:hidden w-full relative mb-12">
-          <div className="mobile-menu-button sticky top-0 left-0 w-full z-50 bg-red-500 p-4 mb-2 rounded-xl" style={{marginTop: '-8px'}}>
+        <div className="mobile-header md:hidden w-full relative mb-4">
+          <div className="mobile-menu-button sticky top-0 left-0 w-full z-50 bg-red-500 p-2 mb-2 rounded-xl" style={{marginTop: '-8px'}}>
             <Button
               type="text"
               icon={<MenuOutlined />}
@@ -130,7 +130,7 @@ ref={categoriesRef}
 
           <div className="carousel w-full h-24 mt-0.5 mb-4">
             <Carousel autoplay>
-              {[caro1, caro2, caro3, caro4, caro5].map((image, index) => (
+              {[caro1, caro2, caro3].map((image, index) => (
                 <div key={index}>
                   <img 
                     src={image} 

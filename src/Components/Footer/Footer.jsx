@@ -1,7 +1,8 @@
 import React from 'react';
 import { Input, Button } from 'antd';
-import { MailOutlined, FacebookOutlined, TwitterOutlined, LinkedinOutlined } from '@ant-design/icons';
+import { MailOutlined, FacebookOutlined, TwitterOutlined} from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import { FaTiktok,FaWhatsapp } from 'react-icons/fa';
 
 
 const Footer = () => {
@@ -44,10 +45,26 @@ const Footer = () => {
               {/* Questions Section */}
               <div className="mt-2">
                 <div className="text-xs font-bold">QUESTIONS?</div>
-                <div className="text-blue-400 text-sm font-bold">+233302225651</div>
-                <Button type="primary" size="small" className="bg-blue-500 mt-1">
-                  Chat Online
-                </Button>
+                <div>
+  <a
+    href="tel:+233555939311"
+    className="text-white text-sm font-bold"
+  >
+    +233 55 593 9311
+  </a>
+</div>
+
+                <Button
+      type="primary"
+      size="small"
+      className="bg-green-700 flex items-center gap-2" // Flex to align items horizontally
+      onClick={() => window.open('https://wa.me/0555939311', '_blank')} // Open WhatsApp chat
+    >
+      {/* WhatsApp Icon */}
+      <FaWhatsapp className="text-lg text-white hover:text-green-700 cursor-pointer" />
+      {/* Chat Online Text */}
+      Chat Online
+    </Button>
               </div>
             </div>
 
@@ -58,17 +75,17 @@ const Footer = () => {
                 <h4 className="font-bold text-sm mb-2">COMPANY</h4>
                 <ul className="space-y-1">
                   <li>
-                    <Link to="/About" className="text-gray-300 hover:text-white text-sm">
+                    <Link to="/about" className="text-gray-300 hover:text-white text-sm">
                     About us
                     </Link>
                     </li>
                   <li>
-                    <Link to="/Contact"  className="text-gray-300 hover:text-white text-sm">
+                    <Link to="/contact"  className="text-gray-300 hover:text-white text-sm">
                     Contact Us
                     </Link>
                     </li>
                   <li>
-                    <Link to="/Term" className="text-gray-300 hover:text-white text-sm">
+                    <Link to="/terms" className="text-gray-300 hover:text-white text-sm">
                     Terms
                     </Link>
                   </li>
@@ -81,13 +98,15 @@ const Footer = () => {
                 <h4 className="font-bold text-sm mb-2">ACCOUNT</h4>
                 <ul className="space-y-1">
                   <li>
-                    <Link to="/order"  className="text-gray-300 hover:text-white text-sm">
+                    <Link to="/order-history"  className="text-gray-300 hover:text-white text-sm">
                     Order history
                     </Link>
-                    <a href="#"></a>
+                 
                     </li>
-                  <li><a href="#" className="text-gray-300 hover:text-white text-sm">Advanced search</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white text-sm">Login</a></li>
+                
+                  <li>
+                    <Link to="/sign-up" className="text-gray-300 hover:text-white text-sm">
+                    Sign Up</Link></li>
                 </ul>
               </div>
 
@@ -95,21 +114,13 @@ const Footer = () => {
               <div>
                 <h4 className="font-bold text-sm mb-2">ORDERS</h4>
                 <ul className="space-y-1">
-                  <li><a href="#" className="text-gray-300 hover:text-white text-sm">Delivery Info</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white text-sm">Returns Policy</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white text-sm">Payment</a></li>
+                  <li>Delivery Info</li>
+                  <li> Returns Policy</li>
+                  <li>Payment</li>
                 </ul>
               </div>
 
-              {/* Business */}
-              <div>
-                <h4 className="font-bold text-sm mb-2">BUSINESS</h4>
-                <ul className="space-y-1">
-                  <li><a href="#" className="text-gray-300 hover:text-white text-sm">Solutions</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white text-sm">Corporate</a></li>
-                  <li><a href="#" className="text-gray-300 hover:text-white text-sm">Support</a></li>
-                </ul>
-              </div>
+             
             </div>
           </div>
 
@@ -119,10 +130,21 @@ const Footer = () => {
               © Franko Trading Ltd 2024. All Rights Reserved
             </div>
             <div className="flex gap-3 mt-2 md:mt-0">
-              <FacebookOutlined className="text-lg hover:text-blue-400 cursor-pointer" />
-              <TwitterOutlined className="text-lg hover:text-blue-400 cursor-pointer" />
-              <LinkedinOutlined className="text-lg hover:text-blue-400 cursor-pointer" />
-            </div>
+      {/* Facebook Link */}
+      <a href="https://www.facebook.com/frankotradingenterprise" target="_blank" rel="noopener noreferrer">
+        <FacebookOutlined className="text-lg hover:text-blue-400 cursor-pointer" />
+      </a>
+
+      {/* Twitter Link */}
+      <a href="https://x.com/frankotrading1" target="_blank" rel="noopener noreferrer">
+        <TwitterOutlined className="text-lg hover:text-blue-400 cursor-pointer" />
+      </a>
+
+      {/* LinkedIn Link */}
+      <a href="https://www.tiktok.com/@frankotrading" target="_blank" rel="noopener noreferrer">
+        <FaTiktok className="text-lg hover:text-blue-400 cursor-pointer" />
+      </a>
+    </div>
           </div>
         </div>
       </div>
