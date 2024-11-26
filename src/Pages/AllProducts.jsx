@@ -17,6 +17,11 @@ const ProductsPage = () => {
   const observer = useRef();
   const itemsPerPage = 12;
 
+  // Scroll to top when the page loads or user navigates
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     dispatch(fetchProducts({ page, limit: itemsPerPage }));
   }, [dispatch, page]);

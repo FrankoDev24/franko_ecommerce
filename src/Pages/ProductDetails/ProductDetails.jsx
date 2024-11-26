@@ -229,7 +229,7 @@ const ProductDetail = () => {
 
             {/* Share this product */}
             <Button
-              icon={<ShareAltOutlined />}
+              icon={<ShareAltOutlined  style={{marginRight: "10px"}}/>}
               className=" flex items-center lg:block   bg-green-800 text-white px-10 py-1 flex-shrink-0 "
               onClick={() => setShareModalVisible(true)}
             >

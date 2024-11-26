@@ -42,7 +42,7 @@ const RecentProducts = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6">
-      <h1 className="text-xl md:text-2xl font-semibold mb-4 text-red-500">Recently Added</h1>
+      <h1 className="text-md md:text-xl font-semibold mb-4 text-white bg-red-500 py-2 px-4 rounded-2xl">Featured Products</h1>
 
       {loading ? (
        <div className="container mx-auto p-4 mt-12">
@@ -116,13 +116,14 @@ const RecentProducts = () => {
       )}
 
       <div className="flex justify-center mt-6">
-        <Button
-          type="primary"
-          onClick={() => navigate('/products')}
-          className="bg-red-500 text-white hover:bg-red-600"
-        >
-          View Shop
-        </Button>
+      <Button
+      type="primary"
+      onClick={() => navigate('/products')}
+      className="bg-red-500 text-white hover:bg-red-600"
+      icon={<ShoppingCartOutlined />}
+    >
+      Visit Shop
+    </Button>
       </div>
     </div>
   );

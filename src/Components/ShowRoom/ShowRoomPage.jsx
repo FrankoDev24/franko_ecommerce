@@ -21,6 +21,11 @@ const ShowroomProductsPage = () => {
   const [maxPrice, setMaxPrice] = useState(200000);
   const observer = useRef();
 
+  // Scroll to top when the page is loaded
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
+
   useEffect(() => {
     if (showRoomID) {
       dispatch(fetchProductsByShowroom(showRoomID));

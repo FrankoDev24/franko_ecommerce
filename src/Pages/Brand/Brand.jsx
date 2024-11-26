@@ -19,6 +19,11 @@ const Brand = () => {
   const [maxPrice, setMaxPrice] = useState(200000);
   const observer = useRef();
 
+  // Scroll to the top of the page when the component mounts or brandId changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [brandId]);
+
   useEffect(() => {
     dispatch(fetchBrands());
   }, [dispatch]);
@@ -49,8 +54,6 @@ const Brand = () => {
     },
     [loading]
   );
-
- ;
 
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
