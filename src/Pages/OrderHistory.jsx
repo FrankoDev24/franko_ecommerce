@@ -1,272 +1,178 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Table, Tag, Tooltip, Modal, Input, DatePicker, Empty } from "antd";
-import { EyeOutlined,DownloadOutlined, ShoppingCartOutlined, CalendarOutlined, DollarOutlined } from "@ant-design/icons";
-import { fetchOrdersByUser } from "../Redux/slice/orderSlice";
+import { fetchOrdersByCustomerOrAgent, fetchSalesOrderById } from "../Redux/slice/orderSlice";
+import { DatePicker, Table, Spin, Modal } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 import moment from "moment";
 
-const backendBaseURL = "https://smfteapi.salesmate.app";
-
-const OrderHistory = () => {
+const OrderHistoryPage = () => {
   const dispatch = useDispatch();
-  const { orders, loading, error } = useSelector((state) => state.orders);
+  const { orders = [], loading = {}, error = {}, salesOrder = [] } = useSelector((state) => state.orders || {});
 
-  const customer = JSON.parse(localStorage.getItem("customer"));
-  const userId = customer ? customer.customerAccountNumber : null;
+  const today = moment();
+  const defaultFromDate = moment("01/01/2000", "MM/DD/YYYY");
+  const defaultToDate = today.clone().add(1, "days");
 
-  const localStorageOrders = JSON.parse(localStorage.getItem("userOrders")) || [];
-  const combinedOrders = orders.length > 0 ? orders : localStorageOrders;
-
-  const [filteredOrders, setFilteredOrders] = useState(combinedOrders);
-  const [filter, setFilter] = useState({ date: null, amount: "" });
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [dateRange, setDateRange] = useState([defaultFromDate, defaultToDate]);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchOrdersByUser(userId));
-    }
-  }, [dispatch, userId]);
+  const customerObject = JSON.parse(localStorage.getItem("customer"));
+  const customerId = customerObject?.customerAccountNumber;
 
   useEffect(() => {
-    applyFilters();
-  }, [filter, combinedOrders]);
-
-  const applyFilters = () => {
-    let filtered = [...combinedOrders];
-
-    // Filter by date
-    if (filter.date) {
-      filtered = filtered.filter((order) =>
-        moment(order.date).isSame(moment(filter.date), "day")
-      );
+    if (customerId) {
+      const [from, to] = dateRange.map((date) => date.format("MM/DD/YYYY"));
+      dispatch(fetchOrdersByCustomerOrAgent({ from, to, customerId }));
     }
+  }, [dateRange, customerId, dispatch]);
 
-    // Filter by amount
-    if (filter.amount) {
-      filtered = filtered.filter((order) =>
-        order.totalAmount.toString().includes(filter.amount)
-      );
+  const handleDateChange = (dates) => {
+    if (dates) {
+      setDateRange(dates);
     }
-
-    setFilteredOrders(filtered);
   };
 
-  const handleView = (order) => {
-    setSelectedOrder(order);
+  const handleViewOrder = (orderId) => {
+    dispatch(fetchSalesOrderById(orderId));
     setIsModalVisible(true);
   };
 
-  const handleCloseModal = () => {
-    setSelectedOrder(null);
+  const handleModalClose = () => {
     setIsModalVisible(false);
   };
 
-  if (loading.orders) {
-    return <div className="text-center mt-4">Loading orders...</div>;
-  }
-
-  if (error.orders) {
-    return <div className="text-center mt-4 text-red-500">Error loading orders: {error.orders}</div>;
-  }
-
-  // Define columns for the Ant Design Table
   const columns = [
-    {
-      title: "Order ID",
-      dataIndex: "orderId",
+    { 
+      title: "Order ID", 
+      dataIndex: "orderId", 
       key: "orderId",
-      render: (text) => `#${text.slice(0, 5)}`,
-      responsive: ["xs", "sm", "md", "lg"],
-      ellipsis: true,
+      render: (orderId) => orderId.slice(-6), // Show last 6 digits of Order ID
     },
-    {
-      title: "Date",
-      dataIndex: "date",
-      key: "date",
-      render: (date) => moment(date).format("YYYY-MM-DD"),
-      responsive: ["xs", "sm", "md", "lg"],
-    },
-    {
-      title: "Product",
-      dataIndex: "items",
-      key: "items",
-      render: (items) => (
-        <div className="flex items-center space-x-2">
-         
-          <span>{items[0]?.productName || "N/A"}</span>
-        </div>
-      ),
-    },
-    {
-      title: "Quantity",
-      dataIndex: "items",
-      key: "items",
-      render: (items) => items.reduce((sum, item) => sum + item.quantity, 0),
-      responsive: ["sm", "md", "lg"],
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => {
-        const color = {
-          Pending: "orange",
-          Cancelled: "red",
-          Completed: "green",
-        }[status] || "blue";
-        return <Tag color={color}>{status}</Tag>;
-      },
-      responsive: ["xs", "sm", "md", "lg"],
-    },
-    {
-      title: "Total (₵)",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
-      render: (total) => `₵${total.toLocaleString()}`,
-      responsive: ["xs", "sm", "md", "lg"],
-    },
-   
+    { title: "Order Date", dataIndex: "orderDate", key: "orderDate" },
+    { title: "Order Status", dataIndex: "orderCycle", key: "orderCycle" },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
-        <div className="flex space-x-2">
-          <Tooltip title="View">
-            <EyeOutlined
-              className="text-blue-500 cursor-pointer"
-              onClick={() => handleView(record)}
-            />
-          </Tooltip>
-          <Tooltip title="Download Receipt">
-            <DownloadOutlined className="text-green-500 cursor-pointer" />
-          </Tooltip>
-         
-        </div>
+        <EyeOutlined
+          className="text-green-700 text-xl cursor-pointer"
+          onClick={() => handleViewOrder(record.orderId)}
+        />
       ),
-      responsive: ["xs", "sm", "md", "lg"],
     },
   ];
 
-  return (
-    <div className="order-history p-4">
-    <div className="flex items-center space-x-2 mb-5 text-red-500">
-  <ShoppingCartOutlined className="text-2xl  md:text-3xl" />
-  <h2 className="text-lg font-semibold md:text-2xl ">Order History</h2>
-</div>
+  const transformedOrders = orders
+    .map((order, index) => ({
+      key: index,
+      orderId: order?.orderCode || "N/A",
+      orderDate: moment(order?.orderDate).format("MM/DD/YYYY") || "N/A",
+      customerName: order?.fullName || "N/A",
+      orderCycle: order?.orderCycle || "N/A",
+    }))
+    .sort((a, b) => moment(b.orderDate, "MM/DD/YYYY") - moment(a.orderDate, "MM/DD/YYYY")); // Sorting by orderDate from newest to oldest
 
-      {/* Filter Section */}
-      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
-        <DatePicker
-          onChange={(date) => setFilter({ ...filter, date })}
-          placeholder="Filter by Date"
-          className="w-full md:w-1/3"
-        />
-        <Input
-          placeholder="Filter by Amount"
-          value={filter.amount}
-          onChange={(e) => setFilter({ ...filter, amount: e.target.value })}
-          className="w-full md:w-1/3"
+  const salesOrderTotal = (salesOrder || []).reduce(
+    (acc, item) => acc + (item?.price || 0) * (item?.quantity || 0),
+    0
+  );
+
+  return (
+    <div className="order-history-page container mx-auto px-4 py-6">
+      <h2 className="text-2xl font-semibold mb-6 text-red-500">Order History</h2>
+      <div className="mb-4">
+        <label className="text-md">Select Date Range: </label>
+        <DatePicker.RangePicker
+          value={dateRange}
+          onChange={handleDateChange}
+          format="MM/DD/YYYY"
+          className="mt-2"
         />
       </div>
 
-      {/* Responsive Table */}
-      {filteredOrders.length > 0 ? (
-        <Table
-          columns={columns}
-          dataSource={filteredOrders}
-          rowKey="orderId"
-          pagination={{ pageSize: 5 }}
-          bordered
-          scroll={{ x: 600 }}
-        />
+      {loading.orders ? (
+        <Spin size="large" />
+      ) : error.orders ? (
+        <p className="text-red-500">Error: {error.orders}</p>
       ) : (
-        <div className="flex flex-col items-center justify-center mt-10">
-          <Empty
-            description={<span><strong>No Orders Found</strong></span>}
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            imageStyle={{ height: 200, marginBottom: 2}}
-          />
-        </div>
+        <Table
+          dataSource={transformedOrders}
+          columns={columns}
+          rowKey="key"
+          pagination={{ pageSize: 10 }}
+        />
       )}
 
-      {/* Modal */}
       <Modal
-  title={
-    <div className="flex items-center space-x-2">
-      <EyeOutlined />
-      <span className="text-lg font-semibold">Order Details</span>
-    </div>
-  }
-  visible={isModalVisible}
-  onCancel={handleCloseModal}
-  footer={null}
-  width={500}
-  bodyStyle={{ padding: '24px 24px 16px' }}
->
-  {selectedOrder && (
-    <div className="flex flex-col items-center bg-white p-6 rounded-lg shadow-lg space-y-6">
-      {/* Order ID and Status */}
-      <div className="flex flex-col  space-y-2 w-full">
-        <h3 className="text-xl font-semibold text-gray-800">Order ID: {selectedOrder.orderId}</h3>
-        <div className="w-full border-t border-gray-200"></div>
-        <p className="text-sm text-gray-500">
-          <CalendarOutlined className="inline-block mr-2" />
-          <strong>Date:</strong> {moment(selectedOrder.date).format("YYYY-MM-DD")}
-        </p>
-      </div>
+        title={`Order: ${salesOrder[0]?.orderCode || "Details"}`}
+        visible={isModalVisible}
+        onCancel={handleModalClose}
+        footer={null}
+        className="w-full sm:w-4/5 md:w-3/5 lg:w-1/2"
+      >
+        {loading.salesOrder ? (
+          <Spin size="large" />
+        ) : error.salesOrder ? (
+          <p className="text-red-500">Error: {error.salesOrder}</p>
+        ) : salesOrder.length > 0 ? (
+          <div>
+            {salesOrder.map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center p-2 border-b last:border-none"
+              >
+                <img
+                  src={`https://smfteapi.salesmate.app/Media/Products_Images/${item.imagePath?.split("\\").pop()}`}
+                  alt={item.productName || "Product"}
+                  className="w-16 h-16 object-cover rounded-lg mr-4"
+                />
+                <div className="flex-1">
+                  <p className="text-sm">{item.productName || "N/A"}</p>
+         
+                </div>
+                <div className="text-right ml-4">
+                  <p className="font-bold">
+                    {new Intl.NumberFormat("en-GH", {
+                      style: "currency",
+                      currency: "GHS",
+                    }).format(item.price || 0)}
+                  </p>
+                  <p className="text-sm text-gray-500">Qty: {item.quantity || 0}</p>
+                </div>
+              </div>
+            ))}
 
-      {/* Separator line */}
-      <div className="w-full border-t border-gray-200"></div>
-
-      {/* Order Items */}
-      <div className="space-y-4 w-full">
-        {selectedOrder.items.map((item) => (
-          <div
-            key={item.cartId}
-            className="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg shadow-sm"
-          >
-            {/* Product Image - Full Left */}
-            <div className="flex-shrink-0 w-1/3">
-              <img
-                src={`${backendBaseURL}/Media/Products_Images/${item.imagePath.split("\\").pop()}`}
-                alt={item.productName}
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-
-            {/* Item Details - Aligned to the Right */}
-            <div className="flex-1 pl-4">
-              <h4 className="font-medium text-gray-800">{item.productName}</h4>
-              <div className="text-sm text-gray-600 space-y-2">
-                <p><strong>Price:</strong> ₵{item.price.toLocaleString()}</p>
-                <p><strong>Qty:</strong> {item.quantity}</p>
-                <p><strong>Total:</strong> ₵{item.total.toLocaleString()}</p>
+            <div className="mt-6 ">
+              <div className="flex justify-between mb-2">
+                <p>Subtotal</p>
+                <p>
+                  {new Intl.NumberFormat("en-GH", {
+                    style: "currency",
+                    currency: "GHS",
+                  }).format(salesOrderTotal || 0)}
+                </p>
+              </div>
+              <div className="flex justify-between mb-2">
+                <p>Shipping</p>
+                <p>{new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(0)}</p>
+              </div>
+              <div className="flex justify-between font-bold text-lg  border-t" >
+                <p>Total</p>
+                <p className="text-red-500">
+                  {new Intl.NumberFormat("en-GH", {
+                    style: "currency",
+                    currency: "GHS",
+                  }).format((salesOrderTotal || 0) + 0)}
+                </p>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Separator line */}
-      <div className="w-full border-t border-gray-200"></div>
-
-      {/* Additional Order Information */}
-      <div className="w-full text-center">
-       
-        <p className="text-sm text-red-500">
-          <DollarOutlined className="inline-block mr-2" />
-          <strong>Total Amount:</strong> ₵{selectedOrder.totalAmount.toLocaleString()}
-        </p>
-      </div>
-    </div>
-  )}
-</Modal>
-
-
-
+        ) : (
+          <p>No order details available.</p>
+        )}
+      </Modal>
     </div>
   );
 };
 
-export default OrderHistory;
+export default OrderHistoryPage;

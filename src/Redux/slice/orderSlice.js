@@ -178,7 +178,7 @@ const orderSlice = createSlice({
   name: "orders",
   initialState: {
     orders: [], // Local orders stored here
-    salesOrder: null,
+    salesOrder: [],
     lifeCycle: null,
     deliveryAddress: null,
     deliveryUpdate: null,
@@ -327,19 +327,6 @@ const orderSlice = createSlice({
         state.error.orders = action.payload;
       })
 
-      .addCase(fetchSalesOrderById.pending, (state) => {
-        state.loading = true;
-        state.error = null; // Reset error on new fetch
-      })
-      .addCase(fetchSalesOrderById.fulfilled, (state, action) => {
-        state.loading = false;
-        state.salesOrder = action.payload; // Ensure salesOrder gets proper data
-      })
-      .addCase(fetchSalesOrderById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error; // Capture error message
-        state.salesOrder = null; // Reset salesOrder on error
-      })
       .addCase(orderAddress.pending, (state) => {
         state.loading.deliveryAddress = true;
         state.error.deliveryAddress = null;
@@ -379,18 +366,30 @@ const orderSlice = createSlice({
         state.error.deliveryUpdate = action.payload;
       })
       .addCase(fetchOrdersByCustomerOrAgent.pending, (state) => {
-        state.loading.orders = true; // Use a loading state specific to orders
+        state.loading.orders = true;
         state.error.orders = null;
       })
       .addCase(fetchOrdersByCustomerOrAgent.fulfilled, (state, action) => {
         state.loading.orders = false;
-        state.orders = Array.isArray(action.payload) ? action.payload : [];
+        state.orders = action.payload;
       })
       .addCase(fetchOrdersByCustomerOrAgent.rejected, (state, action) => {
         state.loading.orders = false;
-        state.error.orders = action.payload;
+        state.error.orders = action.payload || "Failed to fetch orders";
+      })
+      .addCase(fetchSalesOrderById.pending, (state) => {
+        state.loading.salesOrder = true;
+        state.error.salesOrder = null;
+      })
+      .addCase(fetchSalesOrderById.fulfilled, (state, action) => {
+        state.loading.salesOrder = false;
+        state.salesOrder = action.payload;
+      })
+      .addCase(fetchSalesOrderById.rejected, (state, action) => {
+        state.loading.salesOrder = false;
+        state.error.salesOrder = action.payload || "Failed to fetch sales order";
       });
-  },
+    },
 });
 
 export const { storeLocalOrder, fetchOrdersByUser, clearOrders } = orderSlice.actions;

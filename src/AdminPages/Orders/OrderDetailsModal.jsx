@@ -25,7 +25,7 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
   if (error) return <div>Error loading order: {error.message || 'An error occurred'}</div>;
   if (!salesOrder || salesOrder.length === 0) return <div>No order details found.</div>;
 
-  const backendBaseURL = 'https://api.salesmate.app/';
+  const backendBaseURL = 'https://smfteapi.salesmate.app/';
   const customer = salesOrder[0];
   const totalAmount = salesOrder.reduce((acc, order) => acc + order.total, 0); // Calculate total amount
 

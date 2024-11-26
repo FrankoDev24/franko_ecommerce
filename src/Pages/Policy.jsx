@@ -5,20 +5,27 @@ const { Title, Paragraph } = Typography;
 
 function Policies() {
   return (
-    <div className="container" style={{ marginTop: "5%"  }}>
-      <Row gutter={[16, 16]} >
-        <Col xs={24} sm={22} md={20} lg={18} xl={16}>
+    <div  >
+      <Row gutter={[16, 16]}>
+        <Col x>
           <Card
             bordered={false}
             style={{
               borderRadius: "10px",
               boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-         
             }}
           >
-            <Title level={3} style={{ textAlign: "center", color: "#1890ff" }}>
+            <Title
+              level={3}
+              style={{
+                textAlign: "center",
+                color: "green",
+                marginBottom: "24px",
+              }}
+            >
               FRANKO TRADING LIMITED
             </Title>
+
             <Title
               level={4}
               style={{
@@ -29,7 +36,8 @@ function Policies() {
             >
               RETURN POLICY
             </Title>
-            <Paragraph style={{ fontSize: "16px", lineHeight: "1.6em" }}>
+
+            <Paragraph style={{ fontSize: "16px", lineHeight: "1.8em" }}>
               Subject to Terms and Conditions, Franko Trading Enterprise offers
               returns and/or exchange or refund for items purchased within{" "}
               <strong>7 DAYS OF PURCHASE</strong>. We do not accept returns and
@@ -39,17 +47,23 @@ function Policies() {
 
             <Title
               level={5}
-              style={{ marginTop: "20px", marginBottom: "10px", color: "#333" }}
+              style={{
+                marginTop: "20px",
+                marginBottom: "10px",
+                color: "#333",
+              }}
             >
               ELIGIBILITY FOR REFUND, RETURN, AND/OR EXCHANGE
             </Title>
 
+            {/* WRONG ITEM DELIVERED Card */}
             <Card
               bordered
               style={{
                 marginBottom: "20px",
                 borderRadius: "8px",
                 borderColor: "#d9d9d9",
+                padding: "16px",
               }}
             >
               <Title level={5} style={{ color: "#ff4d4f" }}>
@@ -62,12 +76,14 @@ function Policies() {
               </ul>
             </Card>
 
+            {/* MANUFACTURING DEFECTS Card */}
             <Card
               bordered
               style={{
                 marginBottom: "20px",
                 borderRadius: "8px",
                 borderColor: "#d9d9d9",
+                padding: "16px",
               }}
             >
               <Title level={5} style={{ color: "#52c41a" }}>
@@ -90,12 +106,14 @@ function Policies() {
               </ul>
             </Card>
 
+            {/* INCOMPLETE PACKAGE Card */}
             <Card
               bordered
               style={{
                 marginBottom: "20px",
                 borderRadius: "8px",
                 borderColor: "#d9d9d9",
+                padding: "16px",
               }}
             >
               <Title level={5} style={{ color: "#faad14" }}>
@@ -111,17 +129,23 @@ function Policies() {
 
             <Title
               level={4}
-              style={{ marginTop: "20px", marginBottom: "10px", color: "#333" }}
+              style={{
+                marginTop: "20px",
+                marginBottom: "10px",
+                color: "#333",
+              }}
             >
               REFUND/CHARGE BACK POLICY
             </Title>
 
+            {/* UNDELIVERED ORDER/PACKAGE Card */}
             <Card
               bordered
               style={{
                 marginBottom: "20px",
                 borderRadius: "8px",
                 borderColor: "#d9d9d9",
+                padding: "16px",
               }}
             >
               <Title level={5} style={{ color: "#2f54eb" }}>
