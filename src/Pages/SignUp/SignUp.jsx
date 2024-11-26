@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Form, Input, Button, message } from 'antd';
-import { UserOutlined, LockOutlined, HomeOutlined, PhoneOutlined } from '@ant-design/icons';
+import { Form, Input, Button, message, Select } from 'antd';
+import { UserOutlined, LockOutlined, HomeOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { createCustomer } from '../../Redux/slice/customerSlice';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import logo from '../../assets/frankoIcon.png';
+
 const RegistrationPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -16,11 +17,10 @@ const RegistrationPage = () => {
     contactNumber: '',
     address: '',
     password: '',
-    confirmPassword: '',
-    imagePath: '',
-    accountType: '',
+    accountType: 'customer', // default is customer
+    email: '', // added email for agents
   });
-  
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -36,25 +36,45 @@ const RegistrationPage = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleSelectAccountType = (value) => {
+    setFormData({ ...formData, accountType: value });
+  };
+
   const handleSubmit = async (values) => {
-    const { accountType, ...rest } = values;
+    const { accountType, email, contactNumber, ...rest } = values;
+    
+    // If account type is agent, check if the email ends with frankotrading.com
+    if (accountType === 'agent' && !email.endsWith('frankotrading.com')) {
+      message.error('Email must end with frankotrading.com');
+      return;
+    }
+
+    // Check if contact number already exists (simulated)
+    const existingContact = false; // Replace this with actual logic to check the database
+    if (existingContact) {
+      message.error('Contact number already exists!');
+      return;
+    }
+
     const finalData = {
       ...rest,
       accountType,
-      imagePath: formData.imagePath,
+      email: accountType === 'agent' ? email : '',
+      ContactNumber: contactNumber,
       customerAccountNumber: formData.customerAccountNumber,
     };
-  
+
     setLoading(true);
     try {
       const result = await dispatch(createCustomer(finalData)).unwrap();
       message.success('Registration successful!');
       
-      // Extract contact number and password from the form data
-      const { contactNumber, password } = finalData;
-  
-      // Navigate to login page with contact number and password as URL parameters
-      navigate("/sign-in", { state: { contactNumber, password } });
+      // Redirect based on account type
+      if (finalData.accountType === 'agent') {
+        navigate("/agent-dashboard"); // Redirect to agent page
+      } else {
+        navigate("/franko"); // Redirect to home page for customers
+      }
       console.log('Registration result:', result); // Log the entire result
     } catch (error) {
       message.error('Registration failed: ' + error.message);
@@ -63,40 +83,39 @@ const RegistrationPage = () => {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
       <Form layout="vertical" onFinish={handleSubmit} className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
-        <div className="flex flex-col items-center justify-center"> {/* Centering container */}
-          <img src={logo} alt="Logo" className="w-32 mb-4" /> {/* Logo */}
-          <h2 className="text-2xl font-bold mb-4 text-center">Register</h2> {/* Centered heading */}
+        <div className="flex flex-col items-center justify-center">
+          <img src={logo} alt="Logo" className="w-32 mb-4" />
+          <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
         </div>
 
-          <Input
-            name="customerAccountNumber"
-            value={formData.customerAccountNumber} // Ensure the account number is displayed
-            readOnly // Make account number read-only
-            hidden
-          />
-       
+        <Input
+          name="customerAccountNumber"
+          value={formData.customerAccountNumber}
+          readOnly
+          hidden
+        />
 
         <Form.Item label="First Name" name="firstName" rules={[{ required: true, message: 'Please input your first name!' }]}>
           <Input 
-            prefix={<UserOutlined />} // Add user icon
+            prefix={<UserOutlined />} 
             onChange={handleChange} 
           />
         </Form.Item>
 
         <Form.Item label="Last Name" name="lastName" rules={[{ required: true, message: 'Please input your last name!' }]}>
           <Input 
-            prefix={<UserOutlined />} // Add user icon
+            prefix={<UserOutlined />} 
             onChange={handleChange} 
           />
         </Form.Item>
 
         <Form.Item label="Contact Number" name="contactNumber" rules={[{ required: true, message: 'Please input your contact number!' }]}>
           <Input 
-            prefix={<PhoneOutlined />} // Add phone icon
+            prefix={<PhoneOutlined />} 
             onChange={handleChange} 
           />
         </Form.Item>
@@ -104,36 +123,50 @@ const RegistrationPage = () => {
         <Form.Item label="Address" name="address">
           <Input 
             type="address" 
-            prefix={<HomeOutlined />} // Add address icon
+            prefix={<HomeOutlined />} 
             onChange={handleChange} 
           />
         </Form.Item>
 
         <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please input your password!' }]}>
           <Input.Password 
-            prefix={<LockOutlined />} // Add lock icon
+            prefix={<LockOutlined />} 
             onChange={handleChange} 
             visibilityToggle
           />
         </Form.Item>
 
-        <Form.Item label="Confirm Password" name="confirmPassword" rules={[{ required: true, message: 'Please confirm your password!' }]}>
-          <Input.Password 
-            prefix={<LockOutlined />} // Add lock icon
-            onChange={handleChange} 
-            visibilityToggle
-          />
+        <Form.Item label="Account Type" name="accountType" rules={[{ required: true, message: 'Please select an account type!' }]}>
+          <Select defaultValue="customer" onChange={handleSelectAccountType}>
+            <Select.Option value="customer">Customer</Select.Option>
+            <Select.Option value="agent">Agent</Select.Option>
+          </Select>
         </Form.Item>
 
-     <Form.Item>
+        {formData.accountType === 'agent' && (
+          <Form.Item 
+            label="Email" 
+            name="email" 
+            rules={[{ required: true, message: 'Please input your email!' }, { type: 'email', message: 'Please input a valid email!' }]}
+          >
+            <Input 
+              prefix={<MailOutlined />} 
+              onChange={handleChange} 
+              placeholder="Email Address"
+            />
+          </Form.Item>
+        )}
+
+        <Form.Item>
           <Button htmlType="submit" block loading={loading} className="bg-green-800 text-white ">
             Register
           </Button>
         </Form.Item>
+
         <p className="mt-4 text-center">
           Already registered?{' '}
           <span
-            onClick={() => navigate('/sign-in')} // Use navigate instead of history
+            onClick={() => navigate('/sign-in')} 
             className="text-blue-500 cursor-pointer hover:underline"
           >
             Login

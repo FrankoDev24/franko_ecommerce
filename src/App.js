@@ -1,22 +1,17 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
-// Import your user components
+// Import components
 import Navbar from './Components/Navbar/Navbar';
 import Home from './Pages/Home/Home';
 import Cart from './Pages/Cart/Cart';
 import Checkout from './Pages/Checkout/Checkout';
-import OrderList from './Components/OrderList/OrderList';
+
 import Brand from "./Pages/Brand/Brand";
 import ShowRoomProducts from "./Components/ShowRoom/ShowRoomPage";
 import ProductDetail from "./Pages/ProductDetails/ProductDetails";
 import OrderCycle from "./Pages/Orders/OrderCycle";
-// Import admin components
-import AdminPage from "./AdminPages/AdminPage";
-import AdminLogin from './AdminPages/Login';
-import AdminRegister from './AdminPages/Register';
 import RegistrationPage from './Pages/SignUp/SignUp';
-
 import CartUpdatePage from './Pages/Cart/CartUpdate';
 import LoginPage from './Pages/LogIn/Signin';
 import ProductsPage from './Pages/AllProducts';
@@ -27,17 +22,48 @@ import Policies from './Pages/Policy';
 import Footer from './Components/Footer/Footer';
 import UserProfile from './Pages/Profile';
 
+// Agent-specific imports
+
+import AdminLogin from './AdminPages/Login';
+import AdminRegister from './AdminPages/Register';
+import AdminPage from "./AdminPages/AdminPage";
+import AgentHome from './Agents/AgentHome';
+import AgentOrders from './Agents/AgentPage/AgentOrders';
+import AgentDashboard from './Agents/AgentPage/AgentDashboard';
+
+// Utility to simulate authentication
+// Utility to get the user's role from the accountType field in the customer object in local storage
+const getUserRole = () => {
+    try {
+        const customer = JSON.parse(localStorage.getItem('customer'));
+        return customer?.accountType || null; // 'customer', 'agent', or 'admin'
+    } catch (error) {
+        console.error("Error parsing customer data from localStorage:", error);
+        return null;
+    }
+};
+
+// Protected Route component
+const ProtectedRoute = ({ children, allowedRoles }) => {
+    const userRole = getUserRole();
+    if (!userRole || !allowedRoles.includes(userRole)) {
+        // Redirect unauthorized users to the login page
+        return <Navigate to="/" replace />;
+    }
+    return children;
+};
+
+
 const App = () => {
     return (
         <Router>
             <ConditionalNavbar />
             <Routes>
-                {/* User routes */}
+                {/* Public Routes */}
                 <Route path="/" element={<Navigate to="/franko" />} />
                 <Route path="/franko" element={<Home />} />
                 <Route path='/cart/:transactionNumber' element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/order" element={<OrderList />} />
                 <Route path="/brand/:brandId" element={<Brand />} />
                 <Route path="/showroom/:showRoomID" element={<ShowRoomProducts />} />
                 <Route path="/sign-up" element={<RegistrationPage />} />
@@ -46,66 +72,65 @@ const App = () => {
                 <Route path="/order-status" element={<OrderCycle />} />
                 <Route path="/cart/update/:cartId/:productId/:quantity" element={<CartUpdatePage />} />
                 <Route path="/order-history" element={<OrderHistory />} />
-                <Route path="/products" element={<ProductsPage/>} />
-                <Route path ="/about" element={<About />} />
-                <Route path ="/contact" element={<Contact/>} />
-                <Route path ="/terms" element={<Policies/>} />
-                <Route path="/profile" element= {<UserProfile/>} />
-                
-                {/* Admin routes */}
+                <Route path="/products" element={<ProductsPage />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/terms" element={<Policies />} />
+                <Route path="/profile" element={<UserProfile />} />
+
+                {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/register" element={<AdminRegister />} />
                 <Route path="/admin/*" element={<AdminPage />} />
 
+                {/* Agent Routes */}
+                <Route
+        path="/agent-dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['agent']}>
+            <AgentHome>
+              <AgentDashboard />  {/* This renders inside AgentHome when /agent-dashboard is visited */}
+            </AgentHome>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/agent-dashboard/orders"
+        element={
+          <ProtectedRoute allowedRoles={['agent']}>
+            <AgentHome>
+              <AgentOrders />  {/* This renders inside AgentHome when /agent-dashboard/orders is visited */}
+            </AgentHome>
+          </ProtectedRoute>
+        }
+      />
+      
                 {/* Default route redirects */}
-                <Route path="/orders" element={<Navigate to="/admin/orders" />} />
-                <Route path="/showroom" element={<Navigate to="/admin/showroom" />} />
-                <Route path="/categories" element={<Navigate to="/admin/category" />} />
-                <Route path="/brand" element={<Navigate to="/admin/brand" />} />
-                <Route path="/products" element={<Navigate to="/admin/products" />} />
-                <Route path="/users" element={<Navigate to="/admin/users" />} />
-                <Route path="/customers" element={<Navigate to="/admin/customers" />} />
-             
+                <Route path="*" element={<Navigate to="/franko" />} />
             </Routes>
+
             <ConditionalFooter />
         </Router>
     );
 };
 
-// New component to conditionally render the Navbar
+// Navbar and Footer Components
 const ConditionalNavbar = () => {
     const location = useLocation();
-
-    // Define paths where the Navbar should be hidden
-    const hiddenPaths = ['/admin/login', '/admin/register', "/sign-in", "/sign-up"];
-
-    // Check if the current path starts with '/admin/'
+    const hiddenPaths = ['/admin/login', '/admin/register', '/sign-in', '/sign-up'];
     const isAdminPath = location.pathname.startsWith('/admin/');
 
-    return (
-        <>
-            {/* Render the Navbar only if the current path is not in hiddenPaths and not an admin path */}
-            {!hiddenPaths.includes(location.pathname) && !isAdminPath && <Navbar />}
-        </>
-    );
+
+    return !hiddenPaths.includes(location.pathname) && !isAdminPath  && <Navbar />;
 };
 
-// New component to conditionally render the Footer
 const ConditionalFooter = () => {
     const location = useLocation();
-
-    // Define paths where the Footer should be hidden
-    const hiddenPaths = ['/admin/login', '/admin/register', "/sign-in", "/sign-up"];
-
-    // Check if the current path starts with '/admin/'
+    const hiddenPaths = ['/admin/login', '/admin/register', '/sign-in', '/sign-up'];
     const isAdminPath = location.pathname.startsWith('/admin/');
-
-    return (
-        <>
-            {/* Render the Footer only if the current path is not in hiddenPaths and not an admin path */}
-            {!hiddenPaths.includes(location.pathname) && !isAdminPath && <Footer />}
-        </>
-    );
+    const isAgentPath = location.pathname.startsWith('/agent-dashboard');
+    return !hiddenPaths.includes(location.pathname) && !isAdminPath && !isAgentPath && <Footer />;
 };
 
 export default App;

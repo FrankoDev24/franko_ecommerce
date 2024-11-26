@@ -33,9 +33,9 @@ export const fetchCustomers = createAsyncThunk(
 // Async thunk for customer login
 export const loginCustomer = createAsyncThunk(
   'customers/loginCustomer',
-  async ({ contact_number, password }, { dispatch, getState, rejectWithValue }) => {
+  async ({ contact_number, password }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/Users/CustomerLogin/${contact_number}/${password}`);
+      const response = await axios.post(`${API_BASE_URL}/Users/CustomerLogin`);
 
       if (response.data.ResponseCode === '1') {
         // Login successful, now fetch all customers to get detailed information
