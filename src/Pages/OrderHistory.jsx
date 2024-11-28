@@ -61,16 +61,15 @@ const OrderHistoryPage = () => {
       ),
     },
   ];
-
   const transformedOrders = orders
-    .map((order, index) => ({
-      key: index,
-      orderId: order?.orderCode || "N/A",
-      orderDate: moment(order?.orderDate).format("MM/DD/YYYY") || "N/A",
-      customerName: order?.fullName || "N/A",
-      orderCycle: order?.orderCycle || "N/A",
-    }))
-    .sort((a, b) => moment(b.orderDate, "MM/DD/YYYY") - moment(a.orderDate, "MM/DD/YYYY")); // Sorting by orderDate from newest to oldest
+  .map((order, index) => ({
+    key: index,
+    orderId: order?.orderCode || "N/A",
+    orderDate: moment(order?.orderDate).format("MM/DD/YYYY") || "N/A",
+    customerName: order?.fullName || "N/A",
+    orderCycle: order?.orderCycle || "N/A",
+  }))
+  .sort((a, b) => moment(b.orderDate).isBefore(moment(a.orderDate)) ? 1 : -1);  // Sorting by orderDate from newest to oldest
 
   const salesOrderTotal = (salesOrder || []).reduce(
     (acc, item) => acc + (item?.price || 0) * (item?.quantity || 0),

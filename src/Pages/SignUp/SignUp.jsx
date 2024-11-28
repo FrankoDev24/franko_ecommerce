@@ -137,7 +137,10 @@ const RegistrationPage = () => {
         </Form.Item>
 
         <Form.Item label="Account Type" name="accountType" rules={[{ required: true, message: 'Please select an account type!' }]}>
-          <Select defaultValue="customer" onChange={handleSelectAccountType}>
+          <Select 
+            value={formData.accountType}
+            onChange={handleSelectAccountType}
+          >
             <Select.Option value="customer">Customer</Select.Option>
             <Select.Option value="agent">Agent</Select.Option>
           </Select>
