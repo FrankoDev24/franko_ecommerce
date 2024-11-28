@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrdersByCustomerOrAgent, fetchSalesOrderById } from "../Redux/slice/orderSlice";
+import { fetchOrdersByCustomer, fetchSalesOrderById } from "../Redux/slice/orderSlice";
 import { DatePicker, Table, Spin, Modal } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -22,7 +22,7 @@ const OrderHistoryPage = () => {
   useEffect(() => {
     if (customerId) {
       const [from, to] = dateRange.map((date) => date.format("MM/DD/YYYY"));
-      dispatch(fetchOrdersByCustomerOrAgent({ from, to, customerId }));
+      dispatch(fetchOrdersByCustomer({ from, to, customerId }));
     }
   }, [dateRange, customerId, dispatch]);
 

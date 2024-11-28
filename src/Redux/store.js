@@ -7,6 +7,7 @@ import orderReducer from './slice/orderSlice'; // Import the order slice reducer
 import userReducer from './slice/userSlice'; // Import the user slice reducer
 import customerReducer from './slice/customerSlice'; //
 import cartReducer from './slice/cartSlice';
+import shippingReducer from './slice/shippingSlice';
 export const store = configureStore({
   reducer: {
     categories: categoryReducer, // Add the category slice reducer here
@@ -16,7 +17,8 @@ export const store = configureStore({
     orders: orderReducer,        // Add the order slice reducer here
     user: userReducer,          
     customer: customerReducer,
-    cart: cartReducer
+    cart: cartReducer,
+    shipping: shippingReducer
 
            
   },

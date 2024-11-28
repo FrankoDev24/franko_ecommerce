@@ -1,16 +1,24 @@
 @import 'flowbite';
 /* Add this CSS to your styles */
+/* Ensure the body takes up full height */
 html, body {
     height: 100%;
     margin: 0;
 }
 
+/* Set the root container to take up full height and be flexible */
 #root {
-    min-height: 100%;
+    height: 100%; 
     display: flex;
     flex-direction: column;
 }
 
+/* Main content section takes up as much space as needed */
+main {
+    flex: 1;
+}
+
+/* Footer always stays at the bottom */
 footer {
     margin-top: auto;
 }

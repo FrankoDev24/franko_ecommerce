@@ -24,13 +24,32 @@ export const fetchOrdersByDate = createAsyncThunk(
 
 export const checkOutOrder = createAsyncThunk(
   "orders/checkOutOrder",
-  async ({ cartId, customerId }, { rejectWithValue }) => {
+  async (
+    { Cartid, orderCode, customerId, paymentMode, paymentService,  PaymentAccountNumber, customerAccountType }, 
+    { rejectWithValue }
+  ) => {
     try {
+      // Prepare the request payload with the required parameters
+      const payload = {
+        Cartid: Cartid,
+        orderCode: orderCode,
+        customerId: customerId,
+        paymentMode: paymentMode,
+        paymentService: paymentService,
+        PaymentAccountNumber: PaymentAccountNumber,
+        customerAccountType: customerAccountType
+      };
+
+      // Make the API request to checkout the order
       const response = await axios.post(
-        `${API_BASE_URL}/Order/CheckOut/${cartId}/${customerId}`
+        `${API_BASE_URL}/Order/CheckOut`,
+        payload
       );
+
+      // Return the response data if the request is successful
       return response.data;
     } catch (error) {
+      // Handle error and reject with a message
       return rejectWithValue(
         error.response?.data || "Failed to checkout order"
       );
@@ -38,21 +57,40 @@ export const checkOutOrder = createAsyncThunk(
   }
 );
 // New async thunk for fetching orders by customer or agent
-export const fetchOrdersByCustomerOrAgent = createAsyncThunk(
+export const fetchOrdersByCustomer = createAsyncThunk(
   "orders/fetchOrdersByCustomerOrAgent",
   async ({ from, to, customerId }, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/Users/GetOrderByCustomerOrAgent`,
+        `${API_BASE_URL}/Order/GetOrderByCustomer`,
         {
           params: { from, to, customerId },
         }
       );
       return response.data; // Ensure this returns the expected data format
     } catch (error) {
-      console.error("Error fetching orders by customer or agent:", error); // Log the error for debugging
+      console.error("Error fetching orders by customer:", error); // Log the error for debugging
       return rejectWithValue(
-        error.response?.data || "Failed to fetch orders by customer or agent"
+        error.response?.data || "Failed to fetch orders by customer"
+      );
+    }
+  }
+);
+export const fetchOrdersByThirdParty = createAsyncThunk(
+  "orders/fetchOrdersByThirdParty",
+  async ({ from, to, ThirdPartyAccountNumber }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/Order/GetOrderByThirdParty`,
+        {
+          params: { from, to, ThirdPartyAccountNumber },
+        }
+      );
+      return response.data; // Ensure this returns the expected data format
+    } catch (error) {
+      console.error("Error fetching orders by  agent:", error); // Log the error for debugging
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch orders by  agent"
       );
     }
   }
@@ -124,7 +162,7 @@ export const updateOrderDelivery = createAsyncThunk(
 export const orderAddress = createAsyncThunk(
   "orders/OrderAddress",
   async (
-    { customerId, orderCode, address, geoLocation },
+    { customerId, orderCode, address, geoLocation ,RecipientName, RecipientContactNumber, orderNote},
     { rejectWithValue }
   ) => {
     try {
@@ -134,7 +172,7 @@ export const orderAddress = createAsyncThunk(
         customerId,
         orderCode,
         address,
-        geoLocation,
+        geoLocation,RecipientName,RecipientContactNumber, orderNote,
         
         // PascalCase version
         OrderCode: orderCode,
@@ -182,6 +220,7 @@ const orderSlice = createSlice({
     lifeCycle: null,
     deliveryAddress: null,
     deliveryUpdate: null,
+    orderDetails: null,
     loading: {
       orders: false,
       salesOrder: false,
@@ -255,9 +294,7 @@ const orderSlice = createSlice({
       state.orders = filteredOrders;
     },
     
-
-
-    clearOrders(state) {
+   clearOrders(state) {
       state.orders = [];
       state.salesOrder = null;
       state.lifeCycle = null;
@@ -365,15 +402,27 @@ const orderSlice = createSlice({
         state.loading.deliveryUpdate = false;
         state.error.deliveryUpdate = action.payload;
       })
-      .addCase(fetchOrdersByCustomerOrAgent.pending, (state) => {
+      .addCase(fetchOrdersByCustomer.pending, (state) => {
         state.loading.orders = true;
         state.error.orders = null;
       })
-      .addCase(fetchOrdersByCustomerOrAgent.fulfilled, (state, action) => {
+      .addCase(fetchOrdersByCustomer.fulfilled, (state, action) => {
         state.loading.orders = false;
         state.orders = action.payload;
       })
-      .addCase(fetchOrdersByCustomerOrAgent.rejected, (state, action) => {
+      .addCase(fetchOrdersByCustomer.rejected, (state, action) => {
+        state.loading.orders = false;
+        state.error.orders = action.payload || "Failed to fetch orders";
+      })
+      .addCase(fetchOrdersByThirdParty.pending, (state) => {
+        state.loading.orders = true;
+        state.error.orders = null;
+      })
+      .addCase(fetchOrdersByThirdParty.fulfilled, (state, action) => {
+        state.loading.orders = false;
+        state.orders = action.payload;
+      })
+      .addCase(fetchOrdersByThirdParty.rejected, (state, action) => {
         state.loading.orders = false;
         state.error.orders = action.payload || "Failed to fetch orders";
       })

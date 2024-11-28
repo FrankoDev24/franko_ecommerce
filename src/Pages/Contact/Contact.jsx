@@ -127,7 +127,7 @@ import {
       },
       {
         title: "KUMASI SHOP 3",
-        address: "ADJACENT MELCOME ADUM",
+        address: "ADJACENT MELCOM ADUM",
         tel: "0322047303",
         lat: 6.693,
         lng: -1.619,

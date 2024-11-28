@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrdersByCustomerOrAgent, fetchSalesOrderById } from "../../Redux/slice/orderSlice";
+import { fetchOrdersByThirdParty, fetchSalesOrderById } from "../../Redux/slice/orderSlice";
 import { DatePicker, Table, Spin, Modal } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -17,14 +17,14 @@ const AgentOrders = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const customerObject = JSON.parse(localStorage.getItem("customer"));
-  const customerId = customerObject?.customerAccountNumber;
+  const ThirdPartyAccountNumber = customerObject?.customerAccountNumber;
 
   useEffect(() => {
-    if (customerId) {
+    if (ThirdPartyAccountNumber) {
       const [from, to] = dateRange.map((date) => date.format("MM/DD/YYYY"));
-      dispatch(fetchOrdersByCustomerOrAgent({ from, to, customerId }));
+      dispatch(fetchOrdersByThirdParty({ from, to, ThirdPartyAccountNumber }));
     }
-  }, [dateRange, customerId, dispatch]);
+  }, [dateRange, ThirdPartyAccountNumber, dispatch]);
 
   const handleDateChange = (dates) => {
     if (dates) {

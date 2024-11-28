@@ -30,6 +30,8 @@ import AdminPage from "./AdminPages/AdminPage";
 import AgentHome from './Agents/AgentHome';
 import AgentOrders from './Agents/AgentPage/AgentOrders';
 import AgentDashboard from './Agents/AgentPage/AgentDashboard';
+import OrderSuccess from './Pages/OrderSuccessPage';
+import ShippingComponent from './Components/Shipping';
 
 // Utility to simulate authentication
 // Utility to get the user's role from the accountType field in the customer object in local storage
@@ -77,6 +79,8 @@ const App = () => {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/terms" element={<Policies />} />
                 <Route path="/profile" element={<UserProfile />} />
+                <Route path = "/order-success/:orderId" element={<OrderSuccess />} />
+                <Route path = "/shipping" element={<ShippingComponent />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />

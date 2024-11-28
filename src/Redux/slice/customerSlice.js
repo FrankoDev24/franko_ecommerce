@@ -78,7 +78,9 @@ const customerSlice = createSlice({
     logoutCustomer: (state) => {
       state.currentCustomer = null;
       state.currentCustomerDetails = null;
+      localStorage.removeItem('customer'); // Clear from localStorage on logout
     },
+    
     clearCustomers: (state) => {
       state.customerList = [];
     },

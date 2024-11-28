@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrdersByCustomerOrAgent } from '../../Redux/slice/orderSlice'; // Adjust the action import as needed
+import { fetchOrdersByThirdParty } from '../../Redux/slice/orderSlice'; // Adjust the action import as needed
 import { Card, Col, Row, Statistic, Spin, Modal } from 'antd';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Table } from 'antd';
@@ -9,7 +9,7 @@ import { EyeOutlined } from '@ant-design/icons';
 
 const AgentDashboard = () => {
   const dispatch = useDispatch();
-  const { orders = [], loading = {}, error = {} } = useSelector((state) => state.orders || {});
+  const { orders = [] } = useSelector((state) => state.orders || {});
   
   const [salesData, setSalesData] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
@@ -17,7 +17,7 @@ const AgentDashboard = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   
   useEffect(() => {
-    dispatch(fetchOrdersByCustomerOrAgent()); // Adjust the action as per your need
+    dispatch(fetchOrdersByThirdParty()); // Adjust the action as per your need
   }, [dispatch]);
 
   useEffect(() => {
