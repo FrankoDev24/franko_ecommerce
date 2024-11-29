@@ -1,20 +1,4 @@
 
-  .brands-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .brands-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .brand-item:hover {
-    color: #006838;
-    cursor: pointer;
-  }
   .header-container .categories-block .category-item .brands-container {
     display: none;
   }
@@ -61,6 +45,30 @@
     height: 300px;
     object-fit: cover;
   }
+  /* Default brand item styles */
+.brand-item {
+  color: #4A4A4A; /* Text color for normal state */
+}
+
+/* Hover state */
+.brand-item:hover {
+  color: #fff; /* White text on hover */
+  background-color: #00796b; /* Change background color on hover */
+}
+
+/* Active state (when category is selected) */
+.brand-item.active {
+  color: #ffffff; /* White text for active item */
+  background-color: #00796b; /* Set active background color */
+  border-radius: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+
+}
+
+/* Active category (expanded state) */
+
+
   @media (max-width: 768px) {
     .carousel-container {
         height: 180px; /* Adjust as needed for mobile view */

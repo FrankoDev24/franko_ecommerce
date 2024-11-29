@@ -30,32 +30,27 @@ export const fetchCustomers = createAsyncThunk(
   }
 );
 
-// Async thunk for customer login
+// Async thunk for login
 export const loginCustomer = createAsyncThunk(
   'customers/loginCustomer',
-  async ({ contact_number, password }, { dispatch, rejectWithValue }) => {
+  async ({ contactNumber, password }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/Users/CustomerLogin`);
+      const fetchCustomersResult = await dispatch(fetchCustomers()).unwrap();
 
-      if (response.data.ResponseCode === '1') {
-        // Login successful, now fetch all customers to get detailed information
-        const fetchCustomersResult = await dispatch(fetchCustomers());
+      const matchingCustomer = fetchCustomersResult.find(
+        (customer) =>
+          customer.contactNumber === contactNumber && customer.password === password
+      );
 
-        if (fetchCustomersResult.payload) {
-          // Find the customer with matching contact_number and password
-          const matchingCustomer = fetchCustomersResult.payload.find(
-            (customer) => customer.contact_number === contact_number && customer.password === password
-          );
-
-          if (matchingCustomer) {
-            // Return both login response and the matching customer details
-            return { ...response.data, customerDetails: matchingCustomer };
-          }
-        }
+      if (matchingCustomer) {
+        // Save customer to localStorage
+        localStorage.setItem('customer', JSON.stringify(matchingCustomer));
+        return matchingCustomer;
+      } else {
+        return rejectWithValue("No customer found with the provided credentials.");
       }
-      return response.data; // Return only the response data if no matching customer is found
     } catch (error) {
-      return rejectWithValue(error.response?.data || "An unknown error occurred.");
+      return rejectWithValue(error.message || "An unknown error occurred.");
     }
   }
 );
@@ -63,11 +58,10 @@ export const loginCustomer = createAsyncThunk(
 // Initial state
 const initialState = {
   currentCustomer: JSON.parse(localStorage.getItem('customer')) || null,
-  selectedCustomer: null,
+  currentCustomerDetails: null,
   customerList: [],
   loading: false,
   error: null,
-  currentCustomerDetails: null, // This will store the customer details
 };
 
 // Create the customer slice
@@ -133,21 +127,14 @@ const customerSlice = createSlice({
       })
       .addCase(loginCustomer.fulfilled, (state, action) => {
         state.loading = false;
-
-        if (action.payload && action.payload.ResponseCode === '1') {
-          const customerDetails = action.payload.customerDetails || action.payload;
-          state.currentCustomer = customerDetails;
-          state.currentCustomerDetails = customerDetails;
-
-          localStorage.setItem('customer', JSON.stringify(customerDetails));
-        } else {
-          state.error = "Login failed.";
-        }
+        state.currentCustomer = action.payload;
+        state.currentCustomerDetails = action.payload;
       })
       .addCase(loginCustomer.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error?.message || "An unknown error occurred.";
+        state.error = action.payload || "Login failed.";
       });
+  
   },
 });
 

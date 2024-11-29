@@ -14,15 +14,16 @@ const { Option } = Select;
 const UserProfile = () => {
   const [user, setUser] = useState(null);
 
-  // Shipping State
   const dispatch = useDispatch();
   const { countries, divisions, locations, loading } = useSelector((state) => state.shipping);
   const [selectedCountry, setSelectedCountry] = useState('');
-  const [selectedDivision, setSelectedDivision] = useState(''); 
+  const [selectedDivision, setSelectedDivision] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
   const [shippingDetails, setShippingDetails] = useState({});
 
   useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to top on page load
+
     const userData = JSON.parse(localStorage.getItem('customer')) || {};
     setUser(userData);
 
@@ -51,20 +52,22 @@ const UserProfile = () => {
   };
 
   const handleSaveShippingDetails = () => {
-    // Find the human-readable names and shipping charge for location and division
-    const selectedLocationDetails = locations.find(location => location.locationCode === selectedLocation);
-    const selectedDivisionDetails = divisions.find(division => division.divisionCode === selectedDivision);
+    const selectedLocationDetails = locations.find((location) => location.locationCode === selectedLocation);
+    const selectedDivisionDetails = divisions.find((division) => division.divisionCode === selectedDivision);
 
     const details = {
       country: selectedCountry,
-      division: selectedDivisionDetails?.divisionName || '',  // Save the division name
-      location: selectedLocationDetails?.locationName || '',  // Save the location name
-      locationCharge: selectedLocationDetails?.shippingCharge || 0,  // Save shipping charge
+      division: selectedDivisionDetails?.divisionName || '',
+      location: selectedLocationDetails?.locationName || '',
+      locationCharge: selectedLocationDetails?.shippingCharge || 0,
     };
     setShippingDetails(details);
     localStorage.setItem('shippingDetails', JSON.stringify(details));
     message.success('Shipping details saved successfully!');
   };
+
+  const getContactNumber = () =>
+    user.contactNumber || user.ContactNumber || 'Not Provided';
 
   if (!user) {
     return <Spin tip="Loading User Information..." />;
@@ -72,7 +75,6 @@ const UserProfile = () => {
 
   return (
     <div style={{ padding: '40px', backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
-  
       <Row justify="center" gutter={[16, 16]}>
         {/* Customer Details */}
         <Col xs={24} sm={22} md={10}>
@@ -103,11 +105,11 @@ const UserProfile = () => {
               </Paragraph>
               <Paragraph>
                 <PhoneOutlined style={{ marginRight: '8px', color: '#52c41a' }} />
-                <strong>Phone:</strong> {user.ContactNumber}
+                <strong>Phone:</strong> {getContactNumber()}
               </Paragraph>
               <Paragraph>
-              <HomeOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
-                <strong>Address:</strong> {user.address || 'Not Provided'}
+                <HomeOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
+                <strong>Address:</strong> {user.address || 'N/A'}
               </Paragraph>
             </div>
           </Card>

@@ -216,7 +216,7 @@ const ProductDetail = () => {
           />
 
           {/* Add to Cart Button and Share */}
-          <div className="hidden lg:flex flex-row lg:flex-row lg:items-center gap-8 mb-4 mt-4">
+          <div className="lg:flex flex-row lg:flex-row lg:items-center gap-8 mb-4 mt-4">
             <Button
               icon={<ShoppingCartOutlined />}
               size="large"

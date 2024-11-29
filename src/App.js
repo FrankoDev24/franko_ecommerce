@@ -6,7 +6,6 @@ import Navbar from './Components/Navbar/Navbar';
 import Home from './Pages/Home/Home';
 import Cart from './Pages/Cart/Cart';
 import Checkout from './Pages/Checkout/Checkout';
-
 import Brand from "./Pages/Brand/Brand";
 import ShowRoomProducts from "./Components/ShowRoom/ShowRoomPage";
 import ProductDetail from "./Pages/ProductDetails/ProductDetails";
@@ -23,7 +22,6 @@ import Footer from './Components/Footer/Footer';
 import UserProfile from './Pages/Profile';
 
 // Agent-specific imports
-
 import AdminLogin from './AdminPages/Login';
 import AdminRegister from './AdminPages/Register';
 import AdminPage from "./AdminPages/AdminPage";
@@ -31,7 +29,7 @@ import AgentHome from './Agents/AgentHome';
 import AgentOrders from './Agents/AgentPage/AgentOrders';
 import AgentDashboard from './Agents/AgentPage/AgentDashboard';
 import OrderSuccess from './Pages/OrderSuccessPage';
-import ShippingComponent from './Components/Shipping';
+import OrderReceived from './Pages/OrderReceived';
 
 // Utility to simulate authentication
 // Utility to get the user's role from the accountType field in the customer object in local storage
@@ -80,7 +78,7 @@ const App = () => {
                 <Route path="/terms" element={<Policies />} />
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path = "/order-success/:orderId" element={<OrderSuccess />} />
-                <Route path = "/shipping" element={<ShippingComponent />} />
+         <Route path ="order-received" element={<OrderReceived />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />

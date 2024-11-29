@@ -1,28 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { useDispatch } from 'react-redux';
 import { loginCustomer } from '../../Redux/slice/customerSlice';
-import { useNavigate, useParams } from 'react-router-dom'; // Import useParams for URL parameters
+import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/frankoIcon.png";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { contactNumber, password } = useParams(); // Retrieve parameters from URL
 
-  // Initialize form data with URL parameters as defaults
   const [formData, setFormData] = useState({
-    Contact_number: contactNumber || '',
-    password: password || '',
+    contactNumber: '',
+    password: '',
   });
-
-  // Update form data state when URL params change
-  useEffect(() => {
-    setFormData({
-      Contact_number: contactNumber || '',
-      password: password || '',
-    });
-  }, [contactNumber, password]);
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,47 +21,66 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async (values) => {
+    setLoading(true); // Set loading to true
     try {
       await dispatch(loginCustomer(values)).unwrap();
       message.success('Login successful!');
-      navigate('/franko'); // Navigate to home page upon successful login
+      navigate('/franko');
     } catch (error) {
-      message.error('Login failed: ' + error.message);
+      message.error(error || 'Login failed.');
+      navigate('/sign-up');
+    } finally {
+      setLoading(false); // Reset loading to false
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
-      <Form layout="vertical" onFinish={handleSubmit} className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
+      <Form
+        layout="vertical"
+        onFinish={handleSubmit}
+        className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg"
+      >
         <div className="flex flex-col items-center justify-center">
           <img src={logo} alt="Logo" className="w-32 mb-4" />
           <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
         </div>
 
-        <Form.Item label="Contact Number" required>
+        <Form.Item
+          label="Contact Number"
+          name="contactNumber"
+          rules={[{ required: true, message: 'Please enter your contact number!' }]}
+        >
           <Input
-            name="Contact_number"
-            value={formData.Contact_number}
+            name="contactNumber"
+            value={formData.contactNumber}
             onChange={handleChange}
-            required
           />
         </Form.Item>
 
-        <Form.Item label="Password" required>
+        <Form.Item
+          label="Password"
+          name="password"
+          rules={[{ required: true, message: 'Please enter your password!' }]}
+        >
           <Input.Password
             name="password"
             value={formData.password}
             onChange={handleChange}
-            required
           />
         </Form.Item>
 
         <Form.Item>
-          <Button htmlType="submit" block className="bg-green-800 text-white ">
+          <Button 
+            htmlType="submit" 
+            block 
+            className="bg-green-800 text-white" 
+            loading={loading} // Bind the loading state
+          >
             Login
           </Button>
         </Form.Item>
-        
+
         <p className="mt-4 text-center">
           Don’t have an account?{' '}
           <span

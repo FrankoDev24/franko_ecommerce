@@ -141,12 +141,13 @@ const ShippingComponent = ({ isVisible, onClose }) => {
             placeholder="Select a Location"
             style={{ width: "100%" }}
           >
-            {locations.map((location) => (
-              <Option key={location.locationCode} value={location.locationCode}>
-                {location.locationName} - ₵
-                {location.shippingCharge === 0 ? "N/A" : location.shippingCharge}
-              </Option>
-            ))}
+           {locations.map((location) => (
+  <Option key={location.locationCode} value={location.locationCode}>
+    {location.locationName} 
+    {location.shippingCharge === 0 ? " - N/A" : ` - ₵${location.shippingCharge}`}
+  </Option>
+))}
+
           </Select>
         </div>
       )}

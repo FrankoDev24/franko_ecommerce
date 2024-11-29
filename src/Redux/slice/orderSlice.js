@@ -25,7 +25,7 @@ export const fetchOrdersByDate = createAsyncThunk(
 export const checkOutOrder = createAsyncThunk(
   "orders/checkOutOrder",
   async (
-    { Cartid, orderCode, customerId, paymentMode, paymentService,  PaymentAccountNumber, customerAccountType }, 
+    { Cartid, orderCode, customerId, PaymentMode, paymentService,  PaymentAccountNumber, customerAccountType }, 
     { rejectWithValue }
   ) => {
     try {
@@ -34,7 +34,8 @@ export const checkOutOrder = createAsyncThunk(
         Cartid: Cartid,
         orderCode: orderCode,
         customerId: customerId,
-        paymentMode: paymentMode,
+        
+      PaymentMode: PaymentMode,
         paymentService: paymentService,
         PaymentAccountNumber: PaymentAccountNumber,
         customerAccountType: customerAccountType
@@ -162,7 +163,7 @@ export const updateOrderDelivery = createAsyncThunk(
 export const orderAddress = createAsyncThunk(
   "orders/OrderAddress",
   async (
-    { customerId, orderCode, address, geoLocation ,RecipientName, RecipientContactNumber, orderNote},
+    { customerId, OrderCode, address, geoLocation ,RecipientName, RecipientContactNumber, orderNote},
     { rejectWithValue }
   ) => {
     try {
@@ -170,17 +171,12 @@ export const orderAddress = createAsyncThunk(
       const requestData = {
         // camelCase version
         customerId,
-        orderCode,
+        OrderCode,
         address,
         geoLocation,RecipientName,RecipientContactNumber, orderNote,
         
-        // PascalCase version
-        OrderCode: orderCode,
-        GeoLocation: geoLocation,
+       
       };
-
-      // Log request data to verify both formats
-      console.log("Sending request data with both casing styles:", requestData);
 
       const response = await axios.post(`${API_BASE_URL}/Order/OrderAddress`, requestData);
 

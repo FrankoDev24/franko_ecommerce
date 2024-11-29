@@ -7,7 +7,6 @@ import {
   PhoneOutlined,
   UserOutlined,
   LogoutOutlined,
-  CustomerServiceOutlined,
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCartById } from '../../Redux/slice/cartSlice';
@@ -15,6 +14,8 @@ import { logoutCustomer } from '../../Redux/slice/customerSlice';
 import frankoLogo from '../../assets/frankoIcon.png';
 import SearchModal from '../SearchModal';
 import './Navbar.css';
+import radio from "../../assets/Frankoradio.png";
+import { FaWhatsapp } from 'react-icons/fa';
 
 const AccountDropdown = ({ onLogout, customer }) => {
   const navigate = useNavigate();
@@ -23,15 +24,12 @@ const AccountDropdown = ({ onLogout, customer }) => {
       <Menu.Item key="firstName">
         <strong>{customer.firstName}</strong>
       </Menu.Item>
-      <Menu.Item key="email">
-        <span>{customer.email}</span>
-      </Menu.Item>
       <Menu.Divider />
       <Menu.Item
         icon={<UserOutlined />}
         onClick={() => navigate('/profile')} // Navigate to /profile
       >
-        Profile Settings
+        Profile
       </Menu.Item>
       <Menu.Item icon={<LogoutOutlined />} onClick={onLogout}>
         Logout
@@ -90,8 +88,10 @@ const Navbar = () => {
           </div>
 
           {/* Centered Music Icon */}
-          <CustomerServiceOutlined
-            className="text-2xl text-red-500 cursor-pointer absolute left-1/2 transform -translate-x-1/2"
+          <img
+            src={radio}
+            className="h-12 w-20 md:w-24 object-contain my-2 cursor-pointer "
+            alt="Franko Online Radio"
             onClick={() => setIsMusicModalVisible(true)}
           />
 
@@ -100,27 +100,51 @@ const Navbar = () => {
             {/* Search Icon and Contact in Large View */}
             <div className="flex items-center gap-4">
               <SearchOutlined
-                className="text-2xl text-gray-400 cursor-pointer"
+                className="text-md lg:text-xl text-gray-400 cursor-pointer lg:mr-10"
                 onClick={() => setIsSearchModalOpen(true)}
               />
               <div className="hidden lg:flex flex-col items-end">
-                <div className="text-sm text-gray-500">Call Us Now</div>
+                {/* Call Us Link */}
                 <a
-                  href="tel:+233302752020"
-                  className="text-green-800 font-semibold flex items-center gap-1"
+                  href="tel:+233302225651"
+                  className="text-red-500 text-sm font-semibold flex items-center gap-1"
                 >
                   <PhoneOutlined />
-                  +233 030 2752020
+                  +233302225651
+                </a>
+
+                {/* WhatsApp Link */}
+                <a
+                  href="https://wa.me/+233555939311"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-800 font-semibold text-sm flex items-center gap-1"
+                >
+                  <FaWhatsapp />
+                  +233555939311
                 </a>
               </div>
-              <a
-                href="https://wa.me/233302752020"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="md:hidden"
-              >
-                <PhoneOutlined className="text-xl text-green-800 cursor-pointer" />
-              </a>
+
+              {/* Mobile View */}
+              <div className="lg:hidden flex items-center gap-4">
+                {/* Call Icon for Mobile */}
+                <a
+                  href="tel:+233302225651"
+                  className="text-red-500 font-semibold  flex items-center gap-1"
+                >
+                  <PhoneOutlined className="text-md" />
+                </a>
+
+                {/* WhatsApp Icon for Mobile */}
+                <a
+                  href="https://wa.me/+233555939311"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-800 font-semibold flex items-center gap-1"
+                >
+                  <FaWhatsapp className="text-md" />
+                </a>
+              </div>
             </div>
 
             <div className="flex items-center gap-4 relative">
