@@ -277,7 +277,7 @@ const ProductDetail = () => {
         </div>
       </Modal>
        {/* Sticky Add to Cart Button on Mobile */}
-       <div className="fixed bottom-0 left-0 right-0 bg-white p-3 shadow-lg z-5 md:hidden">
+       <div className="fixed bottom-0 left-0 right-0 bg-white p-3 shadow-lg z-5 lg:hidden">
       <div className="flex justify-between items-center gap-2">
         {/* Add to Cart Button */}
         <Button

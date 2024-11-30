@@ -44,10 +44,10 @@ const ShopByBrandsBanner = () => {
   };
 
   return (
-    <div className="container mx-auto px-4">
- <div className="bg-gradient-to-r from-red-300 to-green-100  p-6 rounded-xl shadow-md mt-8">
+    <div className="container mx-auto px-2">
+ <div className="bg-gradient-to-r from-red-500 to-green-800  p-2 rounded-xl shadow-xl mt-4">
 
-        <h5 className="text-white text-xl font-semibold mb-4">Exclusive Brand Partners</h5>
+        <h5 className="text-white text-sm md:text-lg font-semibold  p-2 ">Exclusive Brand Partners</h5>
 
         <div className="relative">
           {/* Conditional Scroll Buttons */}
@@ -81,7 +81,7 @@ const ShopByBrandsBanner = () => {
               <div
                 key={brand.id}
                 onClick={() => navigateToBrand(brand.id)}
-                className="min-w-[220px] w-[120px] h-[100px] flex items-center justify-center cursor-pointer bg-white p-4 rounded-lg shadow hover:shadow-lg transition-transform transform hover:scale-105"
+                className="min-w-[100px] w-[100px] h-[80px] md:w-[220px] md:h-[120px] flex items-center justify-center cursor-pointer bg-white p-4 rounded-lg shadow hover:shadow-lg transition-transform transform hover:scale-105"
               >
                 <img
                   src={brand.logo}

@@ -14,7 +14,7 @@ import { logoutCustomer } from '../../Redux/slice/customerSlice';
 import frankoLogo from '../../assets/frankoIcon.png';
 import SearchModal from '../SearchModal';
 import './Navbar.css';
-import radio from "../../assets/Frankoradio.png";
+import radio from "../../assets/Radio.png";
 import { FaWhatsapp } from 'react-icons/fa';
 
 const AccountDropdown = ({ onLogout, customer }) => {
@@ -90,7 +90,7 @@ const Navbar = () => {
           {/* Centered Music Icon */}
           <img
             src={radio}
-            className="h-12 w-20 md:w-24 object-contain my-2 cursor-pointer "
+            className="h-8 w-8 md:w-24 object-contain my-2 cursor-pointer "
             alt="Franko Online Radio"
             onClick={() => setIsMusicModalVisible(true)}
           />

@@ -158,7 +158,7 @@ const Brand = () => {
                   </h2>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm md:text-md text-red-500">
-                      {`₵${formatPrice(product.price)}`}
+                      {`₵${formatPrice(product.price)}`}.00
                     </span>
                     {product.oldPrice > 0 && (
                       <span className="text-sm line-through text-gray-500">
