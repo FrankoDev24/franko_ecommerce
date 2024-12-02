@@ -33,7 +33,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-4 py-4 px-4">
         {/* Logo and Description */}
         <div className="md:col-span-2">
-          <img src={require('../../assets/frankoIcon.png')} alt="Franko Trading" className="h-32" />
+          <img src={require('../../assets/frankoIcon.png')} alt="Franko Trading" className="h-16" />
           <p className="text-gray-300 text-sm">
             Your premier retail and wholesale outlet for phones and accessories
           </p>
@@ -80,7 +80,7 @@ const Footer = () => {
             <h4 className="font-bold text-sm mb-2">ACCOUNT</h4>
             <ul className="space-y-1">
               <li>
-                <Link to="/order-history" className="text-gray-300 hover:text-white text-sm">Order History</Link>
+                <Link to="/profile" className="text-gray-300 hover:text-white text-sm">Profile</Link>
               </li>
               <li>
                 <Link to="/sign-up" className="text-gray-300 hover:text-white text-sm">Sign Up</Link>
@@ -92,15 +92,16 @@ const Footer = () => {
           <div>
             <h4 className="font-bold text-sm mb-2">ORDERS</h4>
             <ul className="space-y-1">
-              <li>Delivery Info</li>
-              <li>Returns Policy</li>
-              <li>Payment</li>
+            <li>
+                <Link to="/order-history" className="text-gray-300 hover:text-white text-sm">Order History</Link>
+              </li>
+             
             </ul>
           </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center mt-4 pt-2 border-t border-gray-700">
+        <div className="flex flex-row md:flex-row justify-between items-center mt-4 pt-2 border-t border-gray-700">
           <div className="text-gray-400 text-xs">
             © Franko Trading Ltd 2024. All Rights Reserved
           </div>

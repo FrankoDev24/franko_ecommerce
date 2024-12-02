@@ -7,6 +7,7 @@ import {
   PhoneOutlined,
   UserOutlined,
   LogoutOutlined,
+  CarryOutOutlined 
 } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCartById } from '../../Redux/slice/cartSlice';
@@ -14,7 +15,7 @@ import { logoutCustomer } from '../../Redux/slice/customerSlice';
 import frankoLogo from '../../assets/frankoIcon.png';
 import SearchModal from '../SearchModal';
 import './Navbar.css';
-import radio from "../../assets/Radio.png";
+import radio from "../../assets/radioss.png";
 import { FaWhatsapp } from 'react-icons/fa';
 
 const AccountDropdown = ({ onLogout, customer }) => {
@@ -22,7 +23,8 @@ const AccountDropdown = ({ onLogout, customer }) => {
   return (
     <Menu>
       <Menu.Item key="firstName">
-        <strong>{customer.firstName}</strong>
+      <strong>{customer.firstName + " " + customer.lastName}</strong>
+
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item
@@ -30,6 +32,12 @@ const AccountDropdown = ({ onLogout, customer }) => {
         onClick={() => navigate('/profile')} // Navigate to /profile
       >
         Profile
+      </Menu.Item>
+      <Menu.Item
+        icon={<CarryOutOutlined />}
+        onClick={() => navigate('/order-history')} // Navigate to /profile
+      >
+        Orders
       </Menu.Item>
       <Menu.Item icon={<LogoutOutlined />} onClick={onLogout}>
         Logout
@@ -90,7 +98,7 @@ const Navbar = () => {
           {/* Centered Music Icon */}
           <img
             src={radio}
-            className="h-8 w-8 md:w-24 object-contain my-2 cursor-pointer "
+            className="h-12 w-8 md:w-full object-contain my-2 cursor-pointer "
             alt="Franko Online Radio"
             onClick={() => setIsMusicModalVisible(true)}
           />
@@ -169,14 +177,14 @@ const Navbar = () => {
                   Login
                 </Button>
               )}
-              <Badge count={totalItems || 0} className="cursor-pointer">
-                <ShoppingCartOutlined
-                  className="text-xl hover:text-blue-600"
-                  onClick={() =>
-                    navigate(`/cart/${localStorage.getItem('cartId')}`)
-                  }
-                />
-              </Badge>
+              <Badge
+  count={totalItems } // This is the number of items in the cart
+  onClick={() => navigate(`/cart/${localStorage.getItem('cartId')}`)}
+  style={{ cursor: 'pointer' }} // Ensure the cursor changes to indicate interactivity
+>
+  <ShoppingCartOutlined className="text-xl hover:text-blue-600" />
+</Badge>
+
             </div>
           </div>
         </div>

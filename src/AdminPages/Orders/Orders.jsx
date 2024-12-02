@@ -1,34 +1,21 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchOrdersByDate,
-  updateOrderTransition,
-} from "../../Redux/slice/orderSlice";
-import {
-  DatePicker,
-  Button,
-  Table,
-  message,
-  Empty,
-  Modal,
-  Select,
-  Spin,
-  Input,
-} from "antd";
+import { fetchOrdersByDate } from "../../Redux/slice/orderSlice";
+import { DatePicker, Button, Table, message, Empty, Spin, Input } from "antd";
+import UpdateOrderCycleModal from "./UpdateOrderCycleModal"; // Import the new modal component
 import OrderDetailsModal from "./OrderDetailsModal";
 
 const { RangePicker } = DatePicker;
-const { Option } = Select;
 const { Search } = Input;
 
 const Orders = () => {
   const dispatch = useDispatch();
-  const { orders = [], loading} = useSelector((state) => state.orders);
+  const { orders = [], loading } = useSelector((state) => state.orders);
   const [dateRange, setDateRange] = useState([null, null]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [newCycle, setNewCycle] = useState("");
+  const [selectedOrderCycle, setSelectedOrderCycle] = useState(null); // Define the missing state for order cycle
   const [searchText, setSearchText] = useState("");
 
   const fetchCurrentMonthOrders = useCallback(() => {
@@ -65,35 +52,13 @@ const Orders = () => {
 
   const openCycleModal = (order) => {
     setSelectedOrderId(order.orderCode);
+    setSelectedOrderCycle(order.orderCycle); // Correctly set the orderCycle
     setIsModalOpen(true);
   };
 
   const openDetailModal = (orderId) => {
     setSelectedOrderId(orderId);
     setIsDetailModalOpen(true);
-  };
-
-  const handleCycleChange = (value) => setNewCycle(value);
-
-  const handleUpdateCycle = async () => {
-    if (selectedOrderId && newCycle) {
-      try {
-        await dispatch(
-          updateOrderTransition({
-            cycleName: newCycle,
-            orderId: selectedOrderId,
-          })
-        ).unwrap(); // Unwraps the action result for error handling
-        message.success("Order cycle updated successfully");
-        setIsModalOpen(false);
-        setNewCycle("");
-        fetchCurrentMonthOrders(); // Refresh orders after update
-      } catch (err) {
-        message.error(`Error updating cycle: ${err.message || "An error occurred"}`);
-      }
-    } else {
-      message.error("Please select a cycle");
-    }
   };
 
   const handleSearch = (value) => {
@@ -111,7 +76,7 @@ const Orders = () => {
       return acc;
     }, {})
   );
-  
+
   const filteredOrders = groupedOrders.filter((order) => {
     if (!order) return false;
     const fullNameMatch =
@@ -120,7 +85,6 @@ const Orders = () => {
       order.orderCycle && order.orderCycle.toLowerCase().includes(searchText);
     return fullNameMatch || statusMatch;
   });
-  
 
   const columns = [
     {
@@ -153,12 +117,17 @@ const Orders = () => {
       key: "orderCycle",
       render: (text, record) => (
         <Button type="link" onClick={() => openCycleModal(record)}>
-          {text}
+          {text} {/* The status text should change after the update */}
         </Button>
       ),
-      sorter: (a, b) => a.orderCycle.localeCompare(b.orderCycle),
     },
   ];
+
+  const closeCycleModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrderId(null);
+    setSelectedOrderCycle(null); // Reset the cycle value when modal closes
+  };
 
   return (
     <div>
@@ -205,23 +174,16 @@ const Orders = () => {
       ) : (
         <Empty description="No orders found" />
       )}
-      <Modal
-        title="Update Order Cycle"
-        visible={isModalOpen}
-        onOk={handleUpdateCycle}
-        onCancel={() => setIsModalOpen(false)}
-      >
-        <Select
-          value={newCycle}
-          onChange={handleCycleChange}
-          style={{ width: "100%" }}
-        >
-          <Option value="Packing">Packing</Option>
-          <Option value="Pending">Pending</Option>
-          <Option value="Processed">Processed</Option>
-          <Option value="Delivered">Delivered</Option>
-        </Select>
-      </Modal>
+
+      {/* Update Order Cycle Modal */}
+      <UpdateOrderCycleModal
+        isVisible={isModalOpen}
+        onClose={closeCycleModal}
+        orderCode={selectedOrderId}
+        orderCycle={selectedOrderCycle}
+        fetchOrders={fetchCurrentMonthOrders} // Ensure this fetches orders after cycle update
+      />
+
       {isDetailModalOpen && (
         <OrderDetailsModal
           orderId={selectedOrderId}

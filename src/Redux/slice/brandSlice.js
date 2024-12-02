@@ -14,44 +14,52 @@ export const fetchBrands = createAsyncThunk("brand/fetchBrands", async () => {
 export const addBrand = createAsyncThunk(
   "brand/addBrand",
   async (brandData) => {
+    // Create a FormData object to send the data as multipart/form-data
+    const formData = new FormData();
+
+    // Append each field to the FormData object
+    formData.append('BrandId', brandData.BrandId || ''); // Send empty value if BrandId is not provided
+    formData.append('BrandName', brandData.BrandName || ''); // Send empty value if BrandName is not provided
+    formData.append('CategoryId', brandData.CategoryId || ''); // Send empty value if CategoryId is not provided
+    formData.append('LogoName', brandData.LogoName); // Assuming LogoName is a file (binary data)
+
+    // Send the request with the FormData
     const response = await axios.post(
       `${API_BASE_URL}/Brand/Setup-Brand`,
-      brandData
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Ensure the correct content type is set
+        },
+      }
     );
+
     return response.data; // Adjust based on your backend response
   }
 );
 
 // Update an existing brand
 export const updateBrand = createAsyncThunk(
-    "brand/updateBrand",
-    async ({ brandId, brandName, categoryId }, { rejectWithValue }) => {
-      try {
-        // Construct payload explicitly
-        const payload = {
-          brandId,
-          brandName,
-          categoryId,
-        };
-  
-        console.log("Sending payload:", payload);
-  
-        const response = await axios.post(
-          `${API_BASE_URL}/Brand/Put-Brand/${brandId}`, 
-          payload,
-          { headers: { "Content-Type": "application/json" } }
-        );
-  
-        return response.data;
-      } catch (error) {
-        console.error("API call error:", error);
-        return rejectWithValue(
-          error.response?.data?.message || "Failed to update brand"
-        );
-      }
+  "brand/updateBrand",
+  async ({ Brandid, formData }, { rejectWithValue }) => {
+    try {
+      // Send the request with multipart/form-data headers
+      const response = await axios.post(
+        `${API_BASE_URL}/Brand/Put-Brand/${Brandid}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("API call error:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update brand"
+      );
     }
-  );
-  
+  }
+);
+
   
   
 

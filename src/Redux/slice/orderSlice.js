@@ -103,19 +103,30 @@ export const fetchOrdersByThirdParty = createAsyncThunk(
 );
 export const updateOrderTransition = createAsyncThunk(
   "orders/updateOrderTransition",
-  async ({ cycleName, orderId }, { rejectWithValue }) => {
+  async ({ CycleName, OrderId }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/Order/UpdateOrderTransition/${cycleName}/${orderId}`
+      console.log("Updating order transition with CycleName:", CycleName); // Log the values for debugging
+      console.log("Updating order transition with OrderId:", OrderId); // Log the values for debugging
+
+      const response = await axios.post(
+        `${API_BASE_URL}/Order/UpdateOrderTransition/${CycleName}/${OrderId}`
       );
-      return response.data;
+
+      if (!response.data) {
+        throw new Error("Invalid response format");
+      }
+
+      return response.data; // Ensure this matches the expected structure
     } catch (error) {
+      console.error("Error in updateOrderTransition:", error);
       return rejectWithValue(
         error.response?.data || "Failed to update order transition"
       );
     }
   }
 );
+
+
 
 export const fetchOrderLifeCycle = createAsyncThunk(
   "orders/fetchOrderLifeCycle",
@@ -235,7 +246,8 @@ const orderSlice = createSlice({
     orders: [],
     salesOrder: [],
     deliveryAddress: [],
-    loading: { orders: false, lifeCycle: false, deliveryAddress: false, deliveryUpdate: false },
+  
+    loading: { orders: false,  deliveryAddress: false, deliveryUpdate: false },
     error: { orders: null, lifeCycle: null, deliveryAddress: null, deliveryUpdate: null },
   },
   reducers: {
@@ -268,38 +280,34 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchOrdersByDate.pending, (state) => {
-        state.loading.orders = true;
-        state.error.orders = null;
-      })
-      .addCase(fetchOrdersByDate.fulfilled, (state, action) => {
-        state.loading.orders = false;
-        state.orders = action.payload;
-      })
-      .addCase(fetchOrdersByDate.rejected, (state, action) => {
-        state.loading.orders = false;
-        state.error.orders = action.payload;
-      })
-      .addCase(updateOrderTransition.pending, (state) => {
-        state.loading.orders = true;
-        state.error.orders = null;
-      })
-      .addCase(updateOrderTransition.fulfilled, (state, action) => {
-        state.loading.orders = false;
-        const updatedOrder = action.payload;
-        const index = state.orders.findIndex((order) => order.orderId === updatedOrder.orderId);
-        if (index !== -1) {
-          state.orders[index] = updatedOrder;
-        }
-      })
-      .addCase(updateOrderTransition.rejected, (state, action) => {
-        state.loading.orders = false;
-        state.error.orders = action.payload;
-      })
-      .addCase(fetchOrderLifeCycle.pending, (state) => {
-        state.loading.lifeCycle = true;
-        state.error.lifeCycle = null;
-      })
+    .addCase(fetchOrdersByDate.pending, (state) => {
+      state.loading = true;
+    })
+    .addCase(fetchOrdersByDate.fulfilled, (state, action) => {
+      state.orders = action.payload;
+      state.loading = false;
+    })
+    .addCase(fetchOrdersByDate.rejected, (state) => {
+      state.loading = false;
+    })
+    .addCase(updateOrderTransition.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(updateOrderTransition.fulfilled, (state, action) => {
+      state.loading = false;
+      const updatedOrder = action.payload;
+      const index = state.orders.findIndex(
+        (order) => order.orderCode === updatedOrder.orderCode
+      );
+      if (index !== -1) {
+        state.orders[index] = updatedOrder; // Update the specific order
+      }
+    })
+    .addCase(updateOrderTransition.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message || "Error updating order lifecycle";
+    })
       .addCase(fetchOrderLifeCycle.fulfilled, (state, action) => {
         state.loading.lifeCycle = false;
         state.lifeCycle = action.payload;

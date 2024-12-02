@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SamsungLogo from '../assets/samsung.png';
-import InfinixLogo from '../assets/infinix-logo.png';
+import InfinixLogo from '../assets/infinix.png';
 import HmdLogo from '../assets/hmd.png';
 import TecnoLogo from '../assets/tecno-logo.png';
 import AppleLogo from '../assets/apple.jpeg';
