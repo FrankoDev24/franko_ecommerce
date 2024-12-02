@@ -6,7 +6,6 @@ import {
   fetchShippingDivisions,
   fetchShippingLocations,
 } from "../Redux/slice/shippingSlice";
-
 const { Option } = Select;
 
 const ShippingComponent = ({ isVisible, onClose }) => {
