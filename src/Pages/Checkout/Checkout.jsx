@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { checkOutOrder, orderAddress } from "../../Redux/slice/orderSlice";
+import { checkOutOrder, updateOrderDelivery} from "../../Redux/slice/orderSlice";
 import { clearCart } from "../../Redux/slice/cartSlice";
 import { message, Card, List, Button, Checkbox } from "antd";
 import { CreditCardOutlined } from "@ant-design/icons";
@@ -124,36 +124,37 @@ const CheckoutPage = () => {
   };
   
   // Function to dispatch order address separately
-  const dispatchOrderAddress = async (orderId) => {
-    try {
-      const geoLocation = await fetchGeoLocation(address);
-      if (!geoLocation) {
-        throw new Error("Unable to fetch geolocation. Please check your address.");
-      }
-  
-      const orderAddressPayload = {
-        customerId,
-        OrderCode: orderId,
-        address,
-        RecipientName: customerName,
-        RecipientContactNumber: customerNumber,
-        orderNote: orderNote || "N/A",
-        geoLocation,
-      };
-  
-      // Dispatch order address
-      await dispatch(orderAddress(orderAddressPayload)).unwrap();
-  
-      // After successful dispatch, clear the cart and localStorage
-      message.success("Your order has been placed successfully!");
-      dispatch(clearCart()); // Clear cart in Redux
-      localStorage.removeItem("cart"); // Clear cart in localStorage
-      localStorage.removeItem("cartId"); // Clear cart ID in localStorage
-    } catch (error) {
-      message.error(error.message || "An error occurred while saving the order address.");
+// Function to dispatch updated order address
+const dispatchOrderAddress = async (orderId) => {
+  try {
+    const geoLocation = await fetchGeoLocation(address);
+    if (!geoLocation) {
+      throw new Error("Unable to fetch geolocation. Please check your address.");
     }
-  };
-  
+
+    const updateAddressPayload = {
+      OrderCode: orderId,
+      address,
+      Customerid: customerId,
+      RecipientName: customerName,
+      RecipientContactNumber: customerNumber,
+      orderNote: orderNote || "N/A",
+      geoLocation,
+    };
+
+    // Dispatch updateOrderDelivery to update the existing address
+    await dispatch(updateOrderDelivery(updateAddressPayload)).unwrap();
+
+    // After successful update, clear the cart and localStorage
+    message.success("Your order has been placed successfully!");
+    dispatch(clearCart()); // Clear cart in Redux
+    localStorage.removeItem("cart"); // Clear cart in localStorage
+    localStorage.removeItem("cartId"); // Clear cart ID in localStorage
+  } catch (error) {
+    message.error(error.message || "An error occurred while updating the order address.");
+  }
+};
+
   
   // Function to initiate payment
   const initiatePayment = async (totalAmount, cartItems, orderId) => {

@@ -14,7 +14,7 @@ import RegistrationPage from './Pages/SignUp/SignUp';
 import CartUpdatePage from './Pages/Cart/CartUpdate';
 import LoginPage from './Pages/LogIn/Signin';
 import ProductsPage from './Pages/AllProducts';
-import OrderHistory from './Pages/OrderHistory';
+import OrderHistory from './Pages/OrderHistory/OrderHistory';
 import About from './Pages/About/About';
 import Contact from './Pages/Contact/Contact';
 import Policies from './Pages/Policy';

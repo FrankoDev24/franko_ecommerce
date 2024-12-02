@@ -23,7 +23,7 @@ const { Search } = Input;
 
 const Orders = () => {
   const dispatch = useDispatch();
-  const { orders = [], loading } = useSelector((state) => state.orders);
+  const { orders = [], loading} = useSelector((state) => state.orders);
   const [dateRange, setDateRange] = useState([null, null]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -111,14 +111,16 @@ const Orders = () => {
       return acc;
     }, {})
   );
-
+  
   const filteredOrders = groupedOrders.filter((order) => {
+    if (!order) return false;
     const fullNameMatch =
       order.fullName && order.fullName.toLowerCase().includes(searchText);
     const statusMatch =
       order.orderCycle && order.orderCycle.toLowerCase().includes(searchText);
     return fullNameMatch || statusMatch;
   });
+  
 
   const columns = [
     {

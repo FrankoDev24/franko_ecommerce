@@ -1,6 +1,6 @@
 import  { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategories } from '../../Redux/Slice/categorySlice';
+import { fetchCategories } from '../../Redux/slice/categorySlice';
 import ProductCarousel from '../../Components/Carousel/ProductCarousel';
 import { Card, Spin } from 'antd';
 
