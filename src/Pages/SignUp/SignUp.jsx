@@ -42,20 +42,21 @@ const RegistrationPage = () => {
 
   const handleSubmit = async (values) => {
     const { accountType, email, contactNumber, ...rest } = values;
-    
-    // If account type is agent, check if the email ends with frankotrading.com
+  
+    // Validate agent email
     if (accountType === 'agent' && !email.endsWith('frankotrading.com')) {
-      message.error('Email must end with frankotrading.com');
+      message.error('Invalid email for agent!');
       return;
     }
-
-    // Check if contact number already exists (simulated)
-    const existingContact = false; // Replace this with actual logic to check the database
+  
+    // Simulated check for existing contact number (replace with actual database logic)
+    const existingContact = false;
     if (existingContact) {
       message.error('Contact number already exists!');
       return;
     }
-
+  
+    // Prepare final data for submission
     const finalData = {
       ...rest,
       accountType,
@@ -63,19 +64,20 @@ const RegistrationPage = () => {
       ContactNumber: contactNumber,
       customerAccountNumber: formData.customerAccountNumber,
     };
-
+  
     setLoading(true);
     try {
-      const result = await dispatch(createCustomer(finalData)).unwrap();
+      const result = await dispatch(createCustomer(finalData)).unwrap(); // Attempt to create the customer
       message.success('Registration successful!');
-      
-      // Redirect based on account type
+  
+      // Navigate based on account type only after success
       if (finalData.accountType === 'agent') {
-        navigate("/agent-dashboard"); // Redirect to agent page
+        navigate('/agent-dashboard');
       } else {
-        navigate("/franko"); // Redirect to home page for customers
+        navigate('/franko');
       }
-      console.log('Registration result:', result); // Log the entire result
+  
+      console.log('Registration result:', result); // Log result for debugging
     } catch (error) {
       message.error('Registration failed: ' + error.message);
       console.error('Registration error:', error); // Detailed error logging
@@ -83,6 +85,7 @@ const RegistrationPage = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">

@@ -60,6 +60,10 @@ const CheckoutPage = () => {
       message.warning("Please enter your delivery address to proceed.");
       return;
     }
+    if (paymentMethod === "Cash on Delivery" && shippingFee === "N/A") {
+      message.warning("Please choose another payment method.");
+      return;
+    }
   
     setLoading(true);
     const orderId = uuidv4(); // Generate a unique order ID
@@ -177,7 +181,7 @@ const dispatchOrderAddress = async (orderId) => {
       callbackUrl: "http://localhost:3000/order-history",
       returnUrl,
       merchantAccountNumber: "2020892",
-      cancellationUrl: "http://localhost:3000/payment-cancel",
+      cancellationUrl: "http://localhost:3000/franko",
       clientReference,  // Pass orderId as clientReference
     });
   

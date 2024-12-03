@@ -29,7 +29,7 @@ const About = () => {
               <Col xs={24} md={14}>
                 <Title level={2} className="text-red-600">About Us</Title>
                 <Paragraph className="text-lg leading-7">
-                  Franko Trading Enterprise is the leading retail and wholesale company of mobile phones, computers,
+                  Franko Trading Limited is the leading retail and wholesale company of mobile phones, computers,
                   laptops, televisions, and accessories. Established in 2004, we are committed to bringing the latest
                   technological gadgets to Ghana at affordable prices. Our head office is located at Adabraka Opposite Roxy Cinema in Accra.
                 </Paragraph>
