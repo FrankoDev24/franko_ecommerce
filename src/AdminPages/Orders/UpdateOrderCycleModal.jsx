@@ -56,10 +56,15 @@ const UpdateOrderCycleModal = ({ isVisible, onClose, orderCode, fetchOrders }) =
       ]}
     >
       <Select value={orderCycle} onChange={handleStatusChange} style={{ width: "100%" }}>
-        <Select.Option value="pending">Pending</Select.Option>
-        <Select.Option value="shipped">Shipped</Select.Option>
-        <Select.Option value="delivered">Delivered</Select.Option>
-        <Select.Option value="cancelled">Cancelled</Select.Option>
+        <Select.Option value="Processing">Processing</Select.Option>
+        <Select.Option value="confirmed">Confirmed</Select.Option>
+        <Select.Option value="Pending">Pending</Select.Option>
+        <Select.Option value="Unreachable">Unreachable</Select.Option>
+        <Select.Option value="Wrong Number">Wrong Number</Select.Option>
+        <Select.Option value="Cancelled">Cancelled</Select.Option>
+        <Select.Option value="Not Answered">Not Answered</Select.Option>
+        <Select.Option value="Delivery">Delivery</Select.Option>
+        <Select.Option value="Completed">Completed</Select.Option>
       </Select>
     </Modal>
   );
