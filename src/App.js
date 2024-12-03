@@ -54,7 +54,7 @@ const getUserRole = () => {
     const customer = JSON.parse(localStorage.getItem("customer"));
     const user = JSON.parse(localStorage.getItem("user"));
     if (!customer && !user) {
-      return <Navigate to="/admin-login" replace />;
+      return <Navigate to="/admin/register" replace />;
     }
     // First, check user position from the user object, if exists
     if (user && user.position) {
