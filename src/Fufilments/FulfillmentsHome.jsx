@@ -6,13 +6,12 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
-  FileTextOutlined,
 } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
-const ContentManagerPage = ({ children }) => {
+const FulfillmentHome = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
 
@@ -22,7 +21,7 @@ const ContentManagerPage = ({ children }) => {
 
   const handleMenuClick = (e) => {
     if (e.key === 'home') {
-      navigate('/content/dashboard');
+      navigate('/fulfillment/dashboard');
     }
     // Handle other menu items similarly...
   };
@@ -45,29 +44,20 @@ const ContentManagerPage = ({ children }) => {
       >
         <div className="logo text-center p-4">
           <Title level={5} style={{ color: 'white' }}>
-            {collapsed ? 'CM' : 'Content Manager'}
+            {collapsed ? 'FM' : 'Fulfillment Manager'}
           </Title>
         </div>
         <Menu
-        
+          theme="dark"
           mode="inline"
           onClick={handleMenuClick}
           style={{ marginTop: 10 }}
         >
           <Menu.Item key="dashboard" icon={<HomeOutlined />}>
-            <Link to="/content/dashboard">Dashboard</Link>
+            <Link to="/fulfillment/dashboard">Dashboard</Link>
           </Menu.Item>
-          <Menu.Item key="products" icon={<UserOutlined />}>
-            <Link to="/content/products">Products</Link>
-          </Menu.Item>
-          <Menu.Item key="brands" icon={<FileTextOutlined />}>
-            <Link to="/content/brands">Brands</Link>
-          </Menu.Item>
-          <Menu.Item key="category" icon={<FileTextOutlined />}>
-            <Link to="/content/category">Category</Link>
-          </Menu.Item>
-          <Menu.Item key="showroom" icon={<FileTextOutlined />}>
-            <Link to="/content/showroom">Showroom</Link>
+          <Menu.Item key="orders" icon={<UserOutlined />}>
+            <Link to="/fulfillment/orders">Orders</Link>
           </Menu.Item>
         </Menu>
       </Sider>
@@ -92,7 +82,7 @@ const ContentManagerPage = ({ children }) => {
               style={{ marginRight: 16 }}
             />
             <Title level={4} style={{ margin: 0 }}>
-              Content Manager
+              Fulfillment Manager
             </Title>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -131,4 +121,4 @@ const ContentManagerPage = ({ children }) => {
   );
 };
 
-export default ContentManagerPage;
+export default FulfillmentHome;

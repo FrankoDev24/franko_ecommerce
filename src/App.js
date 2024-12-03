@@ -31,6 +31,15 @@ import AgentDashboard from './Agents/AgentPage/AgentDashboard';
 import OrderSuccess from './Pages/OrderSuccessPage';
 import OrderReceived from './Pages/OrderReceived';
 import NoInternetPage from './Pages/NoInternet';
+import ContentPage from './ContentManager/ContentPage';
+import ContentDashboard from './ContentManager/ContentManager/ContentDashboard';
+import Products from './ContentManager/ContentManager/Products';
+import Brands from './ContentManager/ContentManager/Brands';
+import Category from './ContentManager/ContentManager/Category';
+import Showroom from './ContentManager/ContentManager/Showroom';
+import FulfillmentPage from './Fufilments/Fufilments/FulfillmentsPage';
+import FulfillmentsDashboard from './Fufilments/Fufilments/FulfillmentsDashboard';
+import FulfillmentsOrder from './Fufilments/Fufilments/FulfillmentsOrder';
 
 // Utility to simulate authentication
 // Utility to get the user's role from the accountType field in the customer object in local storage
@@ -130,8 +139,58 @@ const App = () => {
           </ProtectedRoute>
         }
       />
-      
-      
+        {/* Content Manager Routes */}
+      <Route
+  path="/content/*"
+  element={<ContentPage>
+    <ContentDashboard />
+  </ContentPage>}
+/>
+   {/* Content Manager Routes */}
+   <Route
+  path="/content/products"
+  element={<ContentPage>
+    <Products />
+  </ContentPage>}
+/>
+   {/* Content Manager Routes */}
+   <Route
+  path="/content/brands"
+  element={<ContentPage>
+    <Brands />
+  </ContentPage>}
+/>
+   {/* Content Manager Routes */}
+   <Route
+  path="/content/category"
+  element={<ContentPage>
+    <Category />
+  </ContentPage>}
+/>
+   {/* Content Manager Routes */}
+   <Route
+  path="/content/showroom"
+  element={<ContentPage>
+    <Showroom />
+  </ContentPage>}
+/>
+              {/* Fulfillment Routes */}
+
+ <Route
+  path="/fulfillment/*"
+  element={<FulfillmentPage>
+    <FulfillmentsDashboard/>
+  </FulfillmentPage>}
+/>
+ {/* Fulfillment Routes */}
+ <Route
+  path="/fulfillment/orders"
+  element={<FulfillmentPage>
+    <FulfillmentsOrder/>
+  </FulfillmentPage>}
+/>
+               
+
                 {/* Default route redirects */}
                 <Route path="*" element={<Navigate to="/franko" />} />
             </Routes>
@@ -144,8 +203,9 @@ const App = () => {
 // Navbar and Footer Components
 const ConditionalNavbar = () => {
     const location = useLocation();
-    const hiddenPaths = ['/admin/login', '/admin/register', '/sign-in', '/sign-up'];
+    const hiddenPaths = ['/admin/login', '/admin/register', '/sign-in', '/sign-up', '/content/dashboard', '/content/products', '/content/showroom', '/content/brands', '/content/category',"/fulfillment/dashboard","/fulfillment/orders"];
     const isAdminPath = location.pathname.startsWith('/admin/');
+
 
 
     return !hiddenPaths.includes(location.pathname) && !isAdminPath  && <Navbar />;
@@ -153,7 +213,7 @@ const ConditionalNavbar = () => {
 
 const ConditionalFooter = () => {
     const location = useLocation();
-    const hiddenPaths = ['/admin/login', '/admin/register', '/sign-in', '/sign-up'];
+    const hiddenPaths = ['/admin/login', '/admin/register', '/sign-in', '/sign-up',"/content/dashboard", "/content/products", "/content/showroom", "/content/brands", "/content/category" ,"/fulfillment/dashboard","/fulfillment/orders"];
     const isAdminPath = location.pathname.startsWith('/admin/');
     const isAgentPath = location.pathname.startsWith('/agent-dashboard');
     return !hiddenPaths.includes(location.pathname) && !isAdminPath && !isAgentPath && <Footer />;
