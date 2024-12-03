@@ -14,7 +14,7 @@ import {
 } from '@ant-design/icons';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../Redux/slice/userSlice';
+import { logoutUser} from '../Redux/slice/userSlice';
 import './Layout.css'; // Custom CSS for additional styling
 
 const { Header, Sider, Content } = Layout;
@@ -41,7 +41,7 @@ const AdminLayout = ({ children }) => {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
     setIsLogoutModalVisible(false);
     navigate('/login');
   };

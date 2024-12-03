@@ -60,8 +60,8 @@ const CheckoutPage = () => {
       message.warning("Please enter your delivery address to proceed.");
       return;
     }
-    if (paymentMethod === "Cash on Delivery" && shippingFee === "N/A") {
-      message.warning("Please choose another payment method.");
+    if (paymentMethod === "Cash on Delivery" && shippingFee === 0) {
+      message.warning("Please select another payment method.");
       return;
     }
   

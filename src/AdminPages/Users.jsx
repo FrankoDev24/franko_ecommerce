@@ -1,7 +1,7 @@
 // UsersPage.js
 import  { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUsers } from '../Redux/slice/userSlice'; // Adjust path as necessary
+import { fetchUsers } from '../Redux/slice/userSlice'; // Adjust path as necessary
 import { Table, Spin, Alert } from 'antd';
 
 const Users = () => {
@@ -9,7 +9,7 @@ const Users = () => {
     const { users, loading, error } = useSelector((state) => state.user || { users: [], loading: false, error: null });
 
     useEffect(() => {
-        dispatch(getUsers());
+        dispatch(fetchUsers());
     }, [dispatch]);
 
     const columns = [

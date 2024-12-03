@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrdersByThirdParty, fetchSalesOrderById } from "../../Redux/slice/orderSlice";
-import { DatePicker, Table, Spin, Modal } from "antd";
+import { fetchOrdersByThirdParty  } from "../../Redux/slice/orderSlice";
+import { DatePicker, Table, Spin } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import moment from "moment";
+import OrderModal from "../../Pages/OrderHistory/OrderModal";  // Import the new OrderModal component
 
 const AgentOrders = () => {
   const dispatch = useDispatch();
-  const { orders = [], loading = {}, error = {}, salesOrder = [] } = useSelector((state) => state.orders || {});
+  const ordersData = useSelector((state) => state.orders);
 
+const orders = ordersData?.orders || [];
+const loading = ordersData?.loading || {};
+const error = ordersData?.error || {};
+
+  
   const today = moment();
   const defaultFromDate = moment("01/01/2000", "MM/DD/YYYY");
   const defaultToDate = today.clone().add(1, "days");
 
   const [dateRange, setDateRange] = useState([defaultFromDate, defaultToDate]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const customerObject = JSON.parse(localStorage.getItem("customer"));
   const ThirdPartyAccountNumber = customerObject?.customerAccountNumber;
@@ -22,7 +29,7 @@ const AgentOrders = () => {
   useEffect(() => {
     if (ThirdPartyAccountNumber) {
       const [from, to] = dateRange.map((date) => date.format("MM/DD/YYYY"));
-      dispatch(fetchOrdersByThirdParty({ from, to, ThirdPartyAccountNumber }));
+      dispatch(fetchOrdersByThirdParty ({ from, to, ThirdPartyAccountNumber }));
     }
   }, [dateRange, ThirdPartyAccountNumber, dispatch]);
 
@@ -33,7 +40,7 @@ const AgentOrders = () => {
   };
 
   const handleViewOrder = (orderId) => {
-    dispatch(fetchSalesOrderById(orderId));
+    setSelectedOrderId(orderId);
     setIsModalVisible(true);
   };
 
@@ -42,11 +49,11 @@ const AgentOrders = () => {
   };
 
   const columns = [
-    { 
-      title: "Order ID", 
-      dataIndex: "orderId", 
+    {
+      title: "Order ID",
+      dataIndex: "orderId",
       key: "orderId",
-      render: (orderId) => orderId.slice(-6), // Show last 6 digits of Order ID
+      render: (orderId) => orderId.slice(-6),
     },
     { title: "Order Date", dataIndex: "orderDate", key: "orderDate" },
     { title: "Order Status", dataIndex: "orderCycle", key: "orderCycle" },
@@ -62,7 +69,7 @@ const AgentOrders = () => {
     },
   ];
 
-  const transformedOrders = orders
+  const transformedOrders = (orders || [])
     .map((order, index) => ({
       key: index,
       orderId: order?.orderCode || "N/A",
@@ -70,12 +77,9 @@ const AgentOrders = () => {
       customerName: order?.fullName || "N/A",
       orderCycle: order?.orderCycle || "N/A",
     }))
-    .sort((a, b) => moment(b.orderDate, "MM/DD/YYYY") - moment(a.orderDate, "MM/DD/YYYY")); // Sorting by orderDate from newest to oldest
-
-  const salesOrderTotal = (salesOrder || []).reduce(
-    (acc, item) => acc + (item?.price || 0) * (item?.quantity || 0),
-    0
-  );
+    .sort((a, b) =>
+      moment(b.orderDate).isBefore(moment(a.orderDate)) ? 1 : -1
+    );
 
   return (
     <div className="order-history-page container mx-auto px-4 py-6">
@@ -94,83 +98,22 @@ const AgentOrders = () => {
         <Spin size="large" />
       ) : error.orders ? (
         <p className="text-red-500">Error: {error.orders}</p>
-      ) : (
+      ) : orders?.length > 0 ? (
         <Table
           dataSource={transformedOrders}
           columns={columns}
           rowKey="key"
           pagination={{ pageSize: 10 }}
         />
+      ) : (
+        <p>No orders found.</p>
       )}
 
-      <Modal
-        title={`Order: ${salesOrder[0]?.orderCode || "Details"}`}
-        visible={isModalVisible}
-        onCancel={handleModalClose}
-        footer={null}
-        className="w-full sm:w-4/5 md:w-3/5 lg:w-1/2"
-      >
-        {loading.salesOrder ? (
-          <Spin size="large" />
-        ) : error.salesOrder ? (
-          <p className="text-red-500">Error: {error.salesOrder}</p>
-        ) : salesOrder.length > 0 ? (
-          <div>
-            {salesOrder.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center p-2 border-b last:border-none"
-              >
-                <img
-                  src={`https://smfteapi.salesmate.app/Media/Products_Images/${item.imagePath?.split("\\").pop()}`}
-                  alt={item.productName || "Product"}
-                  className="w-16 h-16 object-cover rounded-lg mr-4"
-                />
-                <div className="flex-1">
-                  <p className="text-sm">{item.productName || "N/A"}</p>
-         
-                </div>
-                <div className="text-right ml-4">
-                  <p className="font-bold">
-                    {new Intl.NumberFormat("en-GH", {
-                      style: "currency",
-                      currency: "GHS",
-                    }).format(item.price || 0)}
-                  </p>
-                  <p className="text-sm text-gray-500">Qty: {item.quantity || 0}</p>
-                </div>
-              </div>
-            ))}
-
-            <div className="mt-6 ">
-              <div className="flex justify-between mb-2">
-                <p>Subtotal</p>
-                <p>
-                  {new Intl.NumberFormat("en-GH", {
-                    style: "currency",
-                    currency: "GHS",
-                  }).format(salesOrderTotal || 0)}
-                </p>
-              </div>
-              <div className="flex justify-between mb-2">
-                <p>Shipping</p>
-                <p>{new Intl.NumberFormat("en-GH", { style: "currency", currency: "GHS" }).format(0)}</p>
-              </div>
-              <div className="flex justify-between font-bold text-lg  border-t" >
-                <p>Total</p>
-                <p className="text-red-500">
-                  {new Intl.NumberFormat("en-GH", {
-                    style: "currency",
-                    currency: "GHS",
-                  }).format((salesOrderTotal || 0) + 0)}
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <p>No order details available.</p>
-        )}
-      </Modal>
+      <OrderModal
+        orderId={selectedOrderId}
+        isModalVisible={isModalVisible}
+        onClose={handleModalClose}
+      />
     </div>
   );
 };

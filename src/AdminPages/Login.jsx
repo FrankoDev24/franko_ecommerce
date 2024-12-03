@@ -3,17 +3,19 @@ import { Form, Input, Button, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom'; // Import Link for navigation
 import { loginUser } from '../Redux/slice/userSlice'; // Adjust the path based on your file structure
+import logo from "../assets/frankoIcon.png";
 
 const Login = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading } = useSelector((state) => state.user); // To manage the loading state
-  const [contactNumber, setContactNumber] = useState('');
+  const [contact, setContact] = useState(''); // This will handle the input for contact
   const [password, setPassword] = useState('');
 
   const onFinish = () => {
-    dispatch(loginUser({ contactNumber, password }))
+    // Modify the dispatch to use 'contact' instead of 'contactNumber'
+    dispatch(loginUser({ contact, password }))
       .unwrap()
       .then(() => {
         message.success('Login successful!');
@@ -33,7 +35,7 @@ const Login = () => {
     <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg mt-40">
       {/* Logo */}
       <div className="text-center mb-6">
-        <img src="/path-to-logo/logo.png" alt="Logo" className="mx-auto h-16 w-16" /> {/* Adjust logo path */}
+        <img src={logo} alt="Logo" className="mx-auto h-16 w-24" /> {/* Adjust logo path */}
       </div>
 
       {/* Login Form */}
@@ -47,12 +49,12 @@ const Login = () => {
       >
         <Form.Item
           label="Contact Number"
-          name="contactNumber"
+          name="contact"
           rules={[{ required: true, message: 'Please input your contact number!' }]}
         >
           <Input
-            value={contactNumber}
-            onChange={(e) => setContactNumber(e.target.value)}
+            value={contact}
+            onChange={(e) => setContact(e.target.value)}
             placeholder="Enter your contact number"
             className="w-full p-2 border rounded-md"
           />
@@ -76,7 +78,7 @@ const Login = () => {
             type="primary"
             htmlType="submit"
             loading={loading}
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+            className="w-full bg-green-700 text-white p-2 rounded-md "
           >
             Login
           </Button>

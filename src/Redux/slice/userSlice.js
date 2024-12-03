@@ -4,95 +4,129 @@ import { message } from 'antd';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-// User registration
-export const registerUser = createAsyncThunk('user/registerUser', async (userData, { rejectWithValue, dispatch }) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/Users/User-Post`, userData);
-
-        // Store user details in localStorage and Redux state
-        localStorage.setItem('user', JSON.stringify(response.data));
-        dispatch(setUser(response.data));
-
-        return response.data; // Assuming the API returns full user data
-    } catch (error) {
-        return rejectWithValue(error.response?.data || error.message);
+// Async thunk for creating a new user
+export const createUser = createAsyncThunk(
+    'users/createUser',
+    async (userData, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/Users/User-Post`, userData);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || "An unknown error occurred.");
+        }
     }
-});
+);
 
-// User login
-export const loginUser = createAsyncThunk('user/loginUser', async ({ contactNumber, password }, { rejectWithValue }) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/Users/LogIn/${contactNumber}/${password}`);
-
-        const userData = { token: response.data.token, user: response.data.user };
-        
-        // Store user and token in localStorage
-        localStorage.setItem('user', JSON.stringify(userData.user));
-        localStorage.setItem('token', userData.token);
-
-        return userData;
-    } catch (error) {
-        return rejectWithValue(error.response?.data || error.message);
+// Async thunk for fetching all users
+export const fetchUsers = createAsyncThunk(
+    'users/fetchUsers',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/Users/Users-Get`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || "An unknown error occurred.");
+        }
     }
-});
+);
 
-// Get all users
-export const getUsers = createAsyncThunk('user/getUsers', async (_, { rejectWithValue }) => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/Users/Users-Get`);
-        return response.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data || error.message);
+// Async thunk for login
+export const loginUser = createAsyncThunk(
+    'users/loginUser',
+    async ({ contact, password }, { dispatch, rejectWithValue }) => {
+        try {
+            const fetchUsersResult = await dispatch(fetchUsers()).unwrap();
+
+            // Normalize data to handle both `contact` and `contactNumber`
+            const normalizedUsers = fetchUsersResult.map((user) => ({
+                ...user,
+                contact: user.contact || user.contactNumber, // Fallback to contactNumber if contact is not available
+            }));
+
+            // Find matching user
+            const matchingUser = normalizedUsers.find(
+                (user) =>
+                    user.contact === contact && user.password === password
+            );
+
+            if (matchingUser) {
+                // Save user to localStorage
+                localStorage.setItem('user', JSON.stringify(matchingUser));
+                return matchingUser;
+            } else {
+                return rejectWithValue("No user found with the provided credentials.");
+            }
+        } catch (error) {
+            return rejectWithValue(error.message || "An unknown error occurred.");
+        }
     }
-});
+);
 
-// Initialize user state from localStorage
-let initialUser = null;
-try {
-    const savedUser = localStorage.getItem('user');
-    initialUser = savedUser ? JSON.parse(savedUser) : null;
-} catch (error) {
-    console.error("Failed to parse user from localStorage:", error);
-}
-
+// Initial state
 const initialState = {
-    user: initialUser,
-    token: localStorage.getItem('token') || null,
-    users: [],
+    currentUser: JSON.parse(localStorage.getItem('user')) || null,
+    currentUserDetails: null,
+    userList: [],
     loading: false,
     error: null,
 };
 
+// Create the user slice
 const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        logout: (state) => {
-            state.user = null;
-            state.token = null;
-            state.users = [];
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
+        logoutUser: (state) => {
+            state.currentUser = null;
+            state.currentUserDetails = null;
+            localStorage.removeItem('user'); // Clear from localStorage on logout
             message.success('Logged out successfully');
         },
+        clearUsers: (state) => {
+            state.userList = [];
+        },
         setUser: (state, action) => {
-            state.user = action.payload;
+            state.currentUser = action.payload;
             localStorage.setItem('user', JSON.stringify(action.payload));
-        }
+        },
+        clearSelectedUser: (state) => {
+            state.currentUserDetails = null;
+        },
     },
     extraReducers: (builder) => {
         builder
-            .addCase(registerUser.pending, (state) => {
+            .addCase(createUser.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(registerUser.fulfilled, (state, action) => {
+            .addCase(createUser.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload;
+                if (action.payload && action.payload.ResponseCode === '1') {
+                    const newUser = {
+                        ...action.meta.arg,
+                        ...action.payload,
+                    };
+                    state.currentUser = newUser;
+                    localStorage.setItem('user', JSON.stringify(newUser));
+                } else {
+                    state.error = "Failed to create user.";
+                }
             })
-            .addCase(registerUser.rejected, (state, action) => {
+            .addCase(createUser.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload;
+                state.error = action.error?.message || "An unknown error occurred.";
+            })
+            .addCase(fetchUsers.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchUsers.fulfilled, (state, action) => {
+                state.loading = false;
+                state.userList = action.payload;
+            })
+            .addCase(fetchUsers.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error?.message || "An unknown error occurred.";
             })
             .addCase(loginUser.pending, (state) => {
                 state.loading = true;
@@ -100,28 +134,20 @@ const userSlice = createSlice({
             })
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload.user;
-                state.token = action.payload.token;
+                state.currentUser = action.payload;
+                state.currentUserDetails = action.payload;
+                message.success('Logged in successfully!');
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload;
-            })
-            .addCase(getUsers.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(getUsers.fulfilled, (state, action) => {
-                state.loading = false;
-                state.users = action.payload;
-            })
-            .addCase(getUsers.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
+                state.error = action.payload || "Login failed.";
+                message.error(`Login failed: ${action.payload}`);
             });
     },
 });
 
-export const { logout, setUser } = userSlice.actions;
+// Export the actions
+export const { logoutUser, clearUsers, setUser, clearSelectedUser } = userSlice.actions;
 
+// Export the reducer
 export default userSlice.reducer;

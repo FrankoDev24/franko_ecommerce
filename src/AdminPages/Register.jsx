@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { useDispatch } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
-import { registerUser } from '../Redux/slice/userSlice'; // Adjust path based on your file structure
-import { useNavigate, Link } from 'react-router-dom'; // Added Link for navigation
+import { createUser } from '../Redux/slice/userSlice'; // Adjust path as per your file structure
+import { useNavigate, Link } from 'react-router-dom';
+import Franko from "../assets/frankoIcon.png"
 
 const UserRegistration = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const onFinish = (values) => {
     setLoading(true);
@@ -20,19 +21,22 @@ const UserRegistration = () => {
       return;
     }
 
-    // Automatically generate the user ID
     const newUser = {
-      ...values,
-      uuserid: uuidv4(), // Generate a unique user ID using uuid
+      uuserid: uuidv4(), // Generate a unique user ID
+      fullName: values.fullName,
+      email: values.email,
+      password: values.password,
+      address: values.address,
+      contact: values.contact,
+      position: values.position,
     };
 
-    // Dispatch the registration action
-    dispatch(registerUser(newUser))
+    dispatch(createUser(newUser))
       .unwrap()
       .then(() => {
         message.success('User registered successfully!');
         form.resetFields();
-        navigate('/admin/login'); // Navigate to login page upon success
+        navigate('/admin/login');
       })
       .catch((error) => {
         message.error(`Registration failed: ${error.message}`);
@@ -48,14 +52,14 @@ const UserRegistration = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8 md:px-8 bg-white shadow-lg rounded-lg mt-20">
+    <div className="max-w-lg mx-auto px-4 py-8 bg-white shadow-lg rounded-lg mt-20">
       {/* Logo */}
       <div className="text-center mb-8">
-        <img src="/path-to-logo/logo.png" alt="Logo" className="mx-auto h-16 w-16" /> {/* Adjust the path */}
+        <img src={Franko} alt="Franko Trading" className="mx-auto h-16 w-24" />
       </div>
 
       {/* Registration Form */}
-      <h2 className="text-3xl font-bold text-center mb-6">User Registration</h2>
+      <h2 className="text-xl font-bold text-center mb-6">Sign up</h2>
       <Form
         form={form}
         layout="vertical"
@@ -85,10 +89,7 @@ const UserRegistration = () => {
         <Form.Item
           label="Password"
           name="password"
-          rules={[
-            { required: true, message: 'Please input your password!' },
-            
-          ]}
+          rules={[{ required: true, message: 'Please input your password!' }]}
         >
           <Input.Password className="w-full p-2 border rounded-md" />
         </Form.Item>
@@ -117,12 +118,20 @@ const UserRegistration = () => {
           <Input className="w-full p-2 border rounded-md" />
         </Form.Item>
 
+        <Form.Item
+          label="Position"
+          name="position"
+          rules={[{ required: true, message: 'Please input your position!' }]}
+        >
+          <Input className="w-full p-2 border rounded-md" />
+        </Form.Item>
+
         <Form.Item>
           <Button
             type="primary"
             htmlType="submit"
             loading={loading}
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+            className="w-full bg-green-800 text-white p-2 rounded-md "
           >
             Register
           </Button>

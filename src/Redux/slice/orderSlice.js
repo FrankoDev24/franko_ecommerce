@@ -380,12 +380,14 @@ const orderSlice = createSlice({
         state.error = action.payload || 'Failed to fetch sales order';
       })
 
+    
+      .addCase(fetchOrdersByCustomer.pending, (state) => {
+        state.loading.orders = true;
+
+      })
       .addCase(fetchOrdersByCustomer.fulfilled, (state, action) => {
         state.orders = action.payload;
         state.loading.orders = false;
-      })
-      .addCase(fetchOrdersByCustomer.pending, (state) => {
-        state.loading.orders = true;
       })
       .addCase(fetchOrdersByCustomer.rejected, (state, action) => {
         state.error.orders = action.error.message;
@@ -400,10 +402,10 @@ const orderSlice = createSlice({
         state.orders = action.payload;
       })
       .addCase(fetchOrdersByThirdParty.rejected, (state, action) => {
+        // Ensure state.error and state.loading are defined
+        state.error.orders = action.error.message || "An error occurred";
         state.loading.orders = false;
-        state.error.orders = action.payload;
       });
-  
     }
 });
 

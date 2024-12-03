@@ -1,4 +1,4 @@
-import React from 'react';
+import React ,{ useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 // Import components
@@ -30,6 +30,7 @@ import AgentOrders from './Agents/AgentPage/AgentOrders';
 import AgentDashboard from './Agents/AgentPage/AgentDashboard';
 import OrderSuccess from './Pages/OrderSuccessPage';
 import OrderReceived from './Pages/OrderReceived';
+import NoInternetPage from './Pages/NoInternet';
 
 // Utility to simulate authentication
 // Utility to get the user's role from the accountType field in the customer object in local storage
@@ -55,8 +56,29 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 
 const App = () => {
+
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+    // Monitor network status
+    useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    if (!isOnline) {
+        return <NoInternetPage />; // Render NoInternetPage if offline
+    }
     return (
         <Router>
+         
             <ConditionalNavbar />
             <Routes>
                 {/* Public Routes */}
@@ -85,6 +107,7 @@ const App = () => {
                 <Route path="/admin/register" element={<AdminRegister />} />
                 <Route path="/admin/*" element={<AdminPage />} />
 
+
                 {/* Agent Routes */}
                 <Route
         path="/agent-dashboard"
@@ -107,6 +130,7 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+      
       
                 {/* Default route redirects */}
                 <Route path="*" element={<Navigate to="/franko" />} />
@@ -134,5 +158,6 @@ const ConditionalFooter = () => {
     const isAgentPath = location.pathname.startsWith('/agent-dashboard');
     return !hiddenPaths.includes(location.pathname) && !isAdminPath && !isAgentPath && <Footer />;
 };
+
 
 export default App;
