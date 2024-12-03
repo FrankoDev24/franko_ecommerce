@@ -1,9 +1,10 @@
 import React from 'react'
+import BrandPage from '../../AdminPages/Brands'
 
 function Brands() {
   return (
     <div>
-      <h1>Brands</h1>
+      <BrandPage/>
     </div>
   )
 }

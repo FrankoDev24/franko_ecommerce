@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Button, Typography } from 'antd';
+import { Layout, Menu, Avatar, Button, Typography, Modal } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   HomeOutlined,
@@ -14,7 +14,12 @@ const { Title } = Typography;
 
 const ContentManagerPage = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const navigate = useNavigate();
+
+  // Get user data from localStorage
+  const user = JSON.parse(localStorage.getItem('user'));
+  const fullName = user?.fullName || 'Guest'; // Display "Guest" if fullName is not available
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
@@ -25,6 +30,22 @@ const ContentManagerPage = ({ children }) => {
       navigate('/content/dashboard');
     }
     // Handle other menu items similarly...
+  };
+
+  const handleLogout = () => {
+    // Display the logout confirmation modal
+    setShowModal(true);
+  };
+
+  const confirmLogout = () => {
+    // Redirect to login page after confirming logout
+    setShowModal(false); // Close the modal
+    navigate('/admin/login'); // Navigate to the login page
+  };
+
+  const cancelLogout = () => {
+    // Close the modal without logging out
+    setShowModal(false);
   };
 
   return (
@@ -49,10 +70,9 @@ const ContentManagerPage = ({ children }) => {
           </Title>
         </div>
         <Menu
-        
           mode="inline"
           onClick={handleMenuClick}
-          style={{ marginTop: 10 }}
+          style={{ marginTop: 10 , backgroundColor: '#4FB477' , color:"whitesmoke"}}
         >
           <Menu.Item key="dashboard" icon={<HomeOutlined />}>
             <Link to="/content/dashboard">Dashboard</Link>
@@ -96,11 +116,19 @@ const ContentManagerPage = ({ children }) => {
             </Title>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {/* Home Icon to navigate to home */}
+            <HomeOutlined
+              style={{ fontSize: '24px', cursor: 'pointer' }}
+              onClick={() => navigate('/')}
+            />
             <Avatar icon={<UserOutlined />} />
-            <Button type="link" onClick={() => navigate('/admin/profile')}>
+            <Button type="link" style={{ padding: 0 }}>
+              Hi, {fullName}
+            </Button>
+            <Button type="link" onClick={() => navigate('/profile')}>
               Profile
             </Button>
-            <Button type="primary" danger onClick={() => navigate('/admin/logout')}>
+            <Button type="primary" danger onClick={handleLogout}>
               Logout
             </Button>
           </div>
@@ -111,22 +139,31 @@ const ContentManagerPage = ({ children }) => {
           style={{
             padding: '15px',
             marginTop: 30,
-            minHeight:"auto",
+            minHeight: 'auto',
             backgroundColor: '#f0f2f5',
           }}
         >
           <div
             style={{
-  
               padding: 5,
-         
-           
             }}
           >
             {children}
           </div>
         </Content>
       </Layout>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        title="Confirm Logout"
+        visible={showModal}
+        onOk={confirmLogout}
+        onCancel={cancelLogout}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>Are you sure you want to logout?</p>
+      </Modal>
     </Layout>
   );
 };

@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Button, Typography } from 'antd';
+import { Layout, Menu, Button, Typography, Modal } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  HomeOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { HomeOutlined, MenuFoldOutlined, MenuUnfoldOutlined, UserOutlined} from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
 const FulfillmentHome = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
   const navigate = useNavigate();
+
+  // Get user data from localStorage
+  const user = JSON.parse(localStorage.getItem('user'));
+  const fullName = user?.fullName || 'Guest';
+
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
@@ -24,6 +25,21 @@ const FulfillmentHome = ({ children }) => {
       navigate('/fulfillment/dashboard');
     }
     // Handle other menu items similarly...
+  };
+
+  
+
+  const showLogoutModal = () => {
+    setIsLogoutModalVisible(true);
+  };
+
+  const handleLogout = () => {
+    // Redirect to the login page
+    navigate('/admin/login');
+  };
+
+  const handleCancelLogout = () => {
+    setIsLogoutModalVisible(false);
   };
 
   return (
@@ -86,11 +102,21 @@ const FulfillmentHome = ({ children }) => {
             </Title>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <Avatar icon={<UserOutlined />} />
+            {/* Home Icon to navigate to home */}
+            <HomeOutlined
+              style={{ fontSize: '24px', cursor: 'pointer' }}
+              onClick={() => navigate('/franko')}
+            />
+            
+         
+              <Button type="link"  style={{ padding: 0 }}>
+                Hi, {fullName}
+              </Button>
+      
             <Button type="link" onClick={() => navigate('/admin/profile')}>
               Profile
             </Button>
-            <Button type="primary" danger onClick={() => navigate('/admin/logout')}>
+            <Button type="primary" danger onClick={showLogoutModal}>
               Logout
             </Button>
           </div>
@@ -101,22 +127,31 @@ const FulfillmentHome = ({ children }) => {
           style={{
             padding: '15px',
             marginTop: 30,
-            minHeight:"auto",
+            minHeight: 'auto',
             backgroundColor: '#f0f2f5',
           }}
         >
           <div
             style={{
-  
               padding: 5,
-         
-           
             }}
           >
             {children}
           </div>
         </Content>
       </Layout>
+
+      {/* Logout Modal */}
+      <Modal
+        title="Confirm Logout"
+        visible={isLogoutModalVisible}
+        onOk={handleLogout}
+        onCancel={handleCancelLogout}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>Are you sure you want to log out?</p>
+      </Modal>
     </Layout>
   );
 };

@@ -10,11 +10,11 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UsergroupAddOutlined 
+  UsergroupAddOutlined
 } from '@ant-design/icons';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser} from '../Redux/slice/userSlice';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '../Redux/slice/userSlice';
 import './Layout.css'; // Custom CSS for additional styling
 
 const { Header, Sider, Content } = Layout;
@@ -29,8 +29,10 @@ const AdminLayout = ({ children }) => {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  // Access user information from Redux store
-  const user = useSelector((state) => state.user.userData);
+  // Retrieve user information from localStorage
+  const user = JSON.parse(localStorage.getItem('user'));  // Assuming 'user' is the key for the user object in localStorage
+  const userName = user ? user.fullName : 'Admin'; // Default to 'Admin' if no user is found
+  const userPosition = user ? user.position : ''; // Position retrieved from localStorage
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -41,9 +43,10 @@ const AdminLayout = ({ children }) => {
   };
 
   const handleLogout = () => {
-    dispatch(logoutUser());
+    localStorage.clear();  // Clear all items from local storage
+    dispatch(logoutUser()); // Dispatch logout action to update Redux state
     setIsLogoutModalVisible(false);
-    navigate('/login');
+    navigate('/admin/login'); // Redirect to login page
   };
 
   const handleCancel = () => {
@@ -67,7 +70,10 @@ const AdminLayout = ({ children }) => {
       <Menu.Item key="1">
         <Link to="/admin/profile">Profile</Link>
       </Menu.Item>
-      <Menu.Item key="2" onClick={showLogoutModal}>Logout</Menu.Item>
+      <Menu.Item key="2">
+        <span>{userPosition ? `Position: ${userPosition}` : 'Position: N/A'}</span>
+      </Menu.Item>
+      <Menu.Item key="3" onClick={showLogoutModal}>Logout</Menu.Item>
     </Menu>
   );
 
@@ -118,7 +124,7 @@ const AdminLayout = ({ children }) => {
             <Dropdown overlay={userMenu}>
               <Avatar style={{ backgroundColor: '#87d068' }} icon={<UserOutlined />} />
             </Dropdown>
-            <span style={{ marginLeft: '20px' }}>Hello, {user ? user.fullName : 'Admin'}</span>
+            <span style={{ marginLeft: '20px' }}>Hello, {userName}</span>
           </div>
         </Header>
 

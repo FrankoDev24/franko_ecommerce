@@ -1,9 +1,10 @@
+import Categories from "../../AdminPages/Categories"
 
 
 function Category() {
   return (
     <div>
-      <h1>Category</h1>
+     <Categories/>
     </div>
   )
 }
