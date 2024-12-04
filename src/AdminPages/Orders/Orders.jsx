@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrdersByDate } from "../../Redux/slice/orderSlice";
-import { DatePicker, Button, Table, message, Empty, Spin, Input } from "antd";
-import UpdateOrderCycleModal from "./UpdateOrderCycleModal"; // Import the new modal component
+import { DatePicker, Button, Table, message, Empty, Spin, Input, Row, Col } from "antd";
+import UpdateOrderCycleModal from "./UpdateOrderCycleModal"; 
 import OrderDetailsModal from "./OrderDetailsModal";
 
 const { RangePicker } = DatePicker;
@@ -15,7 +15,7 @@ const Orders = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [selectedOrderCycle, setSelectedOrderCycle] = useState(null); // Define the missing state for order cycle
+  const [selectedOrderCycle, setSelectedOrderCycle] = useState(null);
   const [searchText, setSearchText] = useState("");
 
   const fetchCurrentMonthOrders = useCallback(() => {
@@ -46,23 +46,29 @@ const Orders = () => {
     }
   };
 
+  const handleSearch = (value) => {
+    setSearchText(value.toLowerCase());
+  };
+
+  const handleRefresh = () => {
+    setSearchText(""); // Clear search text
+    setDateRange([null, null]); // Clear date range
+    fetchCurrentMonthOrders(); // Fetch all orders
+  };
+
   useEffect(() => {
     fetchCurrentMonthOrders();
   }, [fetchCurrentMonthOrders]);
 
   const openCycleModal = (order) => {
     setSelectedOrderId(order.orderCode);
-    setSelectedOrderCycle(order.orderCycle); // Correctly set the orderCycle
+    setSelectedOrderCycle(order.orderCycle); 
     setIsModalOpen(true);
   };
 
   const openDetailModal = (orderId) => {
     setSelectedOrderId(orderId);
     setIsDetailModalOpen(true);
-  };
-
-  const handleSearch = (value) => {
-    setSearchText(value.toLowerCase());
   };
 
   // Group orders by orderCode
@@ -77,14 +83,16 @@ const Orders = () => {
     }, {})
   );
 
-  const filteredOrders = groupedOrders.filter((order) => {
-    if (!order) return false;
-    const fullNameMatch =
-      order.fullName && order.fullName.toLowerCase().includes(searchText);
-    const statusMatch =
-      order.orderCycle && order.orderCycle.toLowerCase().includes(searchText);
-    return fullNameMatch || statusMatch;
-  });
+  const filteredOrders = groupedOrders
+    .filter((order) => {
+      if (!order) return false;
+      const fullNameMatch =
+        order.fullName && order.fullName.toLowerCase().includes(searchText);
+      const statusMatch =
+        order.orderCycle && order.orderCycle.toLowerCase().includes(searchText);
+      return fullNameMatch || statusMatch;
+    })
+    .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)); // Newest orders first
 
   const columns = [
     {
@@ -117,7 +125,7 @@ const Orders = () => {
       key: "orderCycle",
       render: (text, record) => (
         <Button type="link" onClick={() => openCycleModal(record)}>
-          {text} {/* The status text should change after the update */}
+          {text}
         </Button>
       ),
     },
@@ -126,50 +134,64 @@ const Orders = () => {
   const closeCycleModal = () => {
     setIsModalOpen(false);
     setSelectedOrderId(null);
-    setSelectedOrderCycle(null); // Reset the cycle value when modal closes
+    setSelectedOrderCycle(null);
   };
 
   return (
     <div>
-      <h2>Orders</h2>
-      <RangePicker
-        format="MM-DD-YYYY"
-        onChange={handleDateChange}
-        style={{ marginBottom: 16 }}
-      />
-      <Button
-        type="primary"
-        onClick={handleFetchOrders}
-        disabled={loading}
-        style={{ marginRight: 16 }}
-      >
-        Fetch Orders
-      </Button>
+      <div className="text-2xl font-bold mb-4 text-center text-green-600">Orders</div>
+      
+      <div className="flex justify-between items-center space-x-4 mb-4">
+  <div className="flex space-x-4 items-center w-full">
+    <RangePicker
+      format="MM-DD-YYYY"
+      onChange={handleDateChange}
+      className="w-full"
+    />
+  </div>
+  <div className="flex space-x-4">
+    <Button
+
+
+      onClick={handleFetchOrders}
+      disabled={loading}
+      className="w-auto bg-green-600 text-white"
+    >
+      Fetch Orders
+    </Button>
+    <Button
+      onClick={handleRefresh}
+      className="w-auto"
+    >
+      Refresh
+    </Button>
+  </div>
+</div>
+
+    
+    
       <Search
         placeholder="Search by name or status"
         onSearch={handleSearch}
-        style={{ width: 300, marginBottom: 16 }}
+      className="w-full mb-4"
       />
+      <Row>
+        <Col span={24}>
+          <div style={{ marginBottom: "20px" }}>
+            Total Orders: {filteredOrders.length}
+          </div>
+        </Col>
+      </Row>
+
       {loading ? (
-        <Spin />
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <Spin />
+        </div>
       ) : filteredOrders.length > 0 ? (
         <Table
           dataSource={filteredOrders}
           columns={columns}
           rowKey="orderCode"
-          expandable={{
-            expandedRowRender: (record) => (
-              <div>
-                {record.orders.map((item, index) => (
-                  <div key={index} style={{ marginBottom: 8 }}>
-                    <strong>Product:</strong> {item.productName} <br />
-                    <strong>Quantity:</strong> {item.quantity} <br />
-                    <strong>Price:</strong> ${item.price}
-                  </div>
-                ))}
-              </div>
-            ),
-          }}
         />
       ) : (
         <Empty description="No orders found" />

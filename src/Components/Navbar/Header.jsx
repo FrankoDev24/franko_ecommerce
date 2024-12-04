@@ -71,7 +71,7 @@ const Header = () => {
         {/* Categories Block on the Left (Desktop View) */}
         <div
           className="categories-block hidden md:flex flex-col md:w-1/3 lg:w-1/4 p-2 bg-white rounded-lg shadow-xl relative mr-6 top-0 z-50"
-          style={{ height:"520px" }}
+          style={{ height:"550px" }}
           ref={categoriesRef}
         >
           <h3 className="text-md font-semibold mb-2 text-red-500">Categories</h3>
@@ -106,7 +106,7 @@ const Header = () => {
                   src={image} 
                   alt={`Carousel ${index + 1}`} 
                   className="carousel-image w-full object-cover rounded-lg shadow-lg" 
-                  style={{ height: '520px' }} 
+                  style={{ height: '550px' }} 
                 />
               </div>
             ))}

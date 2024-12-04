@@ -181,7 +181,7 @@ const dispatchOrderAddress = async (orderId) => {
       callbackUrl: "http://localhost:3000/order-history",
       returnUrl,
       merchantAccountNumber: "2020892",
-      cancellationUrl: "http://localhost:3000/franko",
+      cancellationUrl: "http://localhost:3000/order-cancelled",
       clientReference,  // Pass orderId as clientReference
     });
   

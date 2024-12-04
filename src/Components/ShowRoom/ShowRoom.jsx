@@ -145,7 +145,7 @@ const ShowroomPage = () => {
                                 .split("\\")
                                 .pop()}`}
                               alt={product.productName}
-                              className="w-48 md:w-24 lg:w-32 object-cover rounded-lg"
+                              className="w-48 md:w-32 lg:w-32 object-cover rounded-lg"
                             />
                           </div>
                         </div>

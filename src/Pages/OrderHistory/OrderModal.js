@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSalesOrderById, fetchOrderDeliveryAddress } from '../../Redux/slice/orderSlice';
 import { Modal, Spin, Typography, Image, Divider, Card } from 'antd';
-import { UserOutlined, PhoneOutlined, HomeOutlined , EditOutlined} from '@ant-design/icons';
+import { UserOutlined, PhoneOutlined, HomeOutlined, EditOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -21,8 +21,11 @@ const OrderModal = ({ orderId, isModalVisible, onClose }) => {
     }
   }, [dispatch, orderId]);
 
+  // Ensure that loading only happens if data is being fetched
+  const isLoading = loading && !salesOrder?.length;
+
   // Loading, Error, and No Orders checks
-  if (loading) return <Spin size="large" />;
+  if (isLoading) return <div className='hidden'><Spin tip="Loading..."/></div>;
   if (error) return <div>Error loading order: {error.message || 'An error occurred'}</div>;
   if (!salesOrder || salesOrder.length === 0) return <div>No order details found.</div>;
 

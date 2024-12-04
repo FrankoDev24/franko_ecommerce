@@ -7,6 +7,7 @@ import { ShoppingCartOutlined, CheckCircleFilled } from "@ant-design/icons";
 import { addToCart } from "../../Redux/slice/cartSlice";
 import { FacebookOutlined, WhatsAppOutlined, ShareAltOutlined } from "@ant-design/icons";
 import ProductDetailSkeleton from "./ProductDetailSkeleton";
+import Footer from "../../Components/Footer/Footer";
 
 const formatPrice = (price) => {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -303,7 +304,9 @@ const ProductDetail = () => {
         </div>
       </div>
     </div>
+    <Footer/>
     </div>
+    
   );
 };
 

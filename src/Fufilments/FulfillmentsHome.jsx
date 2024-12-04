@@ -64,11 +64,11 @@ const FulfillmentHome = ({ children }) => {
           </Title>
         </div>
         <Menu
-          theme="dark"
-          mode="inline"
-          onClick={handleMenuClick}
-          style={{ marginTop: 10 }}
-        >
+
+  mode="inline"
+  onClick={handleMenuClick}
+  style={{ marginTop: 10, backgroundColor: '#4FB477', color: 'white' }} // Green background color
+>
           <Menu.Item key="dashboard" icon={<HomeOutlined />}>
             <Link to="/fulfillment/dashboard">Dashboard</Link>
           </Menu.Item>
@@ -125,10 +125,10 @@ const FulfillmentHome = ({ children }) => {
         {/* Content */}
         <Content
           style={{
-            padding: '15px',
-            marginTop: 30,
+            padding: '10px',
+            marginTop: 20,
             minHeight: 'auto',
-            backgroundColor: '#f0f2f5',
+    
           }}
         >
           <div

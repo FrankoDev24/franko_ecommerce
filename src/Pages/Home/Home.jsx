@@ -4,6 +4,7 @@ import ShopByBrandsBanner from '../../Components/BrandsBanner';
 import RecentProducts from '../../Components/RecentProducts';
 import Header from '../../Components/Navbar/Header';
 import InfoBanner from '../../Components/InfoBanner'; // Correct for default export
+import Footer from '../../Components/Footer/Footer'; // Correct for default export
 
 export default function Home() {
   useEffect(() => {
@@ -18,6 +19,9 @@ export default function Home() {
       <ShowRoom />
       <InfoBanner />
       <RecentProducts />
+      <div>
+        <Footer />
+      </div>
     </div>
   );
 }

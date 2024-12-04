@@ -89,7 +89,7 @@ const Navbar = () => {
             <Link to="/">
               <img
                 src={frankoLogo}
-                className="h-12 w-auto object-contain my-2"
+                className="h-12 md:h-16 w-auto object-contain my-2"
                 alt="Franko Trading"
               />
             </Link>

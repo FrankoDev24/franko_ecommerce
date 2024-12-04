@@ -24,7 +24,7 @@ import OrderHistory from "./Pages/OrderHistory/OrderHistory";
 import About from "./Pages/About/About";
 import Contact from "./Pages/Contact/Contact";
 import Policies from "./Pages/Policy";
-import Footer from "./Components/Footer/Footer";
+
 import UserProfile from "./Pages/Profile";
 
 // Agent-specific imports
@@ -47,6 +47,7 @@ import FulfillmentPage from "./Fufilments/Fufilments/FulfillmentsPage";
 import FulfillmentsDashboard from "./Fufilments/Fufilments/FulfillmentsDashboard";
 import FulfillmentsOrder from "./Fufilments/Fufilments/FulfillmentsOrder";
 import Dashboard from "./AdminPages/Dashboard";
+import Cancellation from "./Pages/Cancellation";
 
 // Utility to fetch customer role
 const getUserRole = () => {
@@ -154,6 +155,7 @@ const App = () => {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/order-success/:orderId" element={<OrderSuccess />} />
         <Route path="order-received" element={<OrderReceived />} />
+        <Route path="order-cancelled" element={<Cancellation/> } />
 
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -259,7 +261,7 @@ const App = () => {
         <Route path="*" element={<Navigate to="/franko" />} />
       </Routes>
 
-      <ConditionalFooter />
+   
     </Router>
   );
 };
@@ -285,28 +287,5 @@ const ConditionalNavbar = () => {
   return !hiddenPaths.includes(location.pathname) && !isAdminPath && <Navbar />;
 };
 
-const ConditionalFooter = () => {
-  const location = useLocation();
-  const hiddenPaths = [
-    "/admin/login",
-    "/admin/register",
-    "/sign-in",
-    "/sign-up",
-    "/content/dashboard",
-    "/content/products",
-    "/content/showroom",
-    "/content/brands",
-    "/content/category",
-    "/fulfillment/dashboard",
-    "/fulfillment/orders",
-  ];
-  const isAdminPath = location.pathname.startsWith("/admin/");
-  const isAgentPath = location.pathname.startsWith("/agent-dashboard");
-  return (
-    !hiddenPaths.includes(location.pathname) &&
-    !isAdminPath &&
-    !isAgentPath && <Footer />
-  );
-};
 
 export default App;
