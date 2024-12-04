@@ -1,43 +1,50 @@
-import React from 'react';
-import call from "../assets/callcenter.jpg";
-
+import React from "react";
+import blender from "../assets/blender.png";
 
 const InfoBanner = () => {
-  return (
-    <div className="container mx-auto bg-black text-white p-4 md:p-6 flex flex-col md:flex-row items-center justify-between rounded-lg">
-      
-  
-      
-      
-      {/* Text Section */}
-      <div className="flex-1 text-center md:text-left md:ml-8 space-y-2 md:space-y-3">
-        <h1 className="text-xl md:text-3xl font-bold leading-tight">
-          BLACK <span className="text-red-500"> FRIDAY</span>
-        </h1>
-        <span className="bg-red-500 text-black px-3 py-1 rounded-full text-xs md:text-sm">ON</span>
-        <p className="text-sm md:text-lg font-light">
-          01 - 29 NOV
-        </p>
-        <p className="text-xs md:text-base mt-2">
-          Need help placing an order? Call
-        </p>
-        <p className="text-lg md:text-2xl font-bold text-red-500">
-          <a href="tel:0302740642" className="hover:underline">
-            024 642 2338
-          </a>
-        </p>
-        <p className="text-xs md:text-sm font-light">English or Twi, we speak your language</p>
-      </div>
+  const handleBuyNow = () => {
+    window.location.href = "/product/c40f43f4-c50b-43f4-99e2-d36cdaf8989c"; // Update with the actual URL
+  };
 
-      {/* Image Section */}
-      <div className="flex items-center justify-center mt-4 md:mt-0 md:ml-6">
-        <div className="relative w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden shadow-lg">
-          <img
-            src={call}
-            alt="Customer Service"
-            className="object-cover w-full h-full"
-          />
+  return (
+    <div className="relative bg-gradient-to-r from-red-200  to-green-100 py-6 px-4 sm:px-12 shadow-2xl">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-6">
+        {/* Text Section */}
+        <div className="flex-1 text-left">
+          <h2 className="text-md font-bold text-gray-800">
+            Appliances <span className="text-red-500">Special Offer</span>
+          </h2>
+          <p className="text-sm md:text-md font-medium text-gray-600 mt-3">
+            Best Selling Products
+          </p>
+          <p className="text-sm sm:text-base text-gray-500 mt-2">
+            Find out about our deals of the day and make your life easier with
+            top-quality blenders.
+          </p>
+          <button
+            onClick={handleBuyNow}
+            className="mt-5 bg-red-600 text-white font-semibold text-sm  px-2 py-2 sm:px-6 rounded-full shadow-md"
+          >
+            Buy Now
+          </button>
         </div>
+
+       {/* Image Section */}
+<div className="flex-1 flex justify-center relative">
+  <div className="relative inline-block">
+    <img
+      src={blender}
+      alt="Blender"
+      className="w-32 mx-auto"
+    />
+    {/* Discount Badge */}
+    <div className="absolute top-0 right-2 bg-red-500 text-white text-center px-2 py-1 rounded-full shadow-md">
+      <span className="block text-xs">14%</span>
+      <span className="block text-xs">OFF</span>
+    </div>
+  </div>
+</div>
+
       </div>
     </div>
   );
