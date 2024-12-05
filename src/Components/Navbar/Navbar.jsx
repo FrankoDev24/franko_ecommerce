@@ -122,7 +122,7 @@ const Navbar = () => {
               type="text"
               className="hidden lg:block bg-transparent border-none outline-none w-full text-gray-500"
               placeholder="Search..."
-              disabled // Disabled input
+            
             />
           </div>
   
