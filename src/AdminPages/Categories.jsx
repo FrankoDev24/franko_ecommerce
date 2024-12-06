@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories, addCategory, updateCategory } from '../Redux/slice/categorySlice';
-import { Modal, Spin, Button, Pagination } from 'antd';
+import { Modal, Spin, Button, Input, Table, Pagination } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 
 const Categories = () => {
@@ -13,7 +13,8 @@ const Categories = () => {
     const [categoryId, setCategoryId] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const categoriesPerPage = 6; // Change this value to set items per page
+    const [searchQuery, setSearchQuery] = useState('');
+    const categoriesPerPage = 6; // Items per page
 
     useEffect(() => {
         dispatch(fetchCategories());
@@ -21,19 +22,16 @@ const Categories = () => {
 
     const showModal = () => setIsModalVisible(true);
     const hideModal = () => {
-        setCategoryName(''); // Reset category name
-        setCategoryId(''); // Reset category ID
-        setIsEditing(false); // Reset editing state
+        setCategoryName('');
+        setCategoryId('');
+        setIsEditing(false);
         setIsModalVisible(false);
     };
 
-    const handleNameChange = (e) => {
-        setCategoryName(e.target.value);
-    };
-
-    const handleIdChange = (e) => {
-        setCategoryId(e.target.value);
-    };
+    const handleNameChange = (e) => setCategoryName(e.target.value);
+    const handleIdChange = (e) => setCategoryId(e.target.value);
+    
+    const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -54,8 +52,8 @@ const Categories = () => {
                 }
                 await dispatch(addCategory(categoryData)).unwrap();
             }
-            hideModal(); // Close modal after successful submission
-            dispatch(fetchCategories()); // Refresh categories
+            hideModal();
+            dispatch(fetchCategories());
         } catch (error) {
             console.error('Failed to add/update category: ', error);
         }
@@ -68,23 +66,61 @@ const Categories = () => {
         showModal();
     };
 
+    const filteredCategories = categories.filter((category) => 
+        category.categoryName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     // Pagination logic
     const indexOfLastCategory = currentPage * categoriesPerPage;
     const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
-    const currentCategories = categories.slice(indexOfFirstCategory, indexOfLastCategory);
+    const currentCategories = filteredCategories.slice(indexOfFirstCategory, indexOfLastCategory);
+
+    const columns = [
+        {
+            title: 'Category ID',
+            dataIndex: 'categoryId',
+            key: 'categoryId',
+        },
+        {
+            title: 'Category Name',
+            dataIndex: 'categoryName',
+            key: 'categoryName',
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (text, record) => (
+                <Button 
+                    icon={<EditOutlined />} 
+                    onClick={() => handleEdit(record)} 
+                    className="bg-green-600 text-white  transition rounded-full"
+                >
+                    Edit
+                </Button>
+            ),
+        }
+    ];
 
     return (
         <div className="container mx-auto p-4">
             <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2 md:mb-0">Categories</h2>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={showModal}
-                    className="w-full md:w-auto"
-                >
-                    Add Category
-                </Button>
+                <h2 className="text-2xl font-bold text-red-500 mb-2 md:mb-0">Categories</h2>
+                <div className="flex items-center">
+                    <Input 
+                        placeholder="Search by category name"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        style={{ marginRight: 16 , width: '250px' }}
+                    />
+                    <Button
+                     
+                        icon={<PlusOutlined />}
+                        onClick={showModal}
+                        className="w-full md:w-auto bg-green-500 hover:bg-green-600 text-white rounded-full"
+                    >
+                        Add Category
+                    </Button>
+                </div>
             </div>
 
             {loading ? (
@@ -94,27 +130,20 @@ const Categories = () => {
             ) : error ? (
                 <p className="text-red-500">Error: {error}</p>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {currentCategories.map((category) => (
-                        <div key={category.categoryId} className="border border-gray-300 p-4 rounded shadow hover:shadow-lg transition-shadow duration-200 bg-white hover:bg-gray-100">
-                            <h3 className="text-lg font-semibold text-red-600">{category.categoryName}</h3>
-                            <Button 
-                                icon={<EditOutlined />} 
-                                onClick={() => handleEdit(category)} 
-                                className="mt-2 bg-green-800 text-white hover:bg-green-800 transition"
-                            >
-                                Edit
-                            </Button>
-                        </div>
-                    ))}
-                </div>
+                <Table
+                    columns={columns}
+                    dataSource={currentCategories}
+                    rowKey="categoryId"
+                    pagination={false}
+                    style={{ marginBottom: '20px' }}
+                />
             )}
 
             <Pagination
                 current={currentPage}
                 onChange={(page) => setCurrentPage(page)}
                 pageSize={categoriesPerPage}
-                total={categories.length}
+                total={filteredCategories.length}
                 className="mt-4 text-center"
                 showSizeChanger={false}
                 showTotal={(total) => `Total ${total} categories`}
@@ -136,7 +165,7 @@ const Categories = () => {
                             onChange={handleIdChange}
                             className="w-full border rounded px-3 py-2"
                             placeholder="Enter category ID"
-                            disabled={isEditing} // Disable input when editing
+                            disabled={isEditing}
                             required
                         />
                     </div>

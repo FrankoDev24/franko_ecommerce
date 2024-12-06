@@ -17,34 +17,50 @@ import SearchModal from '../SearchModal';
 import './Navbar.css';
 import radio from "../../assets/radioss.png";
 import HelpNavbar from './HelpNavbar';
-
-const AccountDropdown = ({ onLogout, customer }) => {
+const AccountDropdown = ({ onLogout, customer, onClose = () => {} }) => {
   const navigate = useNavigate();
-  return (
-    <Menu>
-      <Menu.Item key="firstName">
-      <strong>{customer.firstName + " " + customer.lastName}</strong>
 
+  const handleOrdersNavigation = () => {
+    const customerDetails = JSON.parse(localStorage.getItem('customer')) || {};
+    const accountType = customerDetails?.accountType;
+
+    if (accountType === 'agent') {
+      navigate('/agent-dashboard/orders');
+    } else {
+      navigate('/order-history');
+    }
+    onClose(); // Close the menu
+  };
+
+  const handleProfileNavigation = () => {
+    navigate('/profile');
+    onClose(); // Close the menu
+  };
+
+  const handleLogout = () => {
+    onLogout();
+    onClose(); // Close the menu
+  };
+
+  return (
+    <Menu onClick={onClose}>
+      <Menu.Item key="firstName">
+        <strong>{customer.firstName + " " + customer.lastName}</strong>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item
-        icon={<UserOutlined />}
-        onClick={() => navigate('/profile')} // Navigate to /profile
-      >
+      <Menu.Item icon={<UserOutlined />} onClick={handleProfileNavigation}>
         Profile
       </Menu.Item>
-      <Menu.Item
-        icon={<CarryOutOutlined />}
-        onClick={() => navigate('/order-history')} // Navigate to /profile
-      >
+      <Menu.Item icon={<CarryOutOutlined />} onClick={handleOrdersNavigation}>
         Orders
       </Menu.Item>
-      <Menu.Item icon={<LogoutOutlined />} onClick={onLogout}>
+      <Menu.Item icon={<LogoutOutlined />} onClick={handleLogout}>
         Logout
       </Menu.Item>
     </Menu>
   );
 };
+
 
 const Navbar = () => {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -84,7 +100,7 @@ const Navbar = () => {
    
     <div className="flex flex-col w-full sticky-navbar">
     <HelpNavbar />
-    <div className="bg-white py-2 px-4 shadow-sm">
+    <div className="bg-white py-1 px-2 shadow-md">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="text-2xl font-bold text-blue-600">
@@ -136,6 +152,7 @@ const Navbar = () => {
                 trigger={['click']}
                 visible={isAccountDropdownVisible}
                 onVisibleChange={(visible) => setAccountDropdownVisible(visible)}
+                onClose={() => setAccountDropdownVisible(false)} // Close dropdown
               >
                 <div className="flex items-center cursor-pointer">
                   <Avatar className="bg-green-800">{initials}</Avatar>

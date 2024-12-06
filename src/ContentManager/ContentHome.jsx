@@ -1,12 +1,8 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Button, Typography, Modal } from 'antd';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState} from 'react';
+import { Layout, Menu, Button, Typography, Modal } from 'antd';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-  HomeOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UserOutlined,
-  FileTextOutlined,
+  ShoppingCartOutlined, AppstoreAddOutlined, ClusterOutlined, HomeOutlined, MenuFoldOutlined , MenuUnfoldOutlined, DashboardOutlined 
 } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
@@ -16,6 +12,7 @@ const ContentManagerPage = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const navigate = useNavigate();
+  const location = useLocation(); // To track the current route
 
   // Get user data from localStorage
   const user = JSON.parse(localStorage.getItem('user'));
@@ -72,21 +69,57 @@ const ContentManagerPage = ({ children }) => {
         <Menu
           mode="inline"
           onClick={handleMenuClick}
-          style={{ marginTop: 10 , backgroundColor: '#4FB477' , color:"whitesmoke"}}
+          selectedKeys={[location.pathname]} // Set the selected key dynamically based on the current route
+          style={{ marginTop: 10, backgroundColor: '#4FB477', color: "whitesmoke" }}
         >
-          <Menu.Item key="dashboard" icon={<HomeOutlined />}>
+          <Menu.Item
+            key="/content/dashboard"
+            icon={<DashboardOutlined />}
+            style={{
+              backgroundColor: location.pathname === '/content/dashboard' ? '#ff4d4f' : '',
+              color: location.pathname === '/content/dashboard' ? 'white' : ''
+            }}
+          >
             <Link to="/content/dashboard">Dashboard</Link>
           </Menu.Item>
-          <Menu.Item key="products" icon={<UserOutlined />}>
+          <Menu.Item
+            key="/content/products"
+            icon={<ShoppingCartOutlined />}
+            style={{
+              backgroundColor: location.pathname === '/content/products' ? '#ff4d4f' : '',
+              color: location.pathname === '/content/products' ? 'white' : ''
+            }}
+          >
             <Link to="/content/products">Products</Link>
           </Menu.Item>
-          <Menu.Item key="brands" icon={<FileTextOutlined />}>
+          <Menu.Item
+            key="/content/brands"
+            icon={<AppstoreAddOutlined />}
+            style={{
+              backgroundColor: location.pathname === '/content/brands' ? '#ff4d4f' : '',
+              color: location.pathname === '/content/brands' ? 'white' : ''
+            }}
+          >
             <Link to="/content/brands">Brands</Link>
           </Menu.Item>
-          <Menu.Item key="category" icon={<FileTextOutlined />}>
+          <Menu.Item
+            key="/content/category"
+            icon={<ClusterOutlined />}
+            style={{
+              backgroundColor: location.pathname === '/content/category' ? '#ff4d4f' : '',
+              color: location.pathname === '/content/category' ? 'white' : ''
+            }}
+          >
             <Link to="/content/category">Category</Link>
           </Menu.Item>
-          <Menu.Item key="showroom" icon={<FileTextOutlined />}>
+          <Menu.Item
+            key="/content/showroom"
+            icon={<HomeOutlined/>}
+            style={{
+              backgroundColor: location.pathname === '/content/showroom' ? '#ff4d4f' : '',
+              color: location.pathname === '/content/showroom' ? 'white' : ''
+            }}
+          >
             <Link to="/content/showroom">Showroom</Link>
           </Menu.Item>
         </Menu>
@@ -112,7 +145,7 @@ const ContentManagerPage = ({ children }) => {
               style={{ marginRight: 16 }}
             />
             <Title level={4} style={{ margin: 0 }}>
-              Content Manager
+              Content Management
             </Title>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -121,13 +154,11 @@ const ContentManagerPage = ({ children }) => {
               style={{ fontSize: '24px', cursor: 'pointer' }}
               onClick={() => navigate('/')}
             />
-            <Avatar icon={<UserOutlined />} />
+         
             <Button type="link" style={{ padding: 0 }}>
               Hi, {fullName}
             </Button>
-            <Button type="link" onClick={() => navigate('/profile')}>
-              Profile
-            </Button>
+            
             <Button type="primary" danger onClick={handleLogout}>
               Logout
             </Button>

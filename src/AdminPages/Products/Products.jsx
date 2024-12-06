@@ -4,7 +4,7 @@ import { fetchProducts } from "../../Redux/slice/productSlice";
 import { fetchBrands } from "../../Redux/slice/brandSlice";
 import { fetchShowrooms } from "../../Redux/slice/showRoomSlice";
 import { Button, Table, message, Input, Modal, Tooltip } from "antd";
-import { EyeOutlined, EditOutlined  } from "@ant-design/icons";
+import { EyeOutlined, EditOutlined , PlusOutlined  } from "@ant-design/icons";
 import AddProduct from "./AddProduct";
 import UpdateProduct from "./EditProduct";
 
@@ -183,15 +183,18 @@ const Products = () => {
 
   return (
     <div>
+      <h1 className="text-xl font-bold mb-4 text-red-500">Products Management</h1>
       <Input.Search
         placeholder="Search by product, showroom, or brand name"
         onChange={handleSearch}
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 16 ,width: "400px", marginRight: "20px" }}
       />
       <Button
+        icon={<PlusOutlined />}
         type="primary"
         onClick={handleAddProduct}
         style={{ marginBottom: 16 }}
+        className="bg-green-600 text-white transition rounded-full"
       >
         Add Product
       </Button>

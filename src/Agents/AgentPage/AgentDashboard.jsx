@@ -1,105 +1,212 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrdersByThirdParty } from '../../Redux/slice/orderSlice'; // Adjust the action import as needed
-import { Card, Col, Row, Statistic, Spin, Modal } from 'antd';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Table } from 'antd';
-import moment from 'moment';
-import { EyeOutlined } from '@ant-design/icons';
+import React, { useEffect, useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOrdersByThirdParty } from "../../Redux/slice/orderSlice";
+import {
+  Card,
+  Col,
+  Row,
+  Statistic,
+  Spin,
+  DatePicker,
+  Table,
+  Typography,
+  Tag
+} from "antd";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { EyeOutlined, RiseOutlined, FallOutlined } from "@ant-design/icons";
+import moment from "moment";
+import OrderModal from "../../Pages/OrderHistory/OrderModal";
+
+const { RangePicker } = DatePicker;
 
 const AgentDashboard = () => {
   const dispatch = useDispatch();
-  const { orders = [] } = useSelector((state) => state.orders || {});
-  
-  const [salesData, setSalesData] = useState([]);
-  const [recentOrders, setRecentOrders] = useState([]);
+  const ordersData = useSelector((state) => state.orders);
+
+
+  const orders = useMemo(() => ordersData?.orders || [], [ordersData]);
+  const loading = useMemo(() => ordersData?.loading || {}, [ordersData]);
+  const error = useMemo(() => ordersData?.error || {}, [ordersData]);
+
+  const today = moment();
+  const defaultFromDate = today.subtract(7, "days");
+  const defaultToDate = today.add(1, "days");
+  const tomorrow = moment().add(1, "days"); // A day after today
+
+  const [dateRange, setDateRange] = useState([defaultFromDate, defaultToDate]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  
+  const [chartData, setChartData] = useState([]);
+  const [dailyOrders, setDailyOrders] = useState(0);
+  const [percentageChange, setPercentageChange] = useState(0);
+
+  const customerObject = JSON.parse(localStorage.getItem("customer"));
+  const ThirdPartyAccountNumber = customerObject?.customerAccountNumber;
+
   useEffect(() => {
-    dispatch(fetchOrdersByThirdParty()); // Adjust the action as per your need
-  }, [dispatch]);
+    if (ThirdPartyAccountNumber) {
+      const [from, to] = dateRange.map((date) => date.format("MM/DD/YYYY"));
+      dispatch(fetchOrdersByThirdParty({ from, to, ThirdPartyAccountNumber }));
+    }
+  }, [dateRange, ThirdPartyAccountNumber, dispatch]);
 
   useEffect(() => {
     if (orders.length > 0) {
-      // Calculate sales data for weekly chart
-      const weeklySales = calculateWeeklySales(orders);
-      setSalesData(weeklySales);
-
-      // Get the 5 most recent orders
-      const recentOrdersData = orders.slice(0, 5);
-      setRecentOrders(recentOrdersData);
+      const dailyData = calculateDailyOrders(orders);
+      setChartData(dailyData);
+      updateDailyOrders(dailyData);
     }
   }, [orders]);
 
-  const calculateWeeklySales = (orders) => {
-    const sales = [];
+  const calculateDailyOrders = (orders) => {
+    const dailyCounts = [];
     for (let i = 0; i < 7; i++) {
-      const startOfWeek = moment().subtract(i, 'days').startOf('day');
-      const endOfWeek = moment().subtract(i, 'days').endOf('day');
-      const dailySales = orders
-        .filter(order => moment(order.orderDate).isBetween(startOfWeek, endOfWeek, null, '[]'))
-        .reduce((acc, order) => acc + (order.totalAmount || 0), 0);
+      const startOfDay = moment().subtract(i, "days").startOf("day");
+      const endOfDay = moment().subtract(i, "days").endOf("day");
+      const dailyOrdersCount = orders.filter((order) =>
+        moment(order.orderDate).isBetween(startOfDay, endOfDay, null, "[]")
+      ).length;
 
-      sales.push({
-        name: startOfWeek.format('YYYY-MM-DD'),
-        total: dailySales,
+      dailyCounts.push({
+        name: startOfDay.format("YYYY-MM-DD"),
+        totalOrders: dailyOrdersCount,
       });
     }
-    return sales.reverse();
+    return dailyCounts.reverse();
   };
 
-  const handleViewOrder = (orderId) => {
-    const selected = orders.find(order => order.orderId === orderId);
-    setSelectedOrder(selected);
+  const updateDailyOrders = (dailyData) => {
+    const todayOrders = dailyData[dailyData.length - 1]?.totalOrders || 0;
+    const yesterdayOrders = dailyData[dailyData.length - 2]?.totalOrders || 0;
+    const change =
+      yesterdayOrders > 0
+        ? ((todayOrders - yesterdayOrders) / yesterdayOrders) * 100
+        : 0;
+
+    setDailyOrders(todayOrders);
+    setPercentageChange(change.toFixed(2));
+  };
+
+ 
+  const handleDateChange = (dates) => {
+    if (dates) {
+      // Ensure the range includes one day after the selected end date
+      setDateRange([dates[0], dates[1].add(1, "day")]);
+    }
+  };
+
+
+
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order);
     setIsModalVisible(true);
   };
 
   const handleModalClose = () => {
     setIsModalVisible(false);
+    setSelectedOrder(null);
   };
 
   const columns = [
-    { title: 'Order ID', dataIndex: 'orderId', key: 'orderId' },
-    { title: 'Customer Name', dataIndex: 'customerName', key: 'customerName' },
-    { title: 'Order Status', dataIndex: 'orderStatus', key: 'orderStatus' },
     {
-      title: 'Action',
-      key: 'action',
+      title: "Order ID",
+      dataIndex: "orderId",
+      key: "orderId",
+      render: (orderId) => orderId.slice(-6),
+    },
+    { title: "Order Date", dataIndex: "orderDate", key: "orderDate" },
+    {
+      title: "Order Cycle",
+      dataIndex: "orderCycle",
+      key: "orderCycle",
+      render: (cycle) => getOrderCycleTag(cycle),
+    },
+    {
+      title: "Action",
+      key: "action",
       render: (_, record) => (
         <EyeOutlined
           className="text-green-700 text-xl cursor-pointer"
-          onClick={() => handleViewOrder(record.orderId)}
+          onClick={() => handleViewOrder(record)}
         />
       ),
     },
-  ];
+  ];const getRecentOrders = (orders) => {
+    return [...orders]
+      .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)) // Sort by date (newest first)
+      .slice(0, 5); // Get the first 5 orders
+  };
 
-  const recentOrdersData = recentOrders.map((order, index) => ({
+  // Transform orders and get only the top 5 recent orders
+  const transformedOrders = getRecentOrders(orders).map((order, index) => ({
     key: index,
-    orderId: order.orderId,
-    customerName: order.customerName,
-    orderStatus: order.orderStatus,
+    orderId: order.orderCode || "N/A",
+    orderDate: moment(order.orderDate).format("MM/DD/YYYY") || "N/A",
+    orderCycle: order.orderCycle || "N/A",
   }));
+  
+ // Calculate total sales from localStorage
+ const getTotalSalesFromLocalStorage = () => {
+  const storedOrders = JSON.parse(localStorage.getItem("userOrders")) || [];
+  return storedOrders.reduce((acc, order) => acc + (order.totalAmount || 0), 0);
+};
+   // Update local storage total sales when new orders are added
+   useEffect(() => {
+    const totalSales = getTotalSalesFromLocalStorage();
+    localStorage.setItem('totalSales', totalSales.toString());
+  }, [orders]);
+  const getOrderCycleTag = (cycle) => {
+    const cycleMap = {
+      "Order Placement": "orange",
+      Processing: "blue",
+      Confirmed: "green",
+      Pending: "orange",
+      Unreachable: "red",
+      "Wrong Number": "magenta",
+      Cancelled: "gray",
+      "Not Answered": "default",
+      Delivery: "purple",
+      Completed: "success",
+    };
+  
+    return <Tag color={cycleMap[cycle] || "default"}>{cycle}</Tag>;
+  };
+  
+
 
   return (
     <div className="dashboard-container">
-      <h2 className="text-2xl font-semibold mb-6 text-red-500">Dashboard</h2>
+      <Typography.Title level={4} style={{color: "red"}}>
+        Customer Management System
+      </Typography.Title>
+
       <Row gutter={16}>
+      <Col xs={24} sm={12} md={8}>
+  <Card>
+    <Statistic
+      title="Daily Orders"
+      value={dailyOrders}
+      valueStyle={{ color: percentageChange >= 0 ? "#3f8600" : "#cf1322" }}
+      prefix={percentageChange >= 0 ? <RiseOutlined /> : <FallOutlined />}
+      suffix={
+        <span style={{ fontSize: "14px", color: percentageChange >= 0 ? "#3f8600" : "#cf1322" , marginLeft: "20px" }}>
+          {`${Math.abs(percentageChange)}%`}
+        </span>
+      }
+    />
+  </Card>
+</Col>
+
         <Col xs={24} sm={12} md={8}>
           <Card>
-            <Statistic
-              title="Total Orders"
-              value={orders.length}
-              precision={0}
-            />
+            <Statistic title="Total Orders" value={orders.length} />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Card>
             <Statistic
               title="Total Sales"
-              value={orders.reduce((acc, order) => acc + (order.totalAmount || 0), 0)}
+              value={parseFloat(localStorage.getItem('totalSales') || 0).toFixed(2)} // Fetch total sales from localStorage
               precision={2}
               prefix="GHS"
             />
@@ -107,66 +214,64 @@ const AgentDashboard = () => {
         </Col>
       </Row>
 
-      <Row gutter={16}>
+      <div className="mb-4 mt-6">
+        <Typography.Text>Select Date Range:</Typography.Text>
+        <RangePicker
+          value={dateRange}
+          onChange={handleDateChange}
+          format="MM/DD/YYYY"
+          className="mt-2"
+          // Ensure the display matches the extended range
+          disabledDate={(current) => current && current > tomorrow}
+        />
+      </div>
+
+
+      <Row gutter={16} className="mt-4">
         <Col xs={24}>
           <Card>
-            <h3>Weekly Sales Overview</h3>
+            <h3>Daily Orders Overview</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={salesData}>
+              <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="total" stroke="#8884d8" />
+                <Line type="monotone" dataKey="totalOrders" stroke="#82ca9d" />
               </LineChart>
             </ResponsiveContainer>
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={16}>
-        <Col xs={24}>
-          <Card>
-            <h3>Top Selling Products (Recent Orders)</h3>
-            <Table
-              dataSource={recentOrdersData}
-              columns={columns}
-              pagination={false}
-              rowKey="key"
-              size="small"
-            />
-          </Card>
-        </Col>
-      </Row>
+      <Row gutter={16} className="mt-4">
+  <Col xs={24}>
+    <Card>
+      <h3>Recent Orders</h3>
+      {loading.orders ? (
+        <Spin size="large" />
+      ) : error.orders ? (
+        <p className="text-red-500">Error: {error.orders}</p>
+      ) : (
+        <Table
+          dataSource={transformedOrders}
+          columns={columns}
+          rowKey="key"
+          pagination={false} // Disable pagination since we're showing the top 5 orders
+        />
+      )}
+    </Card>
+  </Col>
+</Row>
 
-      <Modal
-        title={`Order: ${selectedOrder?.orderId || 'Details'}`}
-        visible={isModalVisible}
-        onCancel={handleModalClose}
-        footer={null}
-        width={800}
-      >
-        {selectedOrder ? (
-          <div>
-            <p><strong>Customer Name:</strong> {selectedOrder.customerName}</p>
-            <p><strong>Status:</strong> {selectedOrder.orderStatus}</p>
-            <p><strong>Total Amount:</strong> {selectedOrder.totalAmount}</p>
-            <h4>Order Items</h4>
-            <ul>
-              {selectedOrder.items?.map((item, index) => (
-                <li key={index}>
-                  {item.productName} - {item.quantity} x {item.price}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <Spin size="large" />
-        )}
-      </Modal>
+
+      <OrderModal
+        order={selectedOrder}
+        isModalVisible={isModalVisible}
+        onClose={handleModalClose}
+      />
     </div>
   );
 };
 
-export default AgentDashboard
+export default AgentDashboard;

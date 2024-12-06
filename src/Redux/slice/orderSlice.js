@@ -403,7 +403,7 @@ const orderSlice = createSlice({
       })
       .addCase(fetchOrdersByThirdParty.rejected, (state, action) => {
         // Ensure state.error and state.loading are defined
-        state.error.orders = action.error.message || "An error occurred";
+        
         state.loading.orders = false;
       });
     }

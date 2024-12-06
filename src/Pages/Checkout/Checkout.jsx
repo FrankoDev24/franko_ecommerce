@@ -67,7 +67,8 @@ const CheckoutPage = () => {
   
     setLoading(true);
     const orderId = uuidv4(); // Generate a unique order ID
-  
+    const orderDate = new Date().toISOString(); // Capture the current order date
+    
     try {
       // Prepare checkout details (Payment, Customer Info, Cart Info)
       const checkoutDetails = {
@@ -81,7 +82,21 @@ const CheckoutPage = () => {
         RecipientName: customerName,
         RecipientContactNumber: customerNumber,
         orderNote: orderNote || "N/A",
+        orderDate: orderDate, // Add order date
       };
+  
+      // Store the order details in localStorage
+      const storedOrders = JSON.parse(localStorage.getItem('userOrders')) || [];
+      const existingOrderIndex = storedOrders.findIndex(
+        (order) => order.orderCode === orderId
+      );
+      
+      if (existingOrderIndex !== -1) {
+        storedOrders[existingOrderIndex] = checkoutDetails;
+      } else {
+        storedOrders.push(checkoutDetails);
+      }
+      localStorage.setItem('userOrders', JSON.stringify(storedOrders));
   
       // Handle different payment methods
       if (paymentMethod === "Cash on Delivery") {

@@ -16,9 +16,10 @@ import {
   Form,
   Input,
   Pagination,
+  Table,
 } from "antd";
 import { v4 as uuidv4 } from "uuid";
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
@@ -38,7 +39,7 @@ const ShowRoom = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentShowroom, setCurrentShowroom] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const showroomsPerPage = 8; // Change this value for items per page
+  const showroomsPerPage = 8; // Showrooms per page
 
   useEffect(() => {
     dispatch(fetchBrands());
@@ -115,9 +116,36 @@ const ShowRoom = () => {
     indexOfLastShowroom
   );
 
+  // Table Columns
+  const columns = [
+    {
+      title: "Showroom Name",
+      dataIndex: "showRoomName",
+      key: "showRoomName",
+    },
+    {
+      title: "Brand",
+      dataIndex: "brandName",
+      key: "brandName",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, showroom) => (
+        <Button
+          icon={<EditOutlined />}
+          onClick={() => handleEditShowroom(showroom)}
+          className="bg-green-600 text-white transition rounded-full"
+        >
+          Edit
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <div className="mx-auto p-4">
-      <Title level={2} className="text-center mb-4">
+    <div className="mx-auto p-6">
+      <Title level={3} className="text-center mb-6">
         Showrooms
       </Title>
 
@@ -128,16 +156,16 @@ const ShowRoom = () => {
       ) : (
         <>
           {errorShowrooms && (
-            <p className="text-red-500 text-center">{errorShowrooms}</p>
+            <p className="text-red-500 text-center mb-4">{errorShowrooms}</p>
           )}
 
           <Button
-            type="primary"
+          icon={<PlusOutlined />}
             onClick={() => {
               setModalVisible(true);
               setIsEditing(false);
             }}
-            className="mb-4 bg-green-800 hover:bg-green-700 transition"
+            className="mb-6 bg-green-600 text-white transition rounded-full"
           >
             Add New Showroom
           </Button>
@@ -193,34 +221,20 @@ const ShowRoom = () => {
             </Form>
           </Modal>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {currentShowrooms.map((showroom) => (
-              <div
-                key={showroom.showRoomID}
-                className="border p-4 rounded shadow transition-transform hover:shadow-lg hover:scale-105 bg-white"
-              >
-                <h3 className="text-lg font-semibold text-red-600">
-                  {showroom.showRoomName}
-                </h3>
-                <p className="text-gray-500">Brand: {showroom.brandName}</p>
-                <Button
-                    
-                    icon={<EditOutlined />} 
-                  onClick={() => handleEditShowroom(showroom)}
-                  className="mt-2 bg-green-800 text-white hover:bg-green-800 transition"
-                >
-                  Edit
-                </Button>
-              </div>
-            ))}
-          </div>
+          <Table
+            columns={columns}
+            dataSource={currentShowrooms}
+            rowKey="showRoomID"
+            pagination={false}
+            className="mb-6"
+          />
 
           <Pagination
             current={currentPage}
             onChange={(page) => setCurrentPage(page)}
             pageSize={showroomsPerPage}
             total={showroomsWithBrandNames.length}
-            className="mt-4 text-center"
+            className="text-center"
             showSizeChanger={false}
             showTotal={(total) => `Total ${total} showrooms`}
           />

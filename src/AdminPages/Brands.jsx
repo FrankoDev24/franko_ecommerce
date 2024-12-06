@@ -16,6 +16,7 @@ const BrandPage = () => {
   const [currentBrand, setCurrentBrand] = useState(null);
   const [previewLogo, setPreviewLogo] = useState(null); // To preview logo
   const [submitLoading, setSubmitLoading] = useState(false); // Loading state for the button
+  const [searchText, setSearchText] = useState(""); // For storing search query
 
   useEffect(() => {
     dispatch(fetchBrands());
@@ -42,48 +43,37 @@ const BrandPage = () => {
 
     try {
       const formData = new FormData();
-  
-      // Check if it's an existing brand or a new one
+
       if (currentBrand) {
         formData.append("BrandId", currentBrand.brandId);  // Use current brand ID for updating
       } else {
-        // Create a new brand and generate a new ID
         formData.append("BrandId", uuidv4());
       }
-  
+
       formData.append("BrandName", values.BrandName);
       formData.append("CategoryId", values.CategoryId);
-  
-      // Debugging logs for LogoName
-      console.log("Logo file in values:", values.LogoName);
-  
+
       if (values.LogoName && values.LogoName.file) {
         formData.append("LogoName", values.LogoName.file);
-        console.log("Logo file appended:", values.LogoName.file);
       } else {
-        // If no logo file, show an error
         message.error("Logo is required.");
-        console.log("Logo is missing");
-        setSubmitLoading(false); // Set loading to false if logo is missing
-        return; // Prevent submission if LogoName is missing
+        setSubmitLoading(false);
+        return;
       }
-  
+
       if (currentBrand) {
-        // Dispatch the updateBrand action with the formData
         await dispatch(updateBrand({ Brandid: currentBrand.brandId, formData }));
         message.success("Brand updated successfully!");
       } else {
-        // Dispatch the addBrand action with the formData
         await dispatch(addBrand(formData));
         message.success("Brand added successfully!");
       }
-  
-      setIsModalVisible(false); // Close the modal after submission
+
+      setIsModalVisible(false);
     } catch (error) {
       message.error("Failed to save brand.");
-      console.error("Error during brand submission:", error);
     } finally {
-      setSubmitLoading(false); // Set loading to false after submission is complete
+      setSubmitLoading(false);
     }
   };
 
@@ -96,6 +86,18 @@ const BrandPage = () => {
       setPreviewLogo(null);
     }
   };
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value.toLowerCase());
+  };
+
+  const filteredBrands = brands.filter((brand) => {
+    const brandNameMatch = brand.brandName.toLowerCase().includes(searchText);
+    const categoryMatch = categories.some(
+      (category) => category.categoryName.toLowerCase().includes(searchText) && category.categoryId === brand.categoryId
+    );
+    return brandNameMatch || categoryMatch;
+  });
 
   const columns = [
     { title: "Brand Name", dataIndex: "brandName", key: "brandName" },
@@ -118,7 +120,7 @@ const BrandPage = () => {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <Button type="link" icon={<EditOutlined />} onClick={() => showModal(record)}>
+        <Button icon={<EditOutlined />} onClick={() => showModal(record)}  className="bg-green-600 text-white  transition rounded-full">
           Edit
         </Button>
       ),
@@ -127,24 +129,36 @@ const BrandPage = () => {
 
   return (
     <div className="p-4">
-      <Row justify="space-between" align="middle">
+      <Row justify="space-between" align="middle" className="mb-4">
         <Col>
-          <h1 className="text-lg font-semibold">Brand Management</h1>
+          <h1 className="text-lg font-semibold text-red-500">Brands Management</h1>
         </Col>
         <Col>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => showModal()}>
+          <Button  icon={<PlusOutlined />} onClick={() => showModal()} className="bg-green-600 text-white  transition rounded-full">
             Add Brand
           </Button>
         </Col>
       </Row>
 
+      <Row justify="space-between" className="mb-4">
+        <Col span={24} md={10} className="mb-2 md:mb-0">
+          <Input
+            placeholder="Search by brand or category"
+            value={searchText}
+            onChange={handleSearchChange}
+            className="w-full rounded-full"
+            allowClear
+          />
+        </Col>
+      </Row>
+
       <Table
         columns={columns}
-        dataSource={brands}
+        dataSource={filteredBrands}
         rowKey="brandId"
         loading={loading || categoryLoading}
         style={{ marginTop: 20 }}
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: 7 }}
       />
 
       <Modal
