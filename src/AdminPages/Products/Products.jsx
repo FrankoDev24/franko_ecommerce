@@ -4,9 +4,11 @@ import { fetchProducts } from "../../Redux/slice/productSlice";
 import { fetchBrands } from "../../Redux/slice/brandSlice";
 import { fetchShowrooms } from "../../Redux/slice/showRoomSlice";
 import { Button, Table, message, Input, Modal, Tooltip } from "antd";
-import { EyeOutlined, EditOutlined , PlusOutlined  } from "@ant-design/icons";
+import { EyeOutlined, EditOutlined , PlusOutlined , UploadOutlined } from "@ant-design/icons";
 import AddProduct from "./AddProduct";
 import UpdateProduct from "./EditProduct";
+import UpdateProductImage from "./UpdateProductImage";
+
 
 const Products = () => {
   const dispatch = useDispatch();
@@ -22,6 +24,9 @@ const Products = () => {
   const [searchText, setSearchText] = useState("");
   const [fullImageUrl, setFullImageUrl] = useState("");
   const [descriptionText, setDescriptionText] = useState("");
+  const [isUpdateImageModalVisible, setIsUpdateImageModalVisible] = useState(false);
+const [selectedProductIdForImage, setSelectedProductIdForImage] = useState(null);
+
 
   const backendBaseURL = "https://smfteapi.salesmate.app";
 
@@ -47,8 +52,13 @@ const Products = () => {
 
   const handleUpdateProduct = (product) => {
     setSelectedProduct(product);
-    setIsUpdateModalVisible(true);
+    setIsUpdateModalVisible(true);  // Show the Update modal
   };
+  const handleUpdateProductImage = (productID) => {
+    setSelectedProductIdForImage(productID);
+    setIsUpdateImageModalVisible(true);
+  };
+  
 
   const handleViewProductDetails = (product) => {
     setSelectedProduct(product);
@@ -168,6 +178,13 @@ const Products = () => {
               onClick={() => handleUpdateProduct(record)} 
             />
           </Tooltip>
+         
+          <Tooltip title="Update Image">
+            <Button
+              icon={<UploadOutlined />}
+              onClick={() => handleUpdateProductImage(record.productID)}
+            />
+          </Tooltip>
           <Tooltip title="View Details">
             <Button
               icon={<EyeOutlined />} 
@@ -176,10 +193,9 @@ const Products = () => {
           </Tooltip>
         </div>
       ),
-    },
+    }
     
-
-  ];
+    ];
 
   return (
     <div>
@@ -217,17 +233,26 @@ const Products = () => {
         showrooms={showrooms}
       />
       
-      {/* Update Product Modal */}
       <UpdateProduct
-        visible={isUpdateModalVisible}
-        onClose={() => {
-          setIsUpdateModalVisible(false);
-          fetchProductData();
-        }}
-        product={selectedProduct}
-        brands={brands}
-        showrooms={showrooms}
-      />
+ visible={isUpdateModalVisible}
+ onClose={() => {
+   setIsUpdateModalVisible(false);
+   fetchProductData();
+ }}
+  product={selectedProduct || {}}
+  brands={brands}
+  showrooms={showrooms}
+/>
+<UpdateProductImage
+  visible={isUpdateImageModalVisible}
+  onClose={() => {
+    setIsUpdateImageModalVisible(false);
+    fetchProductData(); // Refresh product data after image update
+  }}
+  productID={selectedProductIdForImage}
+/>
+
+
       
       {/* Full Image Modal */}
       <Modal

@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { updateProduct, updateProductImage } from '../../Redux/slice/productSlice';
-import { Modal, Form, Input, Select, Button, message, Row, Col, Upload } from 'antd';
-import PropTypes from 'prop-types';
-import { UploadOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { updateProduct } from "../../Redux/slice/productSlice";
+import { Modal, Form, Input, Select, Button, message, Row, Col } from "antd";
+import PropTypes from "prop-types";
 
 const { Option } = Select;
 
@@ -11,13 +10,8 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
-  // State to manage the image file and the new image URL
-  const [imageFile, setImageFile] = useState(null);
-  const [existingImageUrl, setExistingImageUrl] = useState('');
-  const [newImageUrl, setNewImageUrl] = useState(''); // New state to handle the uploaded image URL
-
   useEffect(() => {
-    if (product) {
+    if (product && Object.keys(product).length > 0) {
       form.setFieldsValue({
         Productid: product.productID,
         ProductName: product.productName,
@@ -27,14 +21,6 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
         BrandId: product.brandId,
         ShowRoomId: product.showRoomId,
       });
-
-      // Construct the URL for the existing product image
-      const imagePath = product.productImage; // Assuming this is the field for image path
-      const imageUrl = `https://smfteapi.salesmate.app/Media/Products_Images/${imagePath.split("\\").pop()}`;
-      setExistingImageUrl(imageUrl); // Set the existing image URL
-
-      setImageFile(null); // Reset image file when product changes
-      setNewImageUrl(''); // Reset new image URL when product changes
     }
   }, [product, form]);
 
@@ -49,63 +35,20 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
       showRoomId: values.ShowRoomId,
     };
 
-    // Ensure the payload has the necessary productID
     if (!payload.Productid) {
-      message.error('Product ID is missing!');
+      message.error("Product ID is missing!");
       return;
     }
 
     try {
-      // Dispatch update product action
       await dispatch(updateProduct(payload)).unwrap();
-      message.success('Product updated successfully!');
-
-      // Handle image update if an image file was selected
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append('Productid', payload.Productid);
-        formData.append('ImageName', imageFile);
-
-        const response = await dispatch(updateProductImage(formData)).unwrap();
-        // Assuming the API returns the image URL upon successful upload
-        const uploadedImageUrl = response.imageUrl; // Adjust based on your API response
-        setNewImageUrl(uploadedImageUrl); // Set the new image URL
-        message.success('Product image updated successfully!');
-      }
-
-      // Clear form and image state after update
+      message.success("Product updated successfully!");
       onClose();
       form.resetFields();
-      setImageFile(null);
-      setExistingImageUrl(''); // Clear the existing image display
-      setNewImageUrl(''); // Clear the new image display
     } catch (err) {
-      console.error('Error updating product:', err);
-      message.error('Failed to update product.');
+      console.error("Error updating product:", err);
+      message.error("Failed to update product.");
     }
-  };
-
-  const handleImageChange = (info) => {
-    const MAX_SIZE = 5 * 1024 * 1024; // 5 MB limit
-  
-    if (info.file.status === 'done') {
-      if (info.file.size > MAX_SIZE) {
-        message.error('File size exceeds the 5MB limit.');
-        return;
-      }
-  
-      setImageFile(info.file.originFileObj); // Store the file object
-      message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  };
-  
-
-  const handleRemoveImage = () => {
-    setImageFile(null); // Clear the uploaded image file
-    setExistingImageUrl(''); // Clear the existing image URL
-    setNewImageUrl(''); // Clear the new image URL
   };
 
   return (
@@ -116,9 +59,13 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
       footer={null}
       width={700}
     >
-      <Form form={form} layout="vertical" onFinish={onFinish}>
-        {/* Hidden Product ID */}
-        <Form.Item name="Productid" style={{ display: 'none' }}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={{ Productid: product.productID }}
+      >
+        <Form.Item name="Productid" style={{ display: "none" }}>
           <Input type="hidden" />
         </Form.Item>
 
@@ -127,7 +74,7 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
             <Form.Item
               label="Product Name"
               name="ProductName"
-              rules={[{ required: true, message: 'Please input the product name!' }]}
+              rules={[{ required: true, message: "Please input the product name!" }]}
             >
               <Input placeholder="Enter product name" />
             </Form.Item>
@@ -137,7 +84,7 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
             <Form.Item
               label="Price"
               name="price"
-              rules={[{ required: true, message: 'Please input the price!' }]}
+              rules={[{ required: true, message: "Please input the price!" }]}
             >
               <Input type="number" placeholder="Enter product price" />
             </Form.Item>
@@ -146,10 +93,7 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
 
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item
-              label="Old Price"
-              name="oldPrice"
-            >
+            <Form.Item label="Old Price" name="oldPrice">
               <Input type="number" placeholder="Enter old price (optional)" />
             </Form.Item>
           </Col>
@@ -158,7 +102,7 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
             <Form.Item
               label="Brand"
               name="BrandId"
-              rules={[{ required: true, message: 'Please select a brand!' }]}
+              rules={[{ required: true, message: "Please select a brand!" }]}
             >
               <Select placeholder="Select a brand">
                 {brands.map((brand) => (
@@ -176,7 +120,7 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
             <Form.Item
               label="Description"
               name="Description"
-              rules={[{ required: true, message: 'Please input the description!' }]}
+              rules={[{ required: true, message: "Please input the description!" }]}
             >
               <Input.TextArea placeholder="Enter product description" rows={3} />
             </Form.Item>
@@ -184,71 +128,19 @@ const UpdateProduct = ({ visible, onClose, product, brands, showrooms }) => {
         </Row>
 
         <Row gutter={16}>
-          <Col span={12}>
+          <Col span={24}>
             <Form.Item
               label="Showroom"
               name="ShowRoomId"
-              rules={[{ required: true, message: 'Please select a showroom!' }]}
+              rules={[{ required: true, message: "Please select a showroom!" }]}
             >
               <Select placeholder="Select a showroom">
-                {showrooms.map(showroom => (
+                {showrooms.map((showroom) => (
                   <Option key={showroom.showRoomID} value={showroom.showRoomID}>
                     {showroom.showRoomName}
                   </Option>
                 ))}
               </Select>
-            </Form.Item>
-          </Col>
-
-          <Col span={12}>
-            <Form.Item label="Product Image">
-              <Upload
-                accept="image/*"
-                showUploadList={false}
-                onChange={handleImageChange}
-              >
-                <Button icon={<UploadOutlined />}>Click to upload image</Button>
-              </Upload>
-              {/* Display the existing image */}
-              {newImageUrl ? (
-                <div style={{ position: 'relative', marginTop: 10 }}>
-                  <img
-                    src={newImageUrl}
-                    alt="Updated Product"
-                    style={{ width: '100%', height: 'auto', maxHeight: 150, objectFit: 'cover' }}
-                  />
-                  <CloseCircleOutlined
-                    onClick={handleRemoveImage}
-                    style={{
-                      position: 'absolute',
-                      top: 5,
-                      right: 5,
-                      color: 'red',
-                      cursor: 'pointer',
-                      zIndex: 1,
-                    }}
-                  />
-                </div>
-              ) : existingImageUrl && (
-                <div style={{ position: 'relative', marginTop: 10 }}>
-                  <img
-                    src={existingImageUrl}
-                    alt="Existing Product"
-                    style={{ width: '100%', height: 'auto', maxHeight: 150, objectFit: 'cover' }}
-                  />
-                  <CloseCircleOutlined
-                    onClick={handleRemoveImage}
-                    style={{
-                      position: 'absolute',
-                      top: 5,
-                      right: 5,
-                      color: 'red',
-                      cursor: 'pointer',
-                      zIndex: 1,
-                    }}
-                  />
-                </div>
-              )}
             </Form.Item>
           </Col>
         </Row>

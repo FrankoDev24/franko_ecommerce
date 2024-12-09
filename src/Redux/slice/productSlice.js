@@ -28,30 +28,24 @@ export const updateProduct = createAsyncThunk('products/updateProduct', async (p
 });
 
 // Async thunk for updating a product's image
+
+// Async thunk for updating a product's image
 export const updateProductImage = createAsyncThunk(
   'products/updateProductImage',
   async ({ productID, imageFile }) => {
     const formData = new FormData();
-    formData.append('ProductId', productID.toString());
-    const binaryData = await convertFileToBinary(imageFile);
-    formData.append('ImageName', binaryData);
-
+    formData.append('ProductId', productID);  // Ensure this key matches backend
+    formData.append('ImageName', imageFile); // Ensure this key matches backend
+    
     const response = await axios.post(`${API_BASE_URL}/Product/Product-Image-Edit`, formData, {
-      headers: { 'accept': 'text/plain' },
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
+    
     return response.data;
   }
 );
-
-// Helper function to convert file to binary data
-const convertFileToBinary = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsArrayBuffer(file);
-  });
-};
 
 // Async thunk for fetching all products
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {

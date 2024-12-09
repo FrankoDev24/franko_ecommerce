@@ -141,8 +141,8 @@ const AdminLayout = ({ children }) => {
 
         <Content
           style={{
-          margin: '34px 10 px',
-          padding: 24,
+          margin: '20px 10px',
+          padding: 34,
           background: '#fff',
           minHeight: 280,
             
