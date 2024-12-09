@@ -20,6 +20,7 @@ const ProductDetail = () => {
 
   const currentProduct = useSelector((state) => state.products.currentProduct);
   const { products, loading, error } = useSelector((state) => state.products);
+  const cartItems = useSelector((state) => state.cart.cart);
   const cartId = useSelector((state) => state.cart.cartId);
 
   const [isImageModalVisible, setImageModalVisible] = useState(false);
@@ -36,6 +37,17 @@ const ProductDetail = () => {
   const recentProducts = products.slice(-12); // Get the last 12 products as related products
 
   const handleAddToCart = () => {
+    // Check if the product is already in the cart
+   
+    const isProductInCart = cartItems.some(
+      (item) => item.productId === currentProduct[0].productID
+    );
+  
+    if (isProductInCart) {
+      message.warning('Product is already in the cart.');
+      return;
+    }
+  
     setIsAddingToCart(true);
     const cartData = {
       cartId,
@@ -43,7 +55,7 @@ const ProductDetail = () => {
       price: currentProduct[0].price,
       quantity: 1,
     };
-
+  
     dispatch(addToCart(cartData))
       .then(() => {
         message.success('Product added to cart successfully!');
@@ -55,6 +67,7 @@ const ProductDetail = () => {
         setIsAddingToCart(false);
       });
   };
+  
 
   const productUrl = window.location.href; // Get the current product URL
 

@@ -64,18 +64,6 @@ const PrintableInvoice = React.forwardRef(({ orderId, salesOrder, deliveryAddres
 
       {/* Customer & Delivery Info */}
       <Row gutter={[16, 8]} style={{ marginBottom: '20px' }}>
-  {/* Billing Address on the Left */}
-  <Col span={12} style={{ textAlign: 'left' }}>
-    <div style={{ backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
-      <Text strong style={{ fontSize: '18px' }}>Billing Address</Text>
-      <br />
-      <Text style={{ fontSize: '16px' }}>Name: {customer.fullName}</Text>
-      <br />
-      <Text style={{ fontSize: '16px' }}>Contact: {customer.contactNumber}</Text>
-      <br />
-      <Text style={{ fontSize: '16px' }}>Address: {customer.address}</Text>
-    </div>
-  </Col>
 
   {/* Shipping Address on the Right */}
   <Col span={12} style={{ textAlign: 'left' }}>
