@@ -116,17 +116,16 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.error = action.error?.message || "An unknown error occurred.";
             })
+            .addCase(fetchUsers.fulfilled, (state, action) => {
+                state.users = action.payload; // Ensure payload structure is correct
+                state.loading = false;
+            })
             .addCase(fetchUsers.pending, (state) => {
                 state.loading = true;
-                state.error = null;
-            })
-            .addCase(fetchUsers.fulfilled, (state, action) => {
-                state.loading = false;
-                state.userList = action.payload;
             })
             .addCase(fetchUsers.rejected, (state, action) => {
+                state.error = action.error.message;
                 state.loading = false;
-                state.error = action.error?.message || "An unknown error occurred.";
             })
             .addCase(loginUser.pending, (state) => {
                 state.loading = true;

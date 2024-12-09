@@ -104,7 +104,7 @@ const Categories = () => {
     return (
         <div className="container mx-auto p-4">
             <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-red-500 mb-2 md:mb-0">Categories</h2>
+                <h2 className="text-xl font-bold text-red-500 mb-2 md:mb-0">Categories</h2>
                 <div className="flex items-center">
                     <Input 
                         placeholder="Search by category name"

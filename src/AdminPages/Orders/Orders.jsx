@@ -187,7 +187,7 @@ const Orders = () => {
 
   return (
     <div>
-      <div className="text-2xl font-bold mb-4 text-center text-green-600">
+      <div className="text-2xl font-bold mb-4  text-red-500">
         Orders
       </div>
 
@@ -220,7 +220,7 @@ const Orders = () => {
       />
       <Row>
         <Col span={24}>
-          <div style={{ marginBottom: "20px" }}>
+          <div style={{ marginBottom: "20px" , fontSize: "16px", fontWeight: "bold"}}>
             Total Orders: {filteredOrders.length}
           </div>
         </Col>

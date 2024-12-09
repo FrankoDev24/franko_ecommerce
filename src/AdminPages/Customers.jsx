@@ -60,7 +60,7 @@ const Customers = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1 className="text-2xl font-bold mb-4">Customer List</h1>
+      <h1 className="text-2xl font-bold mb-4 text-red-500">Customers</h1>
       <Table
         columns={columns}
         dataSource={customerList}

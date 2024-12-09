@@ -145,7 +145,7 @@ const ShowRoom = () => {
 
   return (
     <div className="mx-auto p-6">
-      <Title level={3} className="text-center mb-6">
+      <Title level={3} className="text-xl font-semibold mb-6" style={{ color: "red" }}>
         Showrooms
       </Title>
 

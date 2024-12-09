@@ -1,5 +1,4 @@
-// UsersPage.js
-import  { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUsers } from '../Redux/slice/userSlice'; // Adjust path as necessary
 import { Table, Spin, Alert } from 'antd';
@@ -12,44 +11,51 @@ const Users = () => {
         dispatch(fetchUsers());
     }, [dispatch]);
 
+    console.log(users); // Debugging log to check data structure
+
     const columns = [
-      
         {
             title: 'ID',
-            dataIndex: 'uuserid', // Adjust based on your API response
+            dataIndex: 'uuserid', // Ensure this matches the key in your data
             key: 'uuserid',
         },
         {
             title: 'Name',
-            dataIndex: 'fullName', // Adjust based on your API response
+            dataIndex: 'fullName',
             key: 'fullName',
         },
         {
             title: 'Email',
-            dataIndex: 'email', // Adjust based on your API response
+            dataIndex: 'email',
             key: 'email',
         },
         {
             title: 'Contact Number',
-            dataIndex: 'contact', // Adjust based on your API response
+            dataIndex: 'contact',
             key: 'contact',
         },
         {
             title: 'Address',
-            dataIndex: 'address', // Adjust based on your API response
+            dataIndex: 'address',
             key: 'address',
         },
-        // Add more columns as needed
+        {
+            title: 'Position',
+            dataIndex: 'position',
+            key: 'position',
+        }
     ];
 
     return (
-        <div>
+        <div className="p-4">
+            <h1 className="text-2xl font-bold mb-4 text-red-500">Users</h1>
             {loading && <Spin size="large" />}
             {error && <Alert message="Error" description={error} type="error" showIcon />}
             <Table
                 dataSource={users}
                 columns={columns}
-                rowKey="id" // Adjust if the unique identifier is different
+                bordered
+                rowKey="uuserid" // Use the unique identifier here
                 pagination={{ pageSize: 10 }}
             />
         </div>
