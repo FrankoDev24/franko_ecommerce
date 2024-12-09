@@ -133,6 +133,7 @@ const Categories = () => {
                 <Table
                     columns={columns}
                     dataSource={currentCategories}
+                    bordered
                     rowKey="categoryId"
                     pagination={false}
                     style={{ marginBottom: '20px' }}

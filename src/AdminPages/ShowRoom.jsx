@@ -224,6 +224,7 @@ const ShowRoom = () => {
           <Table
             columns={columns}
             dataSource={currentShowrooms}
+            bordered={true}
             rowKey="showRoomID"
             pagination={false}
             className="mb-6"
@@ -232,6 +233,7 @@ const ShowRoom = () => {
           <Pagination
             current={currentPage}
             onChange={(page) => setCurrentPage(page)}
+
             pageSize={showroomsPerPage}
             total={showroomsWithBrandNames.length}
             className="text-center"

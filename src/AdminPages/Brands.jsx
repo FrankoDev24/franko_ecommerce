@@ -154,6 +154,7 @@ const BrandPage = () => {
 
       <Table
         columns={columns}
+        bordered
         dataSource={filteredBrands}
         rowKey="brandId"
         loading={loading || categoryLoading}
