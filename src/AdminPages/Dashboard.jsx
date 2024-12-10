@@ -41,21 +41,22 @@ const Dashboard = () => {
   }, [orders]);
 
   // Calculate daily orders for the last 7 days
+  
   const calculateDailyOrders = (orders) => {
     const endDate = moment().add(1, 'day');
-    const startDate = moment().subtract(6, 'days'); // 7-day range includes today
+    const startDate = moment().subtract(6, 'days'); // Last 7 days
 
     const dailyCounts = [];
     let currentDate = startDate.clone();
 
     while (currentDate.isBefore(endDate, 'day')) {
-      const dailyOrdersCount = orders.filter((order) =>
+      const dailyCount = orders.filter((order) =>
         moment(order.orderDate).isSame(currentDate, 'day')
       ).length;
 
       dailyCounts.push({
         name: currentDate.format('MM/DD/YYYY'),
-        totalOrders: dailyOrdersCount,
+        totalOrders: dailyCount,
       });
 
       currentDate.add(1, 'day');
