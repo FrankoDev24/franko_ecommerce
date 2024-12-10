@@ -112,7 +112,7 @@ const Dashboard = () => {
             bordered={false}
             extra={<ProductOutlined  style={{ fontSize: '24px', color: '#1890ff' }} />}
           >
-            <Statistic title="Total Products" value={products.length} />
+            <Statistic title="Total Products in Stock" value={products.length} />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6} lg={6}>

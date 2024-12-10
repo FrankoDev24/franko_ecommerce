@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrdersByCustomer } from "../../Redux/slice/orderSlice";
-import { DatePicker, Table, Spin } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { DatePicker, Table, Spin, Tooltip, Button } from "antd";
+import { EyeOutlined, ShoppingOutlined } from "@ant-design/icons";
 import moment from "moment";
-import OrderModal from "./OrderModal";  // Import the new OrderModal component
+import OrderModal from "./OrderModal"; // Import the new OrderModal component
+import noOrders from "../../assets/noorders.avif";
 
 const OrderHistoryPage = () => {
   const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.orders);
 
-const orders = ordersData?.orders || [];
-const loading = ordersData?.loading || {};
-const error = ordersData?.error || {};
+  const orders = ordersData?.orders || [];
+  const loading = ordersData?.loading || {};
+  const error = ordersData?.error || {};
 
-  
   const today = moment();
   const defaultFromDate = moment("01/01/2000", "MM/DD/YYYY");
   const defaultToDate = today.clone().add(1, "days");
@@ -61,10 +61,12 @@ const error = ordersData?.error || {};
       title: "Action",
       key: "action",
       render: (_, record) => (
-        <EyeOutlined
-          className="text-green-700 text-xl cursor-pointer"
-          onClick={() => handleViewOrder(record.orderId)}
-        />
+        <Tooltip title="View Order">
+          <EyeOutlined
+            className="text-green-700 text-xl cursor-pointer"
+            onClick={() => handleViewOrder(record.orderId)}
+          />
+        </Tooltip>
       ),
     },
   ];
@@ -84,15 +86,18 @@ const error = ordersData?.error || {};
   return (
     <div className="order-history-page container mx-auto px-4 py-6">
       <h2 className="text-2xl font-semibold mb-6 text-red-500">Order History</h2>
-      <div className="mb-4">
-        <label className="text-md">Select Date Range: </label>
-        <DatePicker.RangePicker
-          value={dateRange}
-          onChange={handleDateChange}
-          format="MM/DD/YYYY"
-          className="mt-2"
-        />
-      </div>
+
+      {orders?.length > 0 && (
+        <div className="mb-4">
+          <label className="text-md">Select Date Range: </label>
+          <DatePicker.RangePicker
+            value={dateRange}
+            onChange={handleDateChange}
+            format="MM/DD/YYYY"
+            className="mt-2"
+          />
+        </div>
+      )}
 
       {loading.orders ? (
         <Spin size="large" />
@@ -106,7 +111,18 @@ const error = ordersData?.error || {};
           pagination={{ pageSize: 10 }}
         />
       ) : (
-        <p>No orders found.</p>
+        <div className="flex flex-col items-center mt-10">
+          <img src={noOrders} alt="No Orders" className="w-64 h-64 mb-4" />
+          <p className="text-gray-600 text-lg mb-4">You have no orders yet.</p>
+          <Button
+            icon={<ShoppingOutlined />}
+            size="large"
+            onClick={() => (window.location.href = "/franko")} // Redirect to the shopping page
+            className="bg-red-500 text-white"
+          >
+            Start Shopping
+          </Button>
+        </div>
       )}
 
       <OrderModal

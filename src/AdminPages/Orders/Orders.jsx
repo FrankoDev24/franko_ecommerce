@@ -8,8 +8,6 @@ import {
   message,
   Empty,
   Input,
-  Row,
-  Col,
   Tag,
   Tooltip,
 } from "antd";
@@ -23,12 +21,17 @@ const { Search } = Input;
 const Orders = () => {
   const dispatch = useDispatch();
   const { orders = [], loading } = useSelector((state) => state.orders);
+
   const [dateRange, setDateRange] = useState([null, null]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [selectedOrderCycle, setSelectedOrderCycle] = useState(null);
   const [searchText, setSearchText] = useState("");
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
   const fetchCurrentMonthOrders = useCallback(() => {
     const startOfMonth = new Date(
@@ -60,12 +63,11 @@ const Orders = () => {
 
   const handleSearch = (value) => {
     setSearchText(value.toLowerCase());
+    setPagination({ ...pagination, current: 1 }); // Reset to the first page
   };
 
-  const handleRefresh = () => {
-    setSearchText(""); // Clear search text
-    setDateRange([null, null]); // Clear date range
-    fetchCurrentMonthOrders(); // Fetch all orders
+  const handleTableChange = (pagination, filters, sorter) => {
+    setPagination(pagination);
   };
 
   useEffect(() => {
@@ -103,7 +105,7 @@ const Orders = () => {
         order.orderCycle && order.orderCycle.toLowerCase().includes(searchText);
       return fullNameMatch || statusMatch;
     })
-    .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate)); // Newest orders first
+    .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
   const columns = [
     { title: "Order Code", dataIndex: "orderCode", key: "orderCode" },
@@ -169,14 +171,13 @@ const Orders = () => {
         );
       },
     },
-    
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
         <Tooltip title="View Order">
           <Button
-            icon={<EyeOutlined style={{ color: "red"}}/> }
+            icon={<EyeOutlined style={{ color: "red" }} />}
             onClick={() => openDetailModal(record.orderCode)}
             shape="circle"
           />
@@ -187,18 +188,13 @@ const Orders = () => {
 
   return (
     <div>
-      <div className="text-2xl font-bold mb-4  text-red-500">
-        Orders
-      </div>
-
+      <div className="text-2xl font-bold mb-4 text-red-500">Orders</div>
       <div className="flex justify-between items-center space-x-4 mb-4">
-        <div className="flex space-x-4 items-center w-full">
-          <RangePicker
-            format="MM-DD-YYYY"
-            onChange={handleDateChange}
-            className="w-full"
-          />
-        </div>
+        <RangePicker
+          format="MM-DD-YYYY"
+          onChange={handleDateChange}
+          className="w-full"
+        />
         <div className="flex space-x-4">
           <Button
             onClick={handleFetchOrders}
@@ -207,25 +203,17 @@ const Orders = () => {
           >
             Fetch Orders
           </Button>
-          <Button onClick={handleRefresh} className="w-auto">
-            Refresh
-          </Button>
+          
         </div>
       </div>
-
       <Search
         placeholder="Search by name or status"
         onSearch={handleSearch}
         className="w-full mb-4"
       />
-      <Row>
-        <Col span={24}>
-          <div style={{ marginBottom: "20px" , fontSize: "16px", fontWeight: "bold"}}>
-            Total Orders: {filteredOrders.length}
-          </div>
-        </Col>
-      </Row>
-
+      <div className="text-lg font-semibold mb-4">
+        Total Filtered Orders: {filteredOrders.length}
+      </div>
       {loading ? (
         <div style={{ textAlign: "center", marginTop: "20px" }}>Loading...</div>
       ) : filteredOrders.length > 0 ? (
@@ -233,11 +221,12 @@ const Orders = () => {
           dataSource={filteredOrders}
           columns={columns}
           rowKey="orderCode"
+          pagination={pagination}
+          onChange={handleTableChange}
         />
       ) : (
         <Empty description="No orders found" />
       )}
-
       <UpdateOrderCycleModal
         isVisible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -245,7 +234,6 @@ const Orders = () => {
         orderCycle={selectedOrderCycle}
         fetchOrders={fetchCurrentMonthOrders}
       />
-
       {isDetailModalOpen && (
         <OrderDetailsModal
           orderId={selectedOrderId}
@@ -254,6 +242,7 @@ const Orders = () => {
       )}
     </div>
   );
+  
 };
 
 export default Orders;
