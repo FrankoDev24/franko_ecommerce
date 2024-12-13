@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import { Layout, Menu, Button, Typography } from 'antd';
-import { DashboardOutlined, ShoppingOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import {
+  DashboardOutlined,
+  ShoppingOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;
+
+const GREEN_COLOR = "#3F6634";
 
 const AgentHome = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -21,7 +28,7 @@ const AgentHome = ({ children }) => {
         collapsed={collapsed}
         onCollapse={toggleCollapse}
         style={{
-          backgroundColor: '#001529',
+          backgroundColor: GREEN_COLOR,
           boxShadow: '4px 0 5px rgba(0,0,0,0.2)',
         }}
       >
@@ -33,7 +40,7 @@ const AgentHome = ({ children }) => {
             alignItems: 'center',
             justifyContent: collapsed ? 'center' : 'space-between',
             padding: '0 16px',
-            backgroundColor: '#001529',
+            backgroundColor: GREEN_COLOR,
             color: 'white',
             fontWeight: 'bold',
             fontSize: 18,
@@ -59,27 +66,29 @@ const AgentHome = ({ children }) => {
           style={{
             height: '100%',
             borderRight: 0,
-            backgroundColor: '#001529',
+            backgroundColor: GREEN_COLOR,
             color: 'white',
           }}
           theme="dark"
         >
           <Menu.Item
             key="1"
-            icon={<DashboardOutlined />}
+            icon={<DashboardOutlined style={{ color: 'white' }} />}
             onClick={() => navigate('/agent-dashboard')}
             style={{
               margin: '8px 0',
+              color: 'white',
             }}
           >
             Dashboard
           </Menu.Item>
           <Menu.Item
             key="2"
-            icon={<ShoppingOutlined />}
+            icon={<ShoppingOutlined style={{ color: 'white' }} />}
             onClick={() => navigate('/agent-dashboard/orders')}
             style={{
               margin: '8px 0',
+              color: 'white',
             }}
           >
             Orders
