@@ -386,7 +386,7 @@ const dispatchOrderAddress = async (orderId) => {
 
       {/* Cart and Checkout Section */}
       <div className="flex-1">
-        <h2 className="text-md md:text-lg font-bold mb-4 text-red-400"> Checkout</h2>
+        <h2 className="text-md md:text-lg font-bold mb-4 text-gray-800"> Checkout</h2>
         <Card bordered={false} className="shadow-lg bg-white p-4">
           <List
             dataSource={cartItems}
