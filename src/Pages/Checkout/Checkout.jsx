@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { GrDeliver } from "react-icons/gr";
 import mobileMoney from "../../assets/download.png";
 import "./Checkout.css";
+import { GiTakeMyMoney } from "react-icons/gi";
 
 const CheckoutPage = () => {
   const dispatch = useDispatch();
@@ -316,7 +317,7 @@ const dispatchOrderAddress = async (orderId) => {
     {/* Shipping Address */}
     <div className="mb-6">
       <label htmlFor="address" className="block text-gray-700 font-medium mb-2">
-        Shipping Address
+        Delivery Address
       </label>
       <div className="flex items-center gap-4">
         <input
@@ -333,11 +334,11 @@ const dispatchOrderAddress = async (orderId) => {
             backgroundColor: "#3F6634",
             borderColor: "#3F6634",
             color: "white",
-            fontWeight: "bold",
+           
           }}
           className="py-2 px-4 rounded-lg"
         >
-          {address ? "Change" : "Add"}
+          {address ? "Change Delivery Address" : "Add Delivery Address"}
         </Button>
       </div>
     </div>
@@ -347,7 +348,7 @@ const dispatchOrderAddress = async (orderId) => {
       <>
         <div className="mb-6">
           <Input
-            placeholder="Delivery Address"
+            placeholder="Customer Delivery Address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
@@ -478,7 +479,7 @@ const dispatchOrderAddress = async (orderId) => {
       onChange={() => setPaymentMethod("Paid Already")}
     >
       <div className="flex items-center">
-        <GrDeliver style={{ color: "blue", marginRight: "8px" }} />
+        < GiTakeMyMoney style={{ color: "green", marginRight: "8px" }}  size={20}/>
         <span>Paid Already</span>
       </div>
     </Checkbox>
