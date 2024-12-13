@@ -6,7 +6,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const { Sider, Content } = Layout;
 const { Title } = Typography;
@@ -16,8 +16,18 @@ const GREEN_COLOR = "#3F6634";
 const AgentHome = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();  // Get current location
 
   const toggleCollapse = () => setCollapsed(!collapsed);
+
+  // Function to determine the active menu item based on the current route
+  const getSelectedKey = () => {
+    const path = location.pathname;
+    if (path.includes('/orders')) {
+      return '2';  // Orders
+    }
+    return '1';  // Dashboard
+  };
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f0f0' }}>
@@ -62,7 +72,7 @@ const AgentHome = ({ children }) => {
         {/* Sidebar Menu */}
         <Menu
           mode="inline"
-          defaultSelectedKeys={['1']}
+          selectedKeys={[getSelectedKey()]}  // Dynamically set active tab based on location
           style={{
             height: '100%',
             borderRight: 0,
