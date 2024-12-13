@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { checkOutOrder, updateOrderDelivery} from "../../Redux/slice/orderSlice";
 import { clearCart } from "../../Redux/slice/cartSlice";
-import { message, Card, List, Button, Checkbox } from "antd";
+import { message, Card, List, Button, Checkbox , Input} from "antd";
 import { CreditCardOutlined } from "@ant-design/icons";
 import ShippingComponent from "../../Components/Shipping";
 import { v4 as uuidv4 } from "uuid";
@@ -99,9 +99,12 @@ const CheckoutPage = () => {
       localStorage.setItem('userOrders', JSON.stringify(storedOrders));
   
       // Handle different payment methods
-      if (paymentMethod === "Cash on Delivery") {
-        // Handle Cash on Delivery (Order Checkout first)
-        await dispatchOrderCheckout(orderId, checkoutDetails); // Dispatch order checkout
+      if (paymentMethod === "Cash on Delivery" || paymentMethod === "Paid Already") {
+        // Handle Cash on Delivery or Paid Already (Order Checkout first)
+        await dispatchOrderCheckout(orderId, {
+          ...checkoutDetails,
+          PaymentMode: paymentMethod, // Include the selected payment method
+        }); 
         navigate('/order-received'); // Redirect to order received page
       } else if (["Credit Card", "Mobile Money"].includes(paymentMethod)) {
         // Handle Online Payment (Save checkout details and initiate payment)
@@ -111,6 +114,7 @@ const CheckoutPage = () => {
           window.location.href = paymentUrl; // Redirect to payment gateway
         }
       }
+      
     } catch (error) {
       message.error(error.message || "An error occurred during checkout.");
     } finally {
@@ -277,72 +281,107 @@ const dispatchOrderAddress = async (orderId) => {
 
       {/* Billing Information Section */}
       <div className="w-full md:w-1/3">
-        <h2 className="text-lg font-bold mb-4 text-red-400">Billing Information</h2>
-        <Card bordered={false} className="shadow-xl bg-white p-4">
-          <div className="mt-4">
-            <label htmlFor="customerName" className="block text-gray-700 mb-2">
-              Recipient Name:
-            </label>
-            <input
-              type="text"
-              id="customerName"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Enter your name"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-            />
-          </div>
+  <h2 className="text-xl font-bold mb-6 text-gray-800">Billing Information</h2>
+  <Card bordered={false} className="shadow-lg bg-white rounded-lg p-6">
+    {/* Recipient Name */}
+    <div className="mb-6">
+      <label htmlFor="customerName" className="block text-gray-700 font-medium mb-2">
+        Recipient Name
+      </label>
+      <input
+        type="text"
+        id="customerName"
+        value={customerName}
+        onChange={(e) => setCustomerName(e.target.value)}
+        placeholder="Enter your name"
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+      />
+    </div>
 
-          <div className="mt-4">
-            <label htmlFor="customerNumber" className="block text-gray-700 mb-2">
-              Contact Number:
-            </label>
-            <input
-              type="text"
-              id="customerNumber"
-              value={customerNumber}
-              onChange={(e) => setCustomerNumber(e.target.value)}
-              placeholder="Enter your contact number"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-            />
-          </div>
+    {/* Contact Number */}
+    <div className="mb-6">
+      <label htmlFor="customerNumber" className="block text-gray-700 font-medium mb-2">
+        Contact Number
+      </label>
+      <input
+        type="text"
+        id="customerNumber"
+        value={customerNumber}
+        onChange={(e) => setCustomerNumber(e.target.value)}
+        placeholder="Enter your contact number"
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+      />
+    </div>
 
-          <div className="mt-4">
-            <label htmlFor="address" className="block text-gray-700 mb-2">
-              Shipping Address:
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                id="address"
-                value={address}
-                readOnly
-                className="w-full p-2 border border-gray-300 rounded"
-              />
-              <Button
-                type="primary"
-                onClick={handleOpenModal}
-                style={{ backgroundColor: "#3F6634", borderColor: "#3F6634" }}
-              >
-                {address ? "Change Address" : "Add Address"}
-              </Button>
-            </div>
-          </div>
-          <div className="mt-4">
-            <label htmlFor="orderNote" className="block text-gray-700 mb-2">
-              Order Note:
-            </label>
-            <textarea
-              id="orderNote"
-              value={orderNote}
-              onChange={(e) => setOrderNote(e.target.value)}
-              placeholder="Add any notes for the order..."
-              className="w-full p-2 border border-gray-300 rounded"
-              rows="4"
-            />
-          </div>
-        </Card>
+    {/* Shipping Address */}
+    <div className="mb-6">
+      <label htmlFor="address" className="block text-gray-700 font-medium mb-2">
+        Shipping Address
+      </label>
+      <div className="flex items-center gap-4">
+        <input
+          type="text"
+          id="address"
+          value={address}
+          readOnly
+          className="w-full p-3 border border-gray-300 rounded-lg bg-gray-100"
+        />
+        <Button
+          type="primary"
+          onClick={handleOpenModal}
+          style={{
+            backgroundColor: "#3F6634",
+            borderColor: "#3F6634",
+            color: "white",
+            fontWeight: "bold",
+          }}
+          className="py-2 px-4 rounded-lg"
+        >
+          {address ? "Change" : "Add"}
+        </Button>
       </div>
+    </div>
+
+    {/* Additional Fields for Agents */}
+    {customerAccountType === "agent" && (
+      <>
+        <div className="mb-6">
+          <Input
+            placeholder="Delivery Address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+        <div className="mb-6">
+          <Input
+            type="number"
+            placeholder="Shipping Fee"
+            value={shippingFee}
+            onChange={(e) => setShippingFee(parseFloat(e.target.value) || 0.0)}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+      </>
+    )}
+
+    {/* Order Note */}
+    <div className="mb-6">
+      <label htmlFor="orderNote" className="block text-gray-700 font-medium mb-2">
+        Order Note
+      </label>
+      <textarea
+        id="orderNote"
+        value={orderNote}
+        onChange={(e) => setOrderNote(e.target.value)}
+        placeholder="Add any notes for the order..."
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+        rows="4"
+      />
+    </div>
+  </Card>
+</div>
+
 
       {/* Cart and Checkout Section */}
       <div className="flex-1">
@@ -432,6 +471,19 @@ const dispatchOrderAddress = async (orderId) => {
               </div>
             </Checkbox>
           </div>
+          {customerAccountType === "agent" && (
+  <div className="flex items-center mb-2">
+    <Checkbox
+      checked={paymentMethod === "Paid Already"}
+      onChange={() => setPaymentMethod("Paid Already")}
+    >
+      <div className="flex items-center">
+        <GrDeliver style={{ color: "blue", marginRight: "8px" }} />
+        <span>Paid Already</span>
+      </div>
+    </Checkbox>
+  </div>
+)}
 
           {/* Checkout Button */}
           <Button

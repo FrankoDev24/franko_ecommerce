@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomers } from "../Redux/slice/customerSlice";
-import { Table, Spin, Alert, Input } from "antd";
+import { Table, Spin, Alert, Input, Button } from "antd";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const { Search } = Input;
 
@@ -17,7 +19,10 @@ const Customers = () => {
 
   useEffect(() => {
     if (customerList) {
-      setFilteredData(customerList);
+      const sortedCustomers = [...customerList].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setFilteredData(sortedCustomers);
     }
   }, [customerList]);
 
@@ -33,7 +38,46 @@ const Customers = () => {
     setFilteredData(filtered);
   };
 
-  // Ant Design Table Columns Configuration
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Customer List", 14, 20);
+  
+    // Map table data to include only the last 6 digits of account numbers
+    const tableData = filteredData.map((customer, index) => [
+      index + 1,
+      customer.customerAccountNumber.slice(-6), // Last 6 digits
+      customer.firstName,
+      customer.lastName,
+      customer.contactNumber,
+      customer.email,
+      customer.address,
+      customer.accountType,
+    ]);
+  
+    // Generate PDF with custom header styles
+    doc.autoTable({
+      head: [
+        [
+          "S/N",
+          "Account Number",
+          "First Name",
+          "Last Name",
+          "Contact Number",
+          "Email",
+          "Address",
+          "Account Type",
+        ],
+      ],
+      body: tableData,
+      startY: 30,
+      theme: "grid",
+      headStyles: { fillColor: [0, 128, 0] }, // Green header
+    });
+  
+    doc.save("customers.pdf");
+  };
+  
+
   const columns = [
     {
       title: "Account Number",
@@ -83,16 +127,21 @@ const Customers = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h1 className="text-2xl font-bold mb-4 text-red-500">Customers</h1>
-      <Search
-        placeholder="Search by first name, address, contact number, or account type"
-        allowClear
-        enterButton="Search"
-        size="large"
-        onSearch={handleSearch}
-        onChange={(e) => handleSearch(e.target.value)}
-        value={searchText}
-        style={{ marginBottom: "20px", maxWidth: "500px" }}
-      />
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+        <Search
+          placeholder="Search by first name, address, contact number, or account type"
+          allowClear
+          enterButton="Search"
+          size="large"
+          onSearch={handleSearch}
+          onChange={(e) => handleSearch(e.target.value)}
+          value={searchText}
+          style={{ maxWidth: "500px" }}
+        />
+        <Button type="primary" onClick={downloadPDF} className="bg-green-600 text-white rounded-md">
+          Download PDF
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={filteredData}

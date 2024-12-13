@@ -161,6 +161,7 @@ const Orders = () => {
             break;
         }
         return (
+          <Tooltip title="Update order status">
           <Tag
             color={color}
             onClick={() => openCycleModal(record)}
@@ -168,6 +169,7 @@ const Orders = () => {
           >
             {orderCycle}
           </Tag>
+          </Tooltip>
         );
       },
     },
