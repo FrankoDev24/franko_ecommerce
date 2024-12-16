@@ -6,6 +6,7 @@ import { fetchShowrooms } from "../../Redux/slice/showRoomSlice";
 import { addToCart } from "../../Redux/slice/cartSlice";
 import { Empty, message, Input, Button } from "antd";
 import { ShoppingCartOutlined, FilterOutlined } from "@ant-design/icons";
+import { Helmet } from "react-helmet";
 
 const ShowroomProductsPage = () => {
   const { showRoomID } = useParams();
@@ -88,6 +89,21 @@ const ShowroomProductsPage = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6">
+            <Helmet>
+        <title>{showroom ? `${showroom.showRoomName} Products` : "Showroom Products"}</title>
+        <meta name="description" content="Browse and shop products from our showroom, including various categories and deals." />
+        <meta name="keywords" content="Franko Trading, Electronics, Mobile Phones, Laptops, Accessories" />
+        <meta property="og:title" content={showroom ? `${showroom.showRoomName} Products` : "Showroom Products"} />
+        <meta property="og:description" content="Browse and shop products from our showroom, including various categories and deals." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:image" content="URL_to_image" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={showroom ? `${showroom.showRoomName} Products` : "Showroom Products"} />
+        <meta name="twitter:description" content="Browse and shop products from our showroom, including various categories and deals." />
+        <meta name="twitter:image" content="URL_to_image" />
+      </Helmet>
+
       <h3 className="text-2xl md:text-3xl font-semibold mb-4">
         {showroom ? `${showroom.showRoomName} Products` : "Showroom Products"}
       </h3>

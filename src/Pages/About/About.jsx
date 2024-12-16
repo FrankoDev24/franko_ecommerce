@@ -1,7 +1,8 @@
 import { Layout, Row, Col, Typography, Card, Divider, Tabs } from 'antd';
 import { DollarOutlined, RocketOutlined, CustomerServiceOutlined, VerifiedOutlined } from '@ant-design/icons';
-import franko from "../../assets/franko_office.png";
-import franco from "../../assets/franko_office2.png";
+import { Helmet } from 'react-helmet';
+import franko from '../../assets/franko_office.png';
+import franco from '../../assets/franko_office2.png';
 import { useEffect } from 'react';
 
 const About = () => {
@@ -16,18 +17,42 @@ const About = () => {
 
   return (
     <>
-      <title>Franko | About</title>
-      <meta
-        name="description"
-        content="Franko Trading | Your trusted online store for quality gadgets, phones, laptops, and accessories."
-      />
+      <Helmet>
+        <title>Franko Trading | About Us</title>
+        <meta
+          name="description"
+          content="Discover Franko Trading Enterprise, Ghana's leading retailer for quality electronics, gadgets, phones, and laptops. Established in 2004, we are committed to delivering excellence."
+        />
+        <meta
+          name="keywords"
+          content="Franko Trading, electronics in Ghana, mobile phones, laptops, accessories, quality gadgets, affordable prices"
+        />
+        <meta name="author" content="Franko Trading Enterprise" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content="About Franko Trading Enterprise" />
+        <meta
+          property="og:description"
+          content="Learn about Franko Trading Enterprise, the trusted name in Ghana for quality electronics and accessories."
+        />
+        <meta property="og:image" content={franko} />
+        <meta property="og:url" content="https://www.frankotrading.com/about" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="About Franko Trading Enterprise" />
+        <meta
+          name="twitter:description"
+          content="Explore Franko Trading, Ghana's trusted electronics retailer."
+        />
+        <meta name="twitter:image" content={franko} />
+      </Helmet>
+
       <Layout>
         <Content className="py-8 px-4">
           <div className="max-w-screen-xl mx-auto">
             {/* About Section */}
             <Row gutter={[32, 32]} className="mt-10 items-center">
               <Col xs={24} md={14}>
-                <Title level={2} className="text-red-600">About Us</Title>
+                <Title level={1} className="text-red-600">About Us</Title>
                 <Paragraph className="text-lg leading-7">
                   Franko Trading Limited is the leading retail and wholesale company of mobile phones, computers,
                   laptops, televisions, and accessories. Established in 2004, we are committed to bringing the latest
@@ -40,7 +65,7 @@ const About = () => {
               <Col xs={24} md={10}>
                 <img
                   src={franko}
-                  alt="Franko Trading Store"
+                  alt="Exterior view of the Franko Trading store"
                   className="w-full rounded-lg shadow-md"
                 />
               </Col>
@@ -51,28 +76,28 @@ const About = () => {
               <Col xs={24} md={10}>
                 <img
                   src={franco}
-                  alt="Franko Office"
+                  alt="Interior view of the Franko Trading office"
                   className="w-full rounded-lg shadow-md"
                 />
               </Col>
               <Col xs={24} md={14}>
                 <Tabs defaultActiveKey="1" type="line" centered>
                   <TabPane tab="Vision" key="1">
-                    <Title level={4} className="text-red-600">Our Vision</Title>
+                    <Title level={3} className="text-red-600">Our Vision</Title>
                     <Paragraph>
                       To devote our human and technological resources to create superior household electronics and
                       mobile phone markets through research and innovation in Ghana and the West African Sub-region.
                     </Paragraph>
                   </TabPane>
                   <TabPane tab="Mission" key="2">
-                    <Title level={4} className="text-red-600">Our Mission</Title>
+                    <Title level={3} className="text-red-600">Our Mission</Title>
                     <Paragraph>
                       To be the leader in inspiring Africa and the world with innovative products and designs,
                       revolutionizing the electronics and mobile phone market.
                     </Paragraph>
                   </TabPane>
                   <TabPane tab="Values" key="3">
-                    <Title level={4} className="text-red-600">Our Values</Title>
+                    <Title level={3} className="text-red-600">Our Values</Title>
                     <ul className="pl-5 text-lg leading-7">
                       <li>Integrity</li>
                       <li>Accountability</li>
@@ -89,7 +114,7 @@ const About = () => {
             {/* Why Choose Us Section */}
             <Row className="mt-10">
               <Col xs={24}>
-                <Title level={3} className="text-center text-red-600 mb-10">
+                <Title level={2} className="text-center text-red-600 mb-10">
                   Why Choose Us
                 </Title>
                 <Row gutter={[24, 24]} justify="center">

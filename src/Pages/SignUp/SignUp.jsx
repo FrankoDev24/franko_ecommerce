@@ -74,7 +74,7 @@ const RegistrationPage = () => {
       if (finalData.accountType === 'agent') {
         navigate('/agent-dashboard');
       } else {
-        navigate('/franko');
+        navigate('/home');
       }
   
       console.log('Registration result:', result); // Log result for debugging

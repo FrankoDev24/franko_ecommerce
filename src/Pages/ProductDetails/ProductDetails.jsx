@@ -8,6 +8,7 @@ import { addToCart } from "../../Redux/slice/cartSlice";
 import { FacebookOutlined, WhatsAppOutlined, ShareAltOutlined } from "@ant-design/icons";
 import ProductDetailSkeleton from "./ProductDetailSkeleton";
 import Footer from "../../Components/Footer/Footer";
+import { Helmet } from "react-helmet";
 
 const formatPrice = (price) => {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -183,6 +184,11 @@ const ProductDetail = () => {
 
   return (
     <div>
+       <Helmet>
+        <meta name="description" content={`Buy ${product.productName} for ₵${formatPrice(product.price)}. Check out this amazing product for the best price!`} />
+        <meta name="keywords" content={`buy ${product.productName}, ${product.productCategory}, ${product.productBrand}, affordable ${product.productName}`} />
+        <title>{product.productName} - Best Price Online</title>
+      </Helmet>
     <div className="max-w-7xl mx-auto p-4">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column - Product Image */}

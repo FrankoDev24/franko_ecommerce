@@ -21,6 +21,7 @@ import {
   import { FaTiktok, FaWhatsapp } from "react-icons/fa";
   import emailjs from "@emailjs/browser";
   import "./Contact.css";
+  import { Helmet } from "react-helmet";
   
   const { Content } = Layout;
   const { Title, Paragraph } = Typography;
@@ -349,6 +350,20 @@ import {
   
     return (
       <Layout>
+         <Helmet>
+        <title>Contact Franko Trading Enterprise</title>
+        <meta name="description" content="Contact Franko Trading Enterprise for inquiries, support, and more. Reach out via phone or social media." />
+        <meta name="keywords" content="contact, Franko Trading, Accra, Ghana, support, inquiries, social media" />
+        <meta property="og:title" content="Contact Franko Trading Enterprise" />
+        <meta property="og:description" content="Contact Franko Trading Enterprise for inquiries, support, and more. Reach out via phone or social media." />
+        <meta property="og:image" content="URL-to-image.jpg" />
+        <meta property="og:url" content="https://www.frankotrading.com/contact" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Contact Franko Trading Enterprise" />
+        <meta name="twitter:description" content="Contact Franko Trading Enterprise for inquiries, support, and more. Reach out via phone or social media." />
+        <meta name="twitter:image" content="URL-to-image.jpg" />
+      </Helmet>
         <Content style={{ padding: "0 30px" }}>
           <div className="site-layout-content">
             <h3 style={{ fontSize: "20px", color: "#D7263D", fontWeight: "bold", marginBottom: "20px" }}>Contact Us</h3>

@@ -25,7 +25,7 @@ const LoginPage = () => {
     try {
       await dispatch(loginCustomer(values)).unwrap();
       message.success('Login successful!');
-      navigate('/franko');
+      navigate('/home');
     } catch (error) {
       message.error(error || 'Login failed.');
       navigate('/sign-up');

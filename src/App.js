@@ -133,8 +133,8 @@ const App = () => {
       <ConditionalNavbar />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Navigate to="/franko" />} />
-        <Route path="/franko" element={<Home />} />
+        <Route path="/" element={<Navigate to="/home" />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/cart/:transactionNumber" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/brand/:brandId" element={<Brand />} />

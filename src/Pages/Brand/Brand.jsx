@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductsByBrand } from "../../Redux/slice/productSlice";
 import { fetchBrands } from "../../Redux/slice/brandSlice";
 
+import { Helmet } from 'react-helmet'; // For managing meta tags
 import { Empty, Input, Button } from 'antd';
 import { ShoppingCartOutlined, FilterOutlined } from '@ant-design/icons';
 
@@ -63,6 +64,18 @@ const Brand = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6">
+      <Helmet>
+        <title>{selectedBrand ? `${selectedBrand.brandName} Products` : "Brand Products"}</title>
+        <meta
+          name="description"
+          content={
+            selectedBrand
+              ? `Explore a variety of products from ${selectedBrand.brandName}. Find the best deals and latest items in ${selectedBrand.categoryName}.`
+              : "Discover a wide range of branded products. Filter by price, category, and find exclusive offers."
+          }
+        />
+      </Helmet>
+
       <h3 className="text-2xl md:text-2xl font-semibold mb-4 text-red-500">
         {selectedBrand ? `${selectedBrand.brandName} Products` : "Brand Products"}
       </h3>
@@ -117,10 +130,11 @@ const Brand = () => {
         <div className="text-center text-red-500 mt-6">Error fetching products</div>
       ) : loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {/* Placeholder skeletons for loading */}
           {Array.from({ length: 12 }).map((_, index) => (
             <div key={index} className="animate-pulse border rounded-lg shadow p-3 relative bg-gray-100">
               <div className="h-36 md:h-44 lg:h-52 flex items-center justify-center mb-3 bg-gray-200 rounded-lg">
-                <span className="text-gray-500 text-2xl font-bold">Franko</span>
+                <span className="text-gray-500 text-2xl font-bold">Loading</span>
               </div>
               <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
               <div className="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -173,7 +187,6 @@ const Brand = () => {
                   className="absolute bottom-2 right-2 bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                   onClick={(e) => {
                     e.stopPropagation();
-      
                   }}
                 />
               </div>

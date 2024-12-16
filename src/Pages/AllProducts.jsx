@@ -5,6 +5,7 @@ import { Empty, message, Input, Button } from 'antd';
 import { ShoppingCartOutlined, FilterOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
 import { addToCart } from '../Redux/slice/cartSlice';
+import { Helmet } from 'react-helmet';
 
 const ProductsPage = () => {
   const dispatch = useDispatch();
@@ -72,6 +73,18 @@ const ProductsPage = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6">
+      {/* SEO Meta Tags */}
+      <Helmet>
+        <title>Products - Franko Trading Ent.</title>
+        <meta name="description" content="Browse and shop the best products at Franko Trading Ent. Discover amazing deals and new arrivals with a variety of options to choose from." />
+        <meta name="keywords" content="Franko Trading, gadgets, phones, laptops, electronics, accessories, Ghana, quality gadgets, affordable electronics" />
+        <meta property="og:title" content="Products - Franko Trading Ent." />
+        <meta property="og:description" content="Browse and shop the best products at Franko Trading Ent. Discover amazing deals and new arrivals with a variety of options to choose from." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.frankotrading.com/products" />
+        <meta property="og:image" content="https://www.frankotrading.com/assets/logo.png" />
+      </Helmet>
+
       <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-center md:text-left">All Products</h1>
 
       <div className="mb-6">
