@@ -157,13 +157,13 @@ const dispatchOrderAddress = async (orderId) => {
     }
 
     const updateAddressPayload = {
-      OrderCode: orderId,
+      orderCode: orderId,
       address,
-      Customerid: customerId,
-      RecipientName: customerName,
-      RecipientContactNumber: customerNumber,
+      customerid: customerId,
+      recipientName: customerName,
+      recipientContactNumber: customerNumber,
       orderNote: orderNote || "N/A",
-      geoLocation,
+      geoLocation: "N/A",
     };
 
     // Dispatch updateOrderDelivery to update the existing address

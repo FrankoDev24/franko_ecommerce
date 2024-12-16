@@ -162,18 +162,18 @@ export const fetchSalesOrderById = createAsyncThunk(
 
 export const updateOrderDelivery = createAsyncThunk(
   "orders/updateOrderDelivery",
-  async ({ OrderCode, address, RecipientName, RecipientContactNumber, orderNote, geoLocation, Customerid }, { rejectWithValue }) => {
+  async ({ orderCode, address, recipientName, recipientContactNumber, orderNote, geoLocation, customerid }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/Order/OrderDeliveryUpdate/${OrderCode}`,
+        `${API_BASE_URL}/Order/OrderDeliveryUpdate/${orderCode}`,
         {
-          OrderCode,
-          Customerid,
+          customerid,
+          recipientName,
+          recipientContactNumber,
+          orderCode,
           address,
-          RecipientName,
-          RecipientContactNumber,
-          orderNote,
           geoLocation,
+          orderNote,
         },
         {
           headers: {

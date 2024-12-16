@@ -50,7 +50,7 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
     title="Order Details"
     visible={true}
     footer={null}
-    width={700}
+    width={600}
     onCancel={onClose}
     className="rounded-lg shadow-lg"
     style={{
