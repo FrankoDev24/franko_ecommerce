@@ -1,50 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Input, List, Spin, Empty, Avatar } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Modal, Input, List, Skeleton, Empty, Avatar } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProducts } from '../Redux/slice/productSlice';  // Import fetchProducts from the slice
-import { useNavigate } from 'react-router-dom';  // Import useNavigate to navigate
-import { SearchOutlined } from '@ant-design/icons';  // Import icons for better UX
+import { fetchProducts } from '../Redux/slice/productSlice'; // Import fetchProducts action
+import { useNavigate } from 'react-router-dom'; // For navigation
+import { SearchOutlined } from '@ant-design/icons'; // Search icon
+import { debounce } from 'lodash'; // For debouncing the search
 
 const backendBaseURL = 'https://smfteapi.salesmate.app';
 
 const SearchModal = ({ visible, onClose }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Hook to handle navigation
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const { products, loading } = useSelector((state) => state.products);
 
-  // Clear the search query when modal is closed
+  // Fetch products once when the component mounts
+  useEffect(() => {
+    if (visible && products.length === 0) {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, visible, products.length]);
+
+  // Clear search query when modal is closed
   useEffect(() => {
     if (!visible) {
       setSearchQuery('');
     }
   }, [visible]);
 
-  // Only fetch products once the modal is visible and the search query is not empty
-  useEffect(() => {
-    if (visible && searchQuery.trim() !== '') {
-      dispatch(fetchProducts());
-    }
-  }, [dispatch, visible, searchQuery]);
+  // Debounced function for updating search query
+  const debounceSearch = useCallback(
+    debounce((value) => setSearchQuery(value), 300),
+    []
+  );
 
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
+    debounceSearch(e.target.value);
   };
 
-  // Format price to include commas and Cedi currency
-  const formatPrice = (price) => {
-    return `₵${price.toLocaleString()}`;
-  };
+  // Format price
+  const formatPrice = (price) => `₵${price.toLocaleString()}`;
 
-  // Filter the products based on the search query
-  const filteredProducts = products.filter((product) => {
-    const productName = product.productName ? product.productName.toLowerCase() : '';
-    const searchTerm = searchQuery.toLowerCase();
+  // Filter products based on search query
+  const filteredProducts = searchQuery
+    ? products.filter((product) =>
+        product.productName?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
-    return productName.includes(searchTerm);
-  });
-
-  // Highlight the matching search text within product names
+  // Highlight matching text
   const highlightText = (text) => {
     const regex = new RegExp(`(${searchQuery})`, 'gi');
     return text.replace(regex, '<span style="background-color: yellow;">$1</span>');
@@ -52,16 +56,8 @@ const SearchModal = ({ visible, onClose }) => {
 
   // Navigate to product details page and close modal
   const navigateToProduct = (productID) => {
-    navigate(`/product/${productID}`);  // Adjust route as needed
-    onClose();  // Close the modal when a product is clicked
-  };
-
-  // Handle Infinite Scroll
-  const handleScroll = (e) => {
-    const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
-    if (bottom && filteredProducts.length < products.length) {
-      dispatch(fetchProducts()); // Fetch more products when reaching the bottom
-    }
+    navigate(`/product/${productID}`); // Adjust route as needed
+    onClose();
   };
 
   return (
@@ -74,25 +70,26 @@ const SearchModal = ({ visible, onClose }) => {
     >
       <Input
         placeholder="Search for a product"
-        value={searchQuery}
         onChange={handleSearchChange}
         style={{ marginBottom: '20px', borderRadius: '20px' }}
-        prefix={<SearchOutlined />} // Search icon
+        prefix={<SearchOutlined />}
       />
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          <Spin tip="Loading..." />
-        </div>
+        // Skeleton for loading state
+        <List
+          dataSource={[1, 2, 3, 4, 5]} // Dummy array to display skeletons
+          renderItem={() => (
+            <List.Item>
+              <Skeleton avatar title={{ width: '60%' }} active />
+            </List.Item>
+          )}
+        />
       ) : searchQuery.trim() === '' ? (
-        // Do not show any products if search query is empty
         <Empty description="Start typing to search for products" />
       ) : filteredProducts.length === 0 ? (
         <Empty description="No results found" />
       ) : (
-        <div
-          style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}
-          onScroll={handleScroll}
-        >
+        <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
           <List
             dataSource={filteredProducts}
             renderItem={(item) => (
@@ -106,16 +103,22 @@ const SearchModal = ({ visible, onClose }) => {
                   borderRadius: '5px',
                   marginBottom: '10px',
                   cursor: 'pointer',
-                  transition: 'background-color 0.3s', // Smooth hover effect
+                  transition: 'background-color 0.3s',
                 }}
-                className="hover:bg-gray-200" // Hover effect
+                className="hover:bg-gray-200"
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={`${backendBaseURL}/Media/Products_Images/${item.productImage.split('\\').pop()}`} />}
+                  avatar={
+                    <Avatar
+                      src={`${backendBaseURL}/Media/Products_Images/${item.productImage
+                        .split('\\')
+                        .pop()}`}
+                    />
+                  }
                   title={
                     <span
                       dangerouslySetInnerHTML={{
-                        __html: highlightText(item.productName),
+                        __html: highlightText(item.productName || ''),
                       }}
                       style={{ color: '#006838', fontWeight: 'bold' }}
                     />

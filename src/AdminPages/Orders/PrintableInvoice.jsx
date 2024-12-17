@@ -42,7 +42,7 @@ const PrintableInvoice = React.forwardRef(({ orderId, salesOrder, deliveryAddres
         <Title level={2} style={{ color: '#333', fontWeight: 'bold', margin: 0 }}>Franko Trading Limited</Title>
         <Text>123 Business Street, Accra, Ghana | Contact: +233 246 422 338</Text>
         <br />
-        <Text>Email: info@frankotrading.com | Website: www.frankotrading.com</Text>
+        <Text>Email: online@frankotrading.com | Website: www.frankotrading.com</Text>
         <Divider />
       </div>
       <div style={{ textAlign: 'center', fontSize: '24px', fontWeight: 'bold', marginBottom: '20px' }}>Invoice</div>     

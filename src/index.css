@@ -5,6 +5,6 @@
 /* Add custom styles for all pages */
 @layer base {
   body {
-    @apply bg-gradient-to-r from-blue-50 to-green-50 ;
+    @apply bg-gradient-to-r from-green-50 to-green-50 ;
   }
 }

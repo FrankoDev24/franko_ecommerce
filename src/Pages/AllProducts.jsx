@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts } from '../Redux/slice/productSlice';
-import { Empty, message, Input, Button } from 'antd';
+import { Empty, message, Input, Button, Select } from 'antd';
 import { ShoppingCartOutlined, FilterOutlined } from "@ant-design/icons";
 import { useNavigate } from 'react-router-dom';
 import { addToCart } from '../Redux/slice/cartSlice';
 import { Helmet } from 'react-helmet';
+
+const { Option } = Select;
 
 const ProductsPage = () => {
   const dispatch = useDispatch();
@@ -15,6 +17,7 @@ const ProductsPage = () => {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(200000);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [sortOption, setSortOption] = useState('newest');
   const observer = useRef();
   const itemsPerPage = 12;
 
@@ -23,22 +26,33 @@ const ProductsPage = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Fetch products on page load or when the page number changes
   useEffect(() => {
     dispatch(fetchProducts({ page, limit: itemsPerPage }));
   }, [dispatch, page]);
 
+  // Filter and sort products when products, price filters, or sort option changes
   useEffect(() => {
-    // Sort products by `dateCreated` in descending order before filtering
-    const sortedProducts = [...products].sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
+    let sortedProducts = [...products];
 
-    // Filter products within the price range
+    if (sortOption === 'newest') {
+      sortedProducts.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
+    } else if (sortOption === 'oldest') {
+      sortedProducts.sort((a, b) => new Date(a.dateCreated) - new Date(b.dateCreated));
+    } else if (sortOption === 'highestPrice') {
+      sortedProducts.sort((a, b) => b.price - a.price);
+    } else if (sortOption === 'lowestPrice') {
+      sortedProducts.sort((a, b) => a.price - b.price);
+    }
+
     const filtered = sortedProducts.filter(
       (product) => product.price >= minPrice && product.price <= maxPrice
     );
 
     setFilteredProducts(filtered);
-  }, [products, minPrice, maxPrice]);
+  }, [products, minPrice, maxPrice, sortOption]);
 
+  // Infinite scrolling logic
   const lastProductElementRef = useCallback((node) => {
     if (loading) return;
     if (observer.current) observer.current.disconnect();
@@ -69,6 +83,11 @@ const ProductsPage = () => {
       });
   };
 
+  const handleProductClick = (product) => {
+    localStorage.setItem('selectedProduct', JSON.stringify(product));
+    navigate(`/product/${product.productID}`);
+  };
+
   const formatPrice = (price) => price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   return (
@@ -88,35 +107,48 @@ const ProductsPage = () => {
       <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-center md:text-left">All Products</h1>
 
       <div className="mb-6">
-        <h3 className="text-lg font-semibold">Filter by Price</h3>
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <Input
-            type="number"
-            value={minPrice}
-            onChange={(e) => setMinPrice(Number(e.target.value))}
-            placeholder="Min Price"
-            style={{ width: 100 }}
-          />
-          <span className="text-gray-500">-</span>
-          <Input
-            type="number"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(Number(e.target.value))}
-            placeholder="Max Price"
-            style={{ width: 100 }}
-          />
-          <Button
-            className='bg-red-500 hover:bg-green-600 text-white rounded-full'
-            icon={<FilterOutlined />}
-            onClick={() => {
-              const filtered = products.filter(
-                (product) => product.price >= minPrice && product.price <= maxPrice
-              );
-              setFilteredProducts(filtered);
-            }}
+        <h3 className="text-lg font-semibold">Filter and Sort</h3>
+        <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+          <div className="flex items-center space-x-2">
+            <Input
+              type="number"
+              value={minPrice}
+              onChange={(e) => setMinPrice(Number(e.target.value))}
+              placeholder="Min Price"
+              style={{ width: 100 }}
+            />
+            <span className="text-gray-500">-</span>
+            <Input
+              type="number"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+              placeholder="Max Price"
+              style={{ width: 100 }}
+            />
+            <Button
+              className='bg-red-500 hover:bg-green-600 text-white rounded-full'
+              icon={<FilterOutlined />}
+              onClick={() => {
+                const filtered = products.filter(
+                  (product) => product.price >= minPrice && product.price <= maxPrice
+                );
+                setFilteredProducts(filtered);
+              }}
+            >
+              Filter
+            </Button>
+          </div>
+          <Select
+            value={sortOption}
+            onChange={setSortOption}
+            style={{ width: 200 }}
+            placeholder="Sort By"
           >
-            Filter
-          </Button>
+            <Option value="newest">Newest</Option>
+            <Option value="oldest">Oldest</Option>
+            <Option value="highestPrice">Highest Price</Option>
+            <Option value="lowestPrice">Lowest Price</Option>
+          </Select>
         </div>
       </div>
 
@@ -143,7 +175,7 @@ const ProductsPage = () => {
                 ref={index === filteredProducts.length - 1 ? lastProductElementRef : null}
                 key={product.productID || index}
                 className="relative group p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer"
-                onClick={() => navigate(`/product/${product.productID}`)}
+                onClick={() => handleProductClick(product)}
               >
                 {discount > 0 && (
                   <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
@@ -151,14 +183,15 @@ const ProductsPage = () => {
                   </div>
                 )}
                 <div className="h-32 md:h-32 lg:h-48 flex items-center justify-center mb-3">
-                    <img
-                      src={`https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage
-                        .split("\\")
-                        .pop()}`}
-                      alt={product.productName}
-                      className="w-32 md:w-24 lg:w-48 object-cover rounded-lg"
-                    />
-                  </div>
+                  <img
+                    src={`https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage
+                      .split("\\")
+                      .pop()}`}
+                    alt={product.productName}
+                    className="w-32 md:w-24 lg:w-48 object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </div>
                 <div className="flex flex-col space-y-1">
                   <h2 className="text-sm md:text-md font-semibold text-gray-800 truncate">
                     {product.productName}
@@ -168,6 +201,10 @@ const ProductsPage = () => {
                       {`₵${formatPrice(product.price)}`}
                     </span>
                     {product.oldPrice > 0 && (
+                  
+
+                        
+
                       <span className="text-sm line-through text-gray-500">
                         {`₵${formatPrice(product.oldPrice)}`}
                       </span>

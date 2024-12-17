@@ -8,14 +8,16 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 export const createUser = createAsyncThunk(
     'users/createUser',
     async (userData, { rejectWithValue }) => {
-        try {
-            const response = await axios.post(`${API_BASE_URL}/Users/User-Post`, userData);
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error.response?.data || "An unknown error occurred.");
-        }
+      try {
+        const response = await axios.post(`${API_BASE_URL}/Users/User-Post`, userData);
+        return response.data;
+      } catch (error) {
+        // Return the error from the backend (e.g., "Contact number already exists")
+        return rejectWithValue(error.response?.data || "An unknown error occurred.");
+      }
     }
-);
+  );
+  
 
 // Async thunk for fetching all users
 export const fetchUsers = createAsyncThunk(
@@ -54,7 +56,7 @@ export const loginUser = createAsyncThunk(
                 localStorage.setItem('user', JSON.stringify(matchingUser));
                 return matchingUser;
             } else {
-                return rejectWithValue("No user found with the provided credentials.");
+                return rejectWithValue("Invalid contact number or password.");
             }
         } catch (error) {
             return rejectWithValue(error.message || "An unknown error occurred.");
@@ -140,7 +142,7 @@ const userSlice = createSlice({
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload || "Login failed.";
-                message.error(`Login failed: ${action.payload}`);
+                
             });
     },
 });

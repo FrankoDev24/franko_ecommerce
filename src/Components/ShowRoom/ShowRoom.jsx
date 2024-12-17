@@ -37,6 +37,7 @@ const ShowroomPage = () => {
   }, []);
 
   const formatTime = (time) => (time < 10 ? `0${time}` : time);
+  
   const sortedProducts = showrooms.map((showroom) => {
     const showroomProducts = productsByShowroom[showroom.showRoomID] || [];
     return {
@@ -45,15 +46,19 @@ const ShowroomPage = () => {
     };
   });
 
+  // Fetch showrooms and products in parallel
   useEffect(() => {
-    dispatch(fetchShowrooms()).unwrap().catch((error) => console.error('Error fetching showrooms:', error));
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (showrooms.length > 0) {
-      showrooms.forEach((showroom) => dispatch(fetchProductsByShowroom(showroom.showRoomID)).unwrap());
-    }
-  }, [dispatch, showrooms]);
+    const fetchData = async () => {
+      try {
+        await dispatch(fetchShowrooms()).unwrap();
+        const productPromises = showrooms.map((showroom) => dispatch(fetchProductsByShowroom(showroom.showRoomID)).unwrap());
+        await Promise.all(productPromises);  // Wait for all product fetches
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, [dispatch, showrooms.length]);  // Only re-run if showrooms length changes
 
   const handleAddToCart = (product) => {
     dispatch(addToCart(product));
@@ -102,7 +107,7 @@ const ShowroomPage = () => {
         .filter((showroom) => showroom.products.length > 0)
         .map((showroom) => (
           <div key={showroom.showRoomID} className="mb-6">
-            <div className="flex justify-between items-center mb-4 bg-red-500 text-white p-2 rounded-lg">
+            <div className="flex justify-between items-center mb-4 bg-green-700 text-white p-2 rounded-lg">
               <div className="flex items-center space-x-2">
                 <FireOutlined />
                 <h2 className="text-sm sm:text-base">{showroom.showRoomName}</h2>

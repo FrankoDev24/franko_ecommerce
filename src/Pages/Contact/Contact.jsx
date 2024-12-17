@@ -56,6 +56,7 @@ import {
         lat: 5.559,
         lng: -0.207,
       },
+      
       {
         title: "CIRCLE",
         address: "ADJACENT ODO RICE BUILDING",

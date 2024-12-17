@@ -45,7 +45,7 @@ const ShopByBrandsBanner = () => {
 
   return (
     <div className="container mx-auto px-2">
- <div className="bg-gradient-to-r from-red-500 to-green-800  p-2 rounded-xl shadow-xl mt-4">
+ <div className="bg-gradient-to-r from-green-700 to-green-300  p-2 rounded-xl shadow-xl mt-4">
 
         <h5 className="text-white text-sm md:text-lg font-semibold  p-2 ">Exclusive Brand Partners</h5>
 

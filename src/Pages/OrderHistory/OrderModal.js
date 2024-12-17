@@ -45,7 +45,7 @@ const OrderModal = ({ orderId, isModalVisible, onClose }) => {
         <div style="font-size: 14px; color: #333; line-height: 1.5;">
           <p><strong>Franko Trading Ltd.</strong></p>
           <p>123 Adabraka Street, Accra, Ghana</p>
-          <p>Contact: +233 123 456 789 | Email:<a href="mailto:frankonline12@gmail.com">frankonline12@gmail.com </a></p>
+          <p>Contact: +233 123 456 789 | Email:<a href="mailto:online@frankotrading.com">online@frankotrading.com </a></p>
         </div>
   
         <!-- Invoice Title -->
