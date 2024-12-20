@@ -65,6 +65,36 @@
   font-size: 12px;
 
 }
+.brands-inline-container {
+  display: flex;
+  overflow-x: auto;
+  max-height: 12rem;
+  padding: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: gray lightgray;
+}
+
+.brands-inline-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.brands-inline-container::-webkit-scrollbar-thumb {
+  background-color: gray;
+  border-radius: 4px;
+}
+
+.brand-item {
+  white-space: nowrap;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.brand-logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 
 /* Active category (expanded state) */
 

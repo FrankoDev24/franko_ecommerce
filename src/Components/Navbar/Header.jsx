@@ -8,7 +8,6 @@ import { fetchBrands } from '../../Redux/slice/brandSlice';
 import caro1 from '../../assets/img1.jpg';
 import caro2 from '../../assets/img2.jpg';
 import caro3 from '../../assets/img3.jpg';
-
 import './Header.css';
 
 const Header = () => {
@@ -168,8 +167,6 @@ const Header = () => {
     <CaretDownOutlined className="text-white" />
   )}
 </div>
-
-
       {expandedCategoryId === category.categoryId && (
         <div className="ml-4 grid grid-cols-2 gap-3 overflow-y-auto max-h-48 py-2 px-2 scrollbar-visible scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
           {brands
@@ -189,10 +186,6 @@ const Header = () => {
     </div>
   ))}
 </Drawer>
-
-
-
-
       </div>
     </div>
   );

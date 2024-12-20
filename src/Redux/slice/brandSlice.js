@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Fetch brands
@@ -11,48 +12,37 @@ export const fetchBrands = createAsyncThunk("brand/fetchBrands", async () => {
 });
 
 // Add a new brand
-export const addBrand = createAsyncThunk(
-  "brand/addBrand",
-  async (brandData) => {
-    // Create a FormData object to send the data as multipart/form-data
-    const formData = new FormData();
+export const addBrand = createAsyncThunk("brand/addBrand", async (brandData) => {
+  console.log("Received brandData:", brandData); // Debugging log
+  if (!brandData.get("BrandName")) throw new Error("BrandName is required.");
+  if (!brandData.get("CategoryId")) throw new Error("CategoryId is required.");
+  if (!brandData.get("LogoName")) throw new Error("LogoName is required.");
 
-    // Append each field to the FormData object
-    formData.append('BrandId', brandData.BrandId || ''); // Send empty value if BrandId is not provided
-    formData.append('BrandName', brandData.BrandName || ''); // Send empty value if BrandName is not provided
-    formData.append('CategoryId', brandData.CategoryId || ''); // Send empty value if CategoryId is not provided
-    formData.append('LogoName', brandData.LogoName); // Assuming LogoName is a file (binary data)
+  const response = await axios.post(
+    `${API_BASE_URL}/Brand/Setup-Brand`,
+    brandData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
 
-    // Send the request with the FormData
-    const response = await axios.post(
-      `${API_BASE_URL}/Brand/Setup-Brand`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Ensure the correct content type is set
-        },
-      }
-    );
+  return response.data;
+});
 
-    return response.data; // Adjust based on your backend response
-  }
-);
 
-// Update an existing brand
+
 export const updateBrand = createAsyncThunk(
   "brand/updateBrand",
-  async ({ Brandid, formData }, { rejectWithValue }) => {
+  async ({ id, formData }, { rejectWithValue }) => {
     try {
-      // Send the request with multipart/form-data headers
+      if (!id) {
+        throw new Error("Brand ID is required to update the brand.");
+      }
       const response = await axios.post(
-        `${API_BASE_URL}/Brand/Put-Brand/${Brandid}`,
+        `${API_BASE_URL}/Brand/Put-Brand/${id}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
       return response.data;
     } catch (error) {
-      console.error("API call error:", error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to update brand"
       );
@@ -60,7 +50,6 @@ export const updateBrand = createAsyncThunk(
   }
 );
 
-  
   
 
 const brandSlice = createSlice({
@@ -102,8 +91,6 @@ const brandSlice = createSlice({
         state.error = null;
       })
       .addCase(updateBrand.fulfilled, (state, action) => {
-        state.loading = false;
-      
         const index = state.brands.findIndex(
           (brand) => brand.brandId === action.payload.brandId
         );
@@ -111,7 +98,6 @@ const brandSlice = createSlice({
           state.brands[index] = action.payload;
         }
       })
-      
       .addCase(updateBrand.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message;

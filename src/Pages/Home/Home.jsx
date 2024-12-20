@@ -1,17 +1,20 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useLayoutEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import ShowRoom from '../../Components/ShowRoom/ShowRoom';
-import ShopByBrandsBanner from '../../Components/BrandsBanner';
-import RecentProducts from '../../Components/RecentProducts';
 import Header from '../../Components/Navbar/Header';
-import InfoBanner from '../../Components/InfoBanner'; // Correct for default export
-import Footer from '../../Components/Footer/Footer'; // Correct for default export
+import Footer from '../../Components/Footer/Footer';
+
+const ShowRoom = lazy(() => import('../../Components/ShowRoom/ShowRoom'));
+const ShopByBrandsBanner = lazy(() => import('../../Components/BrandsBanner'));
+const RecentProducts = lazy(() => import('../../Components/RecentProducts'));
+const InfoBanner = lazy(() => import('../../Components/InfoBanner'));
 
 export default function Home() {
-  useEffect(() => {
-    // Scroll to top when the component is mounted
-    window.scrollTo(0, 0);
-  }, []); // Empty dependency array to ensure it runs only once
+  useLayoutEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth', // Enables smooth scrolling
+    });
+  }, []);
 
   return (
     <div>
@@ -32,7 +35,10 @@ export default function Home() {
           property="og:description"
           content="Find the best deals on electronics, mobile phones, laptops, and accessories at Franko Trading."
         />
-        <meta property="og:image" content="link_to_image.jpg" />
+        <meta
+          property="og:image"
+          content="https://www.frankotrading.com/images/home-og-image.jpg"
+        />
         <meta property="og:url" content="https://www.frankotrading.com" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -41,17 +47,23 @@ export default function Home() {
           name="twitter:description"
           content="Discover the best electronics and gadgets at Franko Trading, Ghana's top choice for affordable tech."
         />
-        <meta name="twitter:image" content="link_to_image.jpg" />
+        <meta
+          name="twitter:image"
+          content="https://www.frankotrading.com/images/home-twitter-image.jpg"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
 
       <Header />
-      <ShopByBrandsBanner />
-      <ShowRoom />
-      <InfoBanner />
-      <RecentProducts />
-      <div>
-        <Footer />
-      </div>
+
+      <Suspense fallback={<div>Loading...</div>}>
+        <ShopByBrandsBanner />
+        <ShowRoom />
+        <InfoBanner />
+        <RecentProducts />
+      </Suspense>
+
+      <Footer />
     </div>
   );
 }

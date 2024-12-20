@@ -28,14 +28,38 @@ const ProductDetail = () => {
   const [isShareModalVisible, setShareModalVisible] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [viewedProducts, setViewedProducts] = useState([]);
 
   useEffect(() => {
     dispatch(fetchProducts()); // Fetch products
     dispatch(fetchProductById(productId)); // Fetch current product by ID
     window.scrollTo(0, 0); // Scroll to top on page load
   }, [dispatch, productId]);
+  useEffect(() => {
+    if (currentProduct && currentProduct.length > 0) {
+      const product = currentProduct[0];
+      const viewed = {
+        id: product.productID,
+        name: product.productName,
+        price: product.price,
+        image: `https://smfteapi.salesmate.app/Media/Products_Images/${product.productImage.split("\\").pop()}`,
+      };
+
+      const existingViewed = JSON.parse(localStorage.getItem("viewedProducts")) || [];
+      const updatedViewed = existingViewed.filter((item) => item.id !== viewed.id);
+      updatedViewed.unshift(viewed);
+      localStorage.setItem("viewedProducts", JSON.stringify(updatedViewed.slice(0, 4))); // Store the last 5 viewed products
+      setViewedProducts(updatedViewed.slice(0, 4));
+    }
+  }, [currentProduct]);
+
+  useEffect(() => {
+    const storedViewed = JSON.parse(localStorage.getItem("viewedProducts")) || [];
+    setViewedProducts(storedViewed);
+  }, []);
 
   const recentProducts = products.slice(-12); // Get the last 12 products as related products
+  
 
   const handleAddToCart = () => {
     // Check if the product is already in the cart
@@ -68,9 +92,47 @@ const ProductDetail = () => {
         setIsAddingToCart(false);
       });
   };
-  
+  const renderViewedProducts = () => {
+    if (!viewedProducts || viewedProducts.length === 0) return null;
+    return (
+      <div className="mt-8">
+        <div className="w-full bg-green-700 py-2 px-4 rounded-lg mb-4">
+          <h2 className="text-md font-semibold text-white">Viewed Products</h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {viewedProducts.map((product) => (
+            <Card
+              key={product.id}
+              hoverable
+              className="rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-lg w-full group"
+              cover={
+                <div
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  className="cursor-pointer relative"
+                >
+                  <div className="h-32 md:h-32 lg:h-48 flex items-center justify-center mb-3">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-32 md:w-24 lg:w-48 object-cover rounded-lg"
+                    />
+                  </div>
+                </div>
+              }
+            >
+              <Card.Meta
+                title={<p className="font-semibold text-xs sm:text-sm truncate">{product.name}</p>}
+                description={<p className="text-red-500 font-bold text-xs sm:text-sm">₵{formatPrice(product.price)}.00</p>}
+              />
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   const productUrl = window.location.href; // Get the current product URL
+  
 
   // Share logic for Facebook
   const handleFacebookShare = () => {
@@ -102,6 +164,7 @@ const ProductDetail = () => {
       window.removeEventListener("scroll", handleStickyButton);
     };
   }, []);
+  
 
   if (loading) {
     return <ProductDetailSkeleton />;
@@ -118,14 +181,16 @@ const ProductDetail = () => {
   const productDescription = product.description.split("\n").map((text, index) => (
     <p key={index} className="mb-4">{text}</p>
   ));
+  
+  
 
   const renderRelatedProducts = () => {
     if (!recentProducts || recentProducts.length === 0) return null;
     return (
       <div className="mt-8">
-        <div className="w-full bg-red-400 py-2 px-4 rounded-md mb-4">
-          <h2 className="text-md lg:text-xl font-semibold text-white">
-            Related Products
+        <div className="w-full bg-green-700 py-2 px-4 rounded-md mb-4">
+          <h2 className="text-md font-semibold text-white">
+    For You
           </h2>
         </div>
 
@@ -259,7 +324,7 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
-
+      {renderViewedProducts()}
       {/* Related Products */}
       {renderRelatedProducts()}
 

@@ -43,7 +43,7 @@ export const checkOutOrder = createAsyncThunk(
 
       // Make the API request to checkout the order
       const response = await axios.post(
-        `${API_BASE_URL}/Order/CheckOut`,
+        `${API_BASE_URL}/Order/CheckOutDbCart`,
         payload
       );
 
