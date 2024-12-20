@@ -97,7 +97,7 @@ const ProductsPage = () => {
         <title>Products - Franko Trading Ent.</title>
         <meta name="description" content="Browse and shop the best products at Franko Trading Ent. Discover amazing deals and new arrivals with a variety of options to choose from." />
         <meta name="keywords" content="Franko Trading, gadgets, phones, laptops, electronics, accessories, Ghana, quality gadgets, affordable electronics" />
-        <meta property="og:title" content="Products - Franko Trading Ent." />
+        <meta property="og:title" content="Products - Franko Trading ltd.  " />
         <meta property="og:description" content="Browse and shop the best products at Franko Trading Ent. Discover amazing deals and new arrivals with a variety of options to choose from." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.frankotrading.com/products" />
