@@ -45,7 +45,7 @@ const AgentHome = ({ children }) => {
         {/* Sidebar Header */}
         <div
           style={{
-            height: 64,
+            height: 65,
             display: 'flex',
             alignItems: 'center',
             justifyContent: collapsed ? 'center' : 'space-between',
