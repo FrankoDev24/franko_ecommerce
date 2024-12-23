@@ -70,6 +70,9 @@ const OrderDetailsModal = ({ orderId, onClose }) => {
       <div>
         <Text strong><HomeOutlined /> Address:</Text> <Text>{salesOrder[0]?.address}</Text>
       </div>
+      <div>
+        <Text strong> <EditOutlined /> Payment Method:</Text> <Text>{salesOrder[0]?.paymentMode}</Text>
+      </div>
     </Card>
   
     {/* Delivery Address */}

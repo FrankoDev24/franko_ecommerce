@@ -5,9 +5,9 @@ import { MenuOutlined, AppstoreOutlined, CaretDownOutlined, CloseOutlined } from
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../../Redux/slice/categorySlice';
 import { fetchBrands } from '../../Redux/slice/brandSlice';
-import caro1 from '../../assets/img1.jpg';
-import caro2 from '../../assets/img2.jpg';
-import caro3 from '../../assets/img3.jpg';
+import caro1 from '../../assets/camon.jpg';
+import caro2 from '../../assets/phantom.jpg';
+import caro3 from '../../assets/sam.jpg';
 import './Header.css';
 
 const Header = () => {

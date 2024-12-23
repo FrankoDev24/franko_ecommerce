@@ -108,9 +108,12 @@ const Orders = () => {
     .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
   const columns = [
-    { title: "Order Code", dataIndex: "orderCode", key: "orderCode" },
-    { title: "Full Name", dataIndex: "fullName", key: "fullName" },
-    { title: "Contact Number", dataIndex: "contactNumber", key: "contactNumber" },
+    {
+      title: "Order Code",
+      dataIndex: "orderCode",
+      key: "orderCode",
+      render: (orderCode) => orderCode.slice(-5)
+    },
     {
       title: "Order Date",
       dataIndex: "orderDate",
@@ -119,6 +122,11 @@ const Orders = () => {
         date === "0001-01-01" ? "N/A" : new Date(date).toLocaleDateString(),
       sorter: (a, b) => new Date(a.orderDate) - new Date(b.orderDate),
     },
+    
+    { title: "Full Name", dataIndex: "fullName", key: "fullName" },
+    { title: "Contact Number", dataIndex: "contactNumber", key: "contactNumber" },
+    {title:"Payment Mode", dataIndex:"paymentMode", key:"paymentMode"},
+    
     {
       title: "Status",
       dataIndex: "orderCycle",

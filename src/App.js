@@ -48,6 +48,7 @@ import FulfillmentsDashboard from "./Fufilments/Fufilments/FulfillmentsDashboard
 import FulfillmentsOrder from "./Fufilments/Fufilments/FulfillmentsOrder";
 import Dashboard from "./AdminPages/Dashboard";
 import Cancellation from "./Pages/Cancellation";
+import Welcome from "./Components/Welcome/Welcome";
 
 // Utility to fetch customer role
 const getUserRole = () => {
@@ -110,11 +111,21 @@ if (userPosition) {
 
 const App = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
 
   // Monitor network status
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+        // Check local storage for user or customer details
+        const customer = localStorage.getItem("customer");
+        const user = localStorage.getItem("user");
+    
+        if (!customer && !user) {
+          setShowWelcomeModal(true); // Show modal if no data is found
+        }
+    
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
@@ -131,6 +142,7 @@ const App = () => {
   return (
     <Router>
       <ConditionalNavbar />
+      <Welcome show={showWelcomeModal} onClose={() => setShowWelcomeModal(false)} />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Navigate to="/home" />} />
