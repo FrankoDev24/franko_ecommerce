@@ -144,11 +144,14 @@ const Orders = () => {
             color = "green";
             break;
           case "Pending":
-            color = "orange";
+            color = "yellow";
             break;
           case "Unreachable":
             color = "red";
             break;
+            case "Out of Stock":
+              color = "orange";
+              break;
           case "Wrong Number":
             color = "purple";
             break;

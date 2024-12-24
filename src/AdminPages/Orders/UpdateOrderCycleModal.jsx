@@ -60,6 +60,7 @@ const UpdateOrderCycleModal = ({ isVisible, onClose, orderCode, fetchOrders }) =
         <Select.Option value="Confirmed">Confirmed</Select.Option>
         <Select.Option value="Pending">Pending</Select.Option>
         <Select.Option value="Unreachable">Unreachable</Select.Option>
+        <Select.Option value="Out of Stock">Out of Stock</Select.Option>
         <Select.Option value="Wrong Number">Wrong Number</Select.Option>
         <Select.Option value="Cancelled">Cancelled</Select.Option>
         <Select.Option value="Not Answered">Not Answered</Select.Option>

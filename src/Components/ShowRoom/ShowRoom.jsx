@@ -82,7 +82,7 @@ const ShowroomPage = () => {
     return (
       <div className="container mx-auto p-4 mt-12">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
-          {Array.from({ length: 12 }).map((_, index) => (
+          {Array.from({ length: 10 }).map((_, index) => (
             <div key={index} className="animate-pulse border rounded-lg shadow p-3 relative bg-gray-100">
               <div className="h-32 md:h-32 lg:h-32 flex items-center justify-center mb-3 bg-gray-200 rounded-lg">
                 <span className="text-gray-500 text-2xl font-bold">Franko</span>
