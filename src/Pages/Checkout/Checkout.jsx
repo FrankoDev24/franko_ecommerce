@@ -32,10 +32,7 @@ const CheckoutPage = () => {
 
   // Load cart items from local storage
   useEffect(() => {
-    const storedCartItems = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartItems(storedCartItems);
-
-    // Get shipping details from localStorage
+    setCartItems(JSON.parse(localStorage.getItem("cart")) || []);
     const storedShippingDetails = JSON.parse(localStorage.getItem("shippingDetails"));
     if (storedShippingDetails) {
       setAddress(storedShippingDetails.location);
@@ -43,117 +40,42 @@ const CheckoutPage = () => {
     }
   }, []);
 
-  // Calculate total amount including the shipping fee
   const calculateTotalAmount = () => {
     const subtotal = cartItems.reduce((total, item) => total + (item.total || 0), 0);
     return subtotal + shippingFee;
   };
 
-  // Handle checkout
-   // Handle checkout process
-   const handleCheckout = async () => {
-    if (!paymentMethod) {
-      message.warning("Please select a payment method to proceed.");
-      return;
-    }
+  const storeCheckoutDetailsInLocalStorage = (checkoutDetails, addressDetails) => {
+    localStorage.setItem("checkoutDetails", JSON.stringify(checkoutDetails));
+    localStorage.setItem("orderAddressDetails", JSON.stringify(addressDetails));
+  };
   
-    if (!address) {
-      message.warning("Please enter your delivery address to proceed.");
-      return;
-    }
+  const handleCheckout = async () => {
+    if (!paymentMethod) return message.warning("Please select a payment method to proceed.");
+    if (!address) return message.warning("Please enter your delivery address to proceed.");
     if (paymentMethod === "Cash on Delivery" && shippingFee === 0) {
-      message.warning("Please select another payment method.");
-      return;
+      return message.warning("Please select another payment method.");
     }
   
     setLoading(true);
-    const orderId = uuidv4(); // Generate a unique order ID
-    const orderDate = new Date().toISOString(); // Capture the current order date
-    
-    try {
-      // Prepare checkout details (Payment, Customer Info, Cart Info)
-      const checkoutDetails = {
-        customerId,
-        orderCode: orderId,
-        PaymentMode: paymentMethod,
-        PaymentAccountNumber: customerNumber,
-        customerAccountType: customerAccountType,
-        paymentService: "Mtn", // Adjust payment service as needed
-        totalAmount: calculateTotalAmount(),
-        RecipientName: customerName,
-        RecipientContactNumber: customerNumber,
-        orderNote: orderNote || "N/A",
-        orderDate: orderDate, // Add order date
-      };
+    const orderId = uuidv4();
+    const orderDate = new Date().toISOString();
   
-      // Store the order details in localStorage
-      const storedOrders = JSON.parse(localStorage.getItem('userOrders')) || [];
-      const existingOrderIndex = storedOrders.findIndex(
-        (order) => order.orderCode === orderId
-      );
-      
-      if (existingOrderIndex !== -1) {
-        storedOrders[existingOrderIndex] = checkoutDetails;
-      } else {
-        storedOrders.push(checkoutDetails);
-      }
-      localStorage.setItem('userOrders', JSON.stringify(storedOrders));
+    const checkoutDetails = {
+      customerId,
+      orderCode: orderId,
+      PaymentMode: paymentMethod,
+      PaymentAccountNumber: customerNumber,
+      customerAccountType,
+      paymentService: "Mtn",
+      totalAmount: calculateTotalAmount(),
+      RecipientName: customerName,
+      RecipientContactNumber: customerNumber,
+      orderNote: orderNote || "N/A",
+      orderDate,
+    };
   
-      // Handle different payment methods
-      if (paymentMethod === "Cash on Delivery" || paymentMethod === "Paid Already") {
-        // Handle Cash on Delivery or Paid Already (Order Checkout first)
-        await dispatchOrderCheckout(orderId, {
-          ...checkoutDetails,
-          PaymentMode: paymentMethod, // Include the selected payment method
-        }); 
-        navigate('/order-received'); // Redirect to order received page
-      } else if (["Credit Card", "Mobile Money"].includes(paymentMethod)) {
-        // Handle Online Payment (Save checkout details and initiate payment)
-        localStorage.setItem("checkoutDetails", JSON.stringify(checkoutDetails)); // Save checkout details for online payment
-        const paymentUrl = await initiatePayment(calculateTotalAmount(), cartItems, orderId);
-        if (paymentUrl) {
-          window.location.href = paymentUrl; // Redirect to payment gateway
-        }
-      }
-      
-    } catch (error) {
-      message.error(error.message || "An error occurred during checkout.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Separate function to dispatch order checkout
-  const dispatchOrderCheckout = async (orderId, checkoutDetails) => {
-    try {
-      const checkoutPayload = {
-        Cartid: cartId,
-        customerId,
-        orderCode: orderId,
-        PaymentMode: checkoutDetails.PaymentMode,
-        PaymentAccountNumber: customerNumber,
-        customerAccountType: customerAccountType,
-        paymentService: "Mtn",
-        totalAmount: calculateTotalAmount(),
-      };
-  
-      // Dispatch order checkout
-      await dispatch(checkOutOrder(checkoutPayload)).unwrap();
-      
-      // Now, dispatch the order address after checkout
-      await dispatchOrderAddress(orderId); // Call function to dispatch order address
-    } catch (error) {
-      message.error(error.message || "An error occurred during order checkout.");
-    }
-  };
-  
-  // Function to dispatch order address separately
-// Function to dispatch updated order address
-const dispatchOrderAddress = async (orderId) => {
-  try {
-
-
-    const updateAddressPayload = {
+    const addressDetails = {
       orderCode: orderId,
       address,
       customerid: customerId,
@@ -162,67 +84,93 @@ const dispatchOrderAddress = async (orderId) => {
       orderNote: orderNote || "N/A",
       geoLocation: "N/A",
     };
-
-    // Dispatch updateOrderDelivery to update the existing address
-    await dispatch(updateOrderDelivery(updateAddressPayload)).unwrap();
-
-    // After successful update, clear the cart and localStorage
-    message.success("Your order has been placed successfully!");
-    dispatch(clearCart()); // Clear cart in Redux
-    localStorage.removeItem("cart"); // Clear cart in localStorage
-    localStorage.removeItem("cartId"); // Clear cart ID in localStorage
-  } catch (error) {
-    message.error(error.message || "An error occurred while updating the order address.");
-  }
-};
-
   
-  // Function to initiate payment
+    try {
+      if (["Credit Card", "Mobile Money"].includes(paymentMethod)) {
+        storeCheckoutDetailsInLocalStorage(checkoutDetails, addressDetails);
+  
+        const paymentUrl = await initiatePayment(calculateTotalAmount(), cartItems, orderId);
+        if (paymentUrl) window.location.href = paymentUrl;
+      } else {
+        await dispatchOrderCheckout(orderId, checkoutDetails);
+        await dispatchOrderAddress(orderId);
+        message.success("Your order has been placed successfully!");
+        navigate("/order-received");
+      }
+    } catch (error) {
+      message.error(error.message || "An error occurred during checkout.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const dispatchOrderCheckout = async (orderId, checkoutDetails) => {
+    try {
+      const checkoutPayload = {
+        Cartid: localStorage.getItem("cartId"),
+        ...checkoutDetails,
+      };
+  
+      await dispatch(checkOutOrder(checkoutPayload)).unwrap();
+    } catch (error) {
+      throw new Error("An error occurred during order checkout.");
+    }
+  };
+  
+  const dispatchOrderAddress = async (orderId) => {
+    try {
+      const updateAddressPayload = {
+        OrderCode: orderId,
+        address,
+        Customerid: customerId,
+        RecipientName: customerName,
+        RecipientContactNumber: customerNumber,
+        orderNote: orderNote || "N/A",
+        geoLocation: "N/A",
+      };
+  
+      await dispatch(updateOrderDelivery(updateAddressPayload)).unwrap();
+      dispatch(clearCart());
+      localStorage.removeItem("cart");
+      localStorage.removeItem("cartId");
+    } catch (error) {
+      throw new Error("An error occurred while updating the order address.");
+    }
+  };
+  
   const initiatePayment = async (totalAmount, cartItems, orderId) => {
     const username = "RMWBWl0";
     const password = "3c42a596cd044fed81b492e74da4ae30";
     const encodedCredentials = btoa(`${username}:${password}`);
-    
-    const myHeaders = new Headers({
-      "Content-Type": "application/json",
-      Authorization: `Basic ${encodedCredentials}`,
-    });
   
-    // Set clientReference as the orderId
-    const clientReference = orderId;  // Use the same orderId as clientReference
-    const returnUrl = `https://frankotrading.com/order-success/${orderId}`;
-  
-    const raw = JSON.stringify({
+    const payload = {
       totalAmount,
       description: `Payment for ${cartItems.map((item) => item.productName).join(", ")}`,
-      callbackUrl: "https://frankotrading.com/order-history",
-      returnUrl,
+      callbackUrl: "https://www.frankotrading.com/order-history",
+      returnUrl: `https://www.frankotrading.com/order-success/${orderId}`,
       merchantAccountNumber: "2020892",
-      cancellationUrl: "https://frankotrading.com/order-cancelled",
-      clientReference,  // Pass orderId as clientReference
-    });
-  
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
+      cancellationUrl: "https://www.frankotrading.com/order-cancelled",
+      clientReference: orderId,
     };
   
     try {
-      const response = await fetch("https://payproxyapi.hubtel.com/items/initiate", requestOptions);
+      const response = await fetch("https://payproxyapi.hubtel.com/items/initiate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${encodedCredentials}`,
+        },
+        body: JSON.stringify(payload),
+      });
+  
       const result = await response.json();
-      if (result.status === "Success") {
-        return result.data.checkoutUrl;  // Return the payment URL if initiation is successful
-      } else {
-        throw new Error(`Payment initiation failed: ${result.message || 'Unknown error'}`);
-      }
+      if (result.status === "Success") return result.data.checkoutUrl;
+  
+      throw new Error(`Payment initiation failed: ${result.message || "Unknown error"}`);
     } catch (error) {
       throw new Error("Payment initiation failed. Please try again.");
     }
   };
-  
-
-
 
   const handleOpenModal = () => {
     setIsModalVisible(true);

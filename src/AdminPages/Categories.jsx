@@ -1,26 +1,43 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories, addCategory, updateCategory } from '../Redux/slice/categorySlice';
 import { Modal, Spin, Button, Input, Table, Pagination } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
+import { v4 as uuidv4 } from 'uuid';
 
 const Categories = () => {
     const dispatch = useDispatch();
     const { categories, loading, error } = useSelector((state) => state.categories);
-    
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [categoryName, setCategoryName] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-    const categoriesPerPage = 6; // Items per page
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const categoriesPerPage = 6;
 
     useEffect(() => {
         dispatch(fetchCategories());
     }, [dispatch]);
 
-    const showModal = () => setIsModalVisible(true);
+    const showModal = (category = null) => {
+        if (category) {
+            // Edit existing category
+            setCategoryId(category.categoryId);
+            setCategoryName(category.categoryName);
+            setIsEditing(true);
+        } else {
+            // Add new category (generate new UUID)
+            setCategoryId(uuidv4());
+            setCategoryName('');
+            setIsEditing(false);
+        }
+        setIsModalVisible(true);
+    };
+
     const hideModal = () => {
         setCategoryName('');
         setCategoryId('');
@@ -29,8 +46,6 @@ const Categories = () => {
     };
 
     const handleNameChange = (e) => setCategoryName(e.target.value);
-    const handleIdChange = (e) => setCategoryId(e.target.value);
-    
     const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
     const handleSubmit = async (e) => {
@@ -38,39 +53,31 @@ const Categories = () => {
 
         const categoryData = {
             categoryId,
-            categoryName
+            categoryName,
         };
 
         try {
+            setIsSubmitting(true);
             if (isEditing) {
+                // Update category
                 await dispatch(updateCategory({ categoryId, categoryData })).unwrap();
             } else {
-                const existingCategory = categories.find(cat => cat.categoryId === categoryId);
-                if (existingCategory) {
-                    alert(`Category with ID ${categoryId} already exists.`);
-                    return;
-                }
+                // Add new category
                 await dispatch(addCategory(categoryData)).unwrap();
             }
+            await dispatch(fetchCategories()); // Fetch updated categories
             hideModal();
-            dispatch(fetchCategories());
         } catch (error) {
-            console.error('Failed to add/update category: ', error);
+            console.error('Failed to add/update category:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    const handleEdit = (category) => {
-        setCategoryId(category.categoryId);
-        setCategoryName(category.categoryName);
-        setIsEditing(true);
-        showModal();
-    };
-
-    const filteredCategories = categories.filter((category) => 
+    const filteredCategories = categories.filter((category) =>
         category.categoryName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Pagination logic
     const indexOfLastCategory = currentPage * categoriesPerPage;
     const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
     const currentCategories = filteredCategories.slice(indexOfFirstCategory, indexOfLastCategory);
@@ -90,15 +97,15 @@ const Categories = () => {
             title: 'Actions',
             key: 'actions',
             render: (text, record) => (
-                <Button 
-                    icon={<EditOutlined />} 
-                    onClick={() => handleEdit(record)} 
-                    className="bg-green-600 text-white  transition rounded-full"
+                <Button
+                    icon={<EditOutlined />}
+                    onClick={() => showModal(record)} // Use showModal directly
+                    className="bg-green-600 text-white transition rounded-full"
                 >
                     Edit
                 </Button>
             ),
-        }
+        },
     ];
 
     return (
@@ -106,16 +113,15 @@ const Categories = () => {
             <div className="flex flex-col md:flex-row justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-red-500 mb-2 md:mb-0">Categories</h2>
                 <div className="flex items-center">
-                    <Input 
+                    <Input
                         placeholder="Search by category name"
                         value={searchQuery}
                         onChange={handleSearchChange}
-                        style={{ marginRight: 16 , width: '250px' }}
+                        style={{ marginRight: 16, width: '250px' }}
                     />
                     <Button
-                     
                         icon={<PlusOutlined />}
-                        onClick={showModal}
+                        onClick={() => showModal()} // For adding a new category
                         className="w-full md:w-auto bg-green-500 hover:bg-green-600 text-white rounded-full"
                     >
                         Add Category
@@ -151,8 +157,8 @@ const Categories = () => {
             />
 
             <Modal
-                title={isEditing ? "Edit Category" : "Add New Category"}
-                visible={isModalVisible}
+                title={isEditing ? 'Edit Category' : 'Add New Category'}
+                open={isModalVisible}
                 onCancel={hideModal}
                 footer={null}
             >
@@ -163,17 +169,14 @@ const Categories = () => {
                             type="text"
                             name="categoryId"
                             value={categoryId}
-                            onChange={handleIdChange}
-                            className="w-full border rounded px-3 py-2"
-                            placeholder="Enter category ID"
-                            disabled={isEditing}
-                            required
+                            disabled
+                            className="w-full border rounded px-3 py-2 bg-gray-100 cursor-not-allowed"
                         />
                     </div>
                     <div>
                         <label className="block text-gray-700">Category Name:</label>
                         <input
-                            type="text" 
+                            type="text"
                             name="categoryName"
                             value={categoryName}
                             onChange={handleNameChange}
@@ -184,9 +187,11 @@ const Categories = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+                        className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition flex items-center justify-center"
+                        disabled={isSubmitting}
                     >
-                        {isEditing ? "Update Category" : "Add Category"}
+                        {isSubmitting ? <Spin size="small" className="mr-2" /> : null}
+                        {isSubmitting ? 'Updating' : isEditing ? 'Update Category' : 'Add Category'}
                     </button>
                 </form>
             </Modal>

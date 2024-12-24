@@ -73,11 +73,12 @@ const categorySlice = createSlice({
             })
             .addCase(updateCategory.fulfilled, (state, action) => {
                 state.loading = false;
-                const index = state.categories.findIndex(category => category.categoryId === action.payload.categoryId);
+                const index = state.categories.findIndex((category) => category.categoryId === action.payload.categoryId);
                 if (index !== -1) {
-                    state.categories[index] = action.payload; // Update the existing category in the state
+                    state.categories[index] = { ...state.categories[index], ...action.payload }; // Merge updated fields
                 }
             })
+            
             .addCase(updateCategory.rejected, (state, action) => {
                 state.loading = false;
                 console.error('Error while updating category:', action.error); // Log error details

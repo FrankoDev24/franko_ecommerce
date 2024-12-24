@@ -21,6 +21,8 @@ const { Search } = Input;
 const Orders = () => {
   const dispatch = useDispatch();
   const { orders = [], loading } = useSelector((state) => state.orders);
+  console.log(orders); // Check the paymentMode value in the logs
+  
 
   const [dateRange, setDateRange] = useState([null, null]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -125,7 +127,19 @@ const Orders = () => {
     
     { title: "Full Name", dataIndex: "fullName", key: "fullName" },
     { title: "Contact Number", dataIndex: "contactNumber", key: "contactNumber" },
-    {title:"Payment Mode", dataIndex:"paymentMode", key:"paymentMode"},
+    {
+      title: "Payment Mode",
+      dataIndex: "paymentMode",
+      key: "paymentMode",
+      render: (paymentMode) => {
+        // Check if paymentMode is "Cash" and return "Mobile Money"
+        if (paymentMode === "Cash") {
+          return "Mobile Money";
+        }
+        // Otherwise, return the actual paymentMode from the database
+        return paymentMode || "N/A"; // Fallback if paymentMode is undefined or null
+      },
+    },
     
     {
       title: "Status",
