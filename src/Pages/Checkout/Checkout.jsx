@@ -193,15 +193,15 @@ const dispatchOrderAddress = async (orderId) => {
   
     // Set clientReference as the orderId
     const clientReference = orderId;  // Use the same orderId as clientReference
-    const returnUrl = `http://localhost:3000/order-success/${orderId}`;
+    const returnUrl = `https://frankotrading.com/order-success/${orderId}`;
   
     const raw = JSON.stringify({
       totalAmount,
       description: `Payment for ${cartItems.map((item) => item.productName).join(", ")}`,
-      callbackUrl: "http://localhost:3000/order-history",
+      callbackUrl: "https://frankotrading.com/order-history",
       returnUrl,
       merchantAccountNumber: "2020892",
-      cancellationUrl: "http://localhost:3000/order-cancelled",
+      cancellationUrl: "https://frankotrading.com/order-cancelled",
       clientReference,  // Pass orderId as clientReference
     });
   
