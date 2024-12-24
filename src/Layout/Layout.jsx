@@ -126,7 +126,7 @@ const AdminLayout = ({ children }) => {
           <Button
             type="link"
             style={{ fontSize: '16px', marginLeft: '10px', color: '#4FB477', fontWeight: 'bold' }}
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
             icon={<HomeOutlined />}
           >
             Home

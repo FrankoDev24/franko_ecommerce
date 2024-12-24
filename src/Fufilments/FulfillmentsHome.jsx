@@ -105,7 +105,7 @@ const FulfillmentHome = ({ children }) => {
             {/* Home Icon to navigate to home */}
             <HomeOutlined
               style={{ fontSize: '24px', cursor: 'pointer' }}
-              onClick={() => navigate('/franko')}
+              onClick={() => navigate('/home')}
             />
             
          

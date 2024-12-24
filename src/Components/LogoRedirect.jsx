@@ -12,7 +12,7 @@ const LogoRedirect = () => {
         const timer = setTimeout(() => {
             setShowLogo(false); // Hide logo after 3 seconds
             // Navigate to the home page
-            navigate("/franko");
+            navigate("/home");
         }, 3000); // 3000ms = 3 seconds
 
         // Cleanup the timeout when the component unmounts
