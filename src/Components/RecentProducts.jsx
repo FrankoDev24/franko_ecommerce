@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts } from '../Redux/slice/productSlice';
-import { Empty, message, Button, Card } from 'antd';
+import { Empty, Button, Card } from 'antd';
 import { ShoppingCartOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { addToCart } from '../Redux/slice/cartSlice';
@@ -9,10 +9,14 @@ import { addToCart } from '../Redux/slice/cartSlice';
 const RecentProducts = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { products, loading, error } = useSelector((state) => state.products);
+  const { products, loading } = useSelector((state) => state.products);
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    const fetchData = async () => {
+      await dispatch(fetchProducts());
+    };
+
+    fetchData();
   }, [dispatch]);
 
   const handleAddToCart = (product) => {
@@ -27,10 +31,7 @@ const RecentProducts = () => {
     dispatch(addToCart(cartData))
       .unwrap()
       .then(() => {
-        message.success(`${product.productName} added to cart!`);
-      })
-      .catch((error) => {
-        message.error(`Failed to add ${product.productName} to cart: ${error.message}`);
+        console.log(`${product.productName} added to cart!`);
       });
   };
 
@@ -59,8 +60,6 @@ const RecentProducts = () => {
             ))}
           </div>
         </div>
-      ) : error ? (
-        <div className="text-center text-red-500 mt-6">Error fetching products</div>
       ) : recentProducts.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {recentProducts.map((product) => {

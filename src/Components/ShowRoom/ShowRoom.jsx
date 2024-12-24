@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchShowrooms } from '../../Redux/slice/showRoomSlice';
 import { fetchProductsByShowroom } from '../../Redux/slice/productSlice';
 import { addToCart } from '../../Redux/slice/cartSlice';
-import { Alert, Card, Button } from 'antd';
+import { Card, Button } from 'antd';
 import { ShoppingCartOutlined, LeftOutlined, RightOutlined, FireOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import './ShowRoom.css';
@@ -11,8 +11,8 @@ import './ShowRoom.css';
 const ShowroomPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { showrooms, loading, error } = useSelector((state) => state.showrooms);
-  const { productsByShowroom = {}, loading: loadingProducts, error: errorProducts } = useSelector((state) => state.products);
+  const { showrooms, loading } = useSelector((state) => state.showrooms);
+  const { productsByShowroom = {}, loading: loadingProducts} = useSelector((state) => state.products);
 
   // Initialize countdown state
   const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 15, seconds: 30 });
@@ -95,11 +95,6 @@ const ShowroomPage = () => {
       </div>
     );
   }
-
-  if (error || errorProducts) {
-    return <Alert message="Error fetching data" description={error || errorProducts} type="error" />;
-  }
-
   return (
     <div className="container mx-auto p-4">
       {sortedProducts
