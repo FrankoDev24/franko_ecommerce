@@ -164,16 +164,16 @@ const Orders = () => {
             color = "red";
             break;
             case "Out of Stock":
-              color = "orange";
+              color = "red";
               break;
           case "Wrong Number":
             color = "purple";
             break;
           case "Cancelled":
-            color = "gray";
+            color = "red";
             break;
           case "Not Answered":
-            color = "cyan";
+            color = "yellow";
             break;
           case "Delivery":
             color = "gold";

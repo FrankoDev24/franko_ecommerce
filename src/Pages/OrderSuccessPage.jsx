@@ -90,13 +90,13 @@ const OrderSuccessPage = () => {
 
         <div className="space-y-4 sm:space-y-0 sm:space-x-4">
           <button
-            onClick={() => navigate('/orders')}
+            onClick={() => navigate('/order-history')}
             className="w-full sm:w-auto py-3 px-8 bg-green-500 text-white font-semibold rounded-lg shadow-lg transform transition duration-300 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
           >
             View Orders
           </button>
           <button
-            onClick={() => navigate('/shop')}
+            onClick={() => navigate('/home')}
             className="w-full sm:w-auto py-3 px-8 bg-white text-green-500 font-semibold rounded-lg shadow-lg border-2 border-green-500 transform transition duration-300 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400"
           >
             Back to Shopping

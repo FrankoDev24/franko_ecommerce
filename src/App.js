@@ -102,7 +102,7 @@ if (userPosition) {
 
   // If no userPosition is found, check the role-based redirection (from userRole)
   if (!userRole || !allowedRoles.includes(userRole)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   // If the user is authorized, render the children
