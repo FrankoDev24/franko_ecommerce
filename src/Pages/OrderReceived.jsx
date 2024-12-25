@@ -10,7 +10,7 @@ function OrderReceived() {
   };
 
   const handleBackToShopping = () => {
-    navigate('/'); // Navigate back to the shopping page
+    navigate('/home'); // Navigate back to the shopping page
   };
 
   return (

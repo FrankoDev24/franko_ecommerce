@@ -133,12 +133,9 @@ const ShowroomProductsPage = () => {
           >
             Filter
           </Button>
-        </div>
-
-       
+        </div>  
       </div>
-
-      {error ? (
+ {error ? (
         <div className="text-center text-red-500 mt-6">Error fetching products</div>
       ) : loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -213,7 +210,7 @@ const ShowroomProductsPage = () => {
             imageStyle={{ height: 200, marginBottom: 6 }}
           />
         </div>
-      )}
+      )} 
     </div>
   );
 };

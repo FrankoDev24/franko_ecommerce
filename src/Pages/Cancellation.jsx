@@ -21,7 +21,7 @@ function Cancellation() {
           <div className="flex justify-center space-x-4">
             <button
               className="w-full sm:w-auto bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-300"
-              onClick={() => Navigate('/franko')}
+              onClick={() => Navigate('/home')}
             >
               Back To Shopping
             </button>
