@@ -1,17 +1,17 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams,} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductsByShowroom } from "../../Redux/slice/productSlice";
 import { fetchShowrooms } from "../../Redux/slice/showRoomSlice";
-import { addToCart } from "../../Redux/slice/cartSlice";
-import { Empty, message, Input, Button } from "antd";
+import { Empty,  Input, Button } from "antd";
 import { ShoppingCartOutlined, FilterOutlined } from "@ant-design/icons";
 import { Helmet } from "react-helmet";
+import ProductDetailModal from "../../Pages/ProductDetails/ProductDetailsModal";
 
 const ShowroomProductsPage = () => {
   const { showRoomID } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+
   const { productsByShowroom, loading, error, showroom } = useSelector(
     (state) => state.products
   );
@@ -21,6 +21,9 @@ const ShowroomProductsPage = () => {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(200000);
   const observer = useRef();
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
 
   // Scroll to top when the page is loaded
   useEffect(() => {
@@ -53,27 +56,16 @@ const ShowroomProductsPage = () => {
     },
     [loading]
   );
-
-  const handleAddToCart = (product) => {
-    const cartData = {
-      productId: product.productID,
-      productName: product.productName,
-      quantity: 1,
-      price: product.price,
-      image: product.productImage,
-    };
-
-    dispatch(addToCart(cartData))
-      .unwrap()
-      .then(() => {
-        message.success(`${product.productName} added to cart!`);
-      })
-      .catch((error) => {
-        message.error(
-          `Failed to add ${product.productName} to cart: ${error.message}`
-        );
-      });
+  const handleProductClick = (productId) => {
+    setSelectedProductId(productId);
+    setIsModalVisible(true);
   };
+
+  const closeModal = () => {
+    setSelectedProductId(null);
+    setIsModalVisible(false);
+  };
+
 
   const formatPrice = (price) =>
     price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -167,7 +159,7 @@ const ShowroomProductsPage = () => {
                 ref={index === currentProducts.length - 1 ? lastProductRef : null}
                 key={product.productID || index}
                 className="relative group p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer"
-                onClick={() => navigate(`/product/${product.productID}`)}
+                onClick={() => handleProductClick(product.productID)}
               >
                 {discount > 0 && (
                   <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
@@ -204,7 +196,7 @@ const ShowroomProductsPage = () => {
                   className="absolute bottom-2 right-2 bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleAddToCart(product);
+                   
                   }}
                 />
               </div>
@@ -220,6 +212,13 @@ const ShowroomProductsPage = () => {
           />
         </div>
       )} 
+      {selectedProductId && (
+        <ProductDetailModal
+          productId={selectedProductId}
+          isModalVisible={isModalVisible}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
 };

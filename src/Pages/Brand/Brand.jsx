@@ -7,6 +7,7 @@ import { Helmet } from 'react-helmet';
 import { Empty, Input, Button } from 'antd';
 import { ShoppingCartOutlined, FilterOutlined} from '@ant-design/icons';
 import RelatedBrands from './RelatedBrands'; // Ensure this is imported correctly
+import ProductDetailModal from '../ProductDetails/ProductDetailsModal';
 
 const Brand = () => {
   const { brandId } = useParams();
@@ -18,6 +19,8 @@ const Brand = () => {
   const [maxPrice, setMaxPrice] = useState(200000);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const observer = useRef();
 
@@ -49,6 +52,15 @@ const Brand = () => {
     [loading]
   );
 
+  const handleProductClick = (productId) => {
+    setSelectedProductId(productId);
+    setIsModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setSelectedProductId(null);
+    setIsModalVisible(false);
+  };
   const currentProducts = filteredProducts.slice(0, currentPage * itemsPerPage);
 
   const formatPrice = (price) => price.toLocaleString();
@@ -137,7 +149,7 @@ const Brand = () => {
               ref={index === currentProducts.length - 1 ? lastProductRef : null}
               key={product.productID || index}
               className="relative group p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-transform duration-300 transform hover:scale-105 cursor-pointer"
-              onClick={() => navigate(`/product/${product.productID}`)}
+              onClick={() => handleProductClick(product.productID)}
             >
               <div className="h-32 md:h-32 lg:h-48 flex items-center justify-center mb-3">
                 <img
@@ -174,6 +186,13 @@ const Brand = () => {
             imageStyle={{ height: 200, marginBottom: 6 }}
           />
         </div>
+      )}
+         {selectedProductId && (
+        <ProductDetailModal
+          productId={selectedProductId}
+          isModalVisible={isModalVisible}
+          onClose={closeModal}
+        />
       )}
     </div>
   );

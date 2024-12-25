@@ -3,19 +3,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts } from '../Redux/slice/productSlice';
 import { Empty, Input, Button, Select } from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import ProductDetailModal from './ProductDetails/ProductDetailsModal';
 
 const { Option } = Select;
 
 const ProductsPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { products, loading, hasMore } = useSelector((state) => state.products);
   const [page, setPage] = useState(1);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(200000);
   const [sortOption, setSortOption] = useState('newest');
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const observer = useRef();
   const itemsPerPage = 12;
 
@@ -55,9 +56,14 @@ const ProductsPage = () => {
     [loading, hasMore]
   );
 
-  const handleProductClick = (product) => {
-    localStorage.setItem('selectedProduct', JSON.stringify(product));
-    navigate(`/product/${product.productID}`);
+  const handleProductClick = (productId) => {
+    setSelectedProductId(productId);
+    setIsModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setSelectedProductId(null);
+    setIsModalVisible(false);
   };
 
   const formatPrice = (price) => price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -114,28 +120,26 @@ const ProductsPage = () => {
 
       {/* Products Grid */}
       {loading ? (
-       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-       {Array.from({ length: itemsPerPage }).map((_, index) => (
-         <div
-           key={index}
-           className="animate-pulse border rounded-lg shadow p-3 bg-gray-100 relative"
-         >
-           <div
-             className="absolute inset-0 bg-center bg-no-repeat opacity-10"
-             style={{
-              backgroundImage: "url('./frankoIcon.png')", // Update with your actual logo path
-              backgroundSize: "90px", // Adjust size of the logo
-              backgroundPosition: "center center", // Center the logo
-            }}
-           ></div>
-           <div className="h-36 bg-gray-200 rounded-lg"></div>
-           <div className="h-3 bg-gray-200 rounded w-3/4 mt-2"></div>
-           <div className="h-3 bg-gray-200 rounded w-1/2 mt-1"></div>
-         </div>
-       ))}
-     </div>
-     
-      
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: itemsPerPage }).map((_, index) => (
+            <div
+              key={index}
+              className="animate-pulse border rounded-lg shadow p-3 bg-gray-100 relative"
+            >
+              <div
+                className="absolute inset-0 bg-center bg-no-repeat opacity-10"
+                style={{
+                  backgroundImage: "url('./frankoIcon.png')",
+                  backgroundSize: "90px",
+                  backgroundPosition: "center center",
+                }}
+              ></div>
+              <div className="h-36 bg-gray-200 rounded-lg"></div>
+              <div className="h-3 bg-gray-200 rounded w-3/4 mt-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2 mt-1"></div>
+            </div>
+          ))}
+        </div>
       ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product, index) => (
@@ -143,7 +147,7 @@ const ProductsPage = () => {
               ref={index === filteredProducts.length - 1 ? lastProductElementRef : null}
               key={product.productID || index}
               className="p-4 bg-white border rounded-lg shadow hover:shadow-xl transform hover:scale-105 transition-transform cursor-pointer"
-              onClick={() => handleProductClick(product)}
+              onClick={() => handleProductClick(product.productID)}
             >
               <div className="h-32 md:h-32 lg:h-48 flex items-center justify-center mb-3">
                 <img
@@ -163,6 +167,14 @@ const ProductsPage = () => {
         <div className="flex justify-center mt-10">
           <Empty description={<strong>No Products Found</strong>} image={Empty.PRESENTED_IMAGE_SIMPLE} />
         </div>
+      )}
+
+      {selectedProductId && (
+        <ProductDetailModal
+          productId={selectedProductId}
+          isModalVisible={isModalVisible}
+          onClose={closeModal}
+        />
       )}
     </div>
   );
