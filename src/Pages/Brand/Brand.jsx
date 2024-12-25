@@ -69,7 +69,7 @@ const Brand = () => {
         />
       </Helmet>
 
-      <h3 className="text-md md:text-lg font-semibold mb-4 text-red-500">
+      <h3 className="text-md font-semibold mb-4 text-red-500">
         {selectedBrand ? `${selectedBrand.brandName} Products` : 'Brand Products'}
       </h3>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchShowrooms } from '../../Redux/slice/showRoomSlice';
 import { fetchProductsByShowroom } from '../../Redux/slice/productSlice';
@@ -11,54 +11,37 @@ import './ShowRoom.css';
 const ShowroomPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { showrooms, loading } = useSelector((state) => state.showrooms);
-  const { productsByShowroom = {}, loading: loadingProducts} = useSelector((state) => state.products);
+  const { showrooms, loading: loadingShowrooms } = useSelector((state) => state.showrooms);
+  const { productsByShowroom = {}, loading: loadingProducts } = useSelector((state) => state.products);
 
-  // Initialize countdown state
-  const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 15, seconds: 30 });
+  // Countdown Timer State
+
+
 
   useEffect(() => {
-    const timerInterval = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime.seconds > 0) {
-          return { ...prevTime, seconds: prevTime.seconds - 1 };
-        } else if (prevTime.minutes > 0) {
-          return { ...prevTime, minutes: prevTime.minutes - 1, seconds: 59 };
-        } else if (prevTime.hours > 0) {
-          return { hours: prevTime.hours - 1, minutes: 59, seconds: 59 };
-        } else {
-          clearInterval(timerInterval); // Stop countdown when it reaches 0
-          return { hours: 0, minutes: 0, seconds: 0 };
+    if (!showrooms.length) {
+      dispatch(fetchShowrooms());
+    } else {
+      showrooms.forEach((showroom) => {
+        if (!productsByShowroom[showroom.showRoomID]) {
+          dispatch(fetchProductsByShowroom(showroom.showRoomID));
         }
       });
-    }, 1000);
+    }
+  }, [dispatch, showrooms, productsByShowroom]);
 
-    return () => clearInterval(timerInterval);
-  }, []);
 
-  const formatTime = (time) => (time < 10 ? `0${time}` : time);
-  
-  const sortedProducts = showrooms.map((showroom) => {
-    const showroomProducts = productsByShowroom[showroom.showRoomID] || [];
-    return {
-      ...showroom,
-      products: [...showroomProducts].sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated)).slice(0, 10),
-    };
-  });
-
-  // Fetch showrooms and products in parallel
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await dispatch(fetchShowrooms()).unwrap();
-        const productPromises = showrooms.map((showroom) => dispatch(fetchProductsByShowroom(showroom.showRoomID)).unwrap());
-        await Promise.all(productPromises);  // Wait for all product fetches
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, [dispatch, showrooms.length]);  // Only re-run if showrooms length changes
+  const sortedProducts = useMemo(() => {
+    return showrooms.map((showroom) => {
+      const showroomProducts = productsByShowroom[showroom.showRoomID] || [];
+      return {
+        ...showroom,
+        products: [...showroomProducts]
+          .sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
+          .slice(0, 10),
+      };
+    });
+  }, [showrooms, productsByShowroom]);
 
   const handleAddToCart = (product) => {
     dispatch(addToCart(product));
@@ -78,14 +61,14 @@ const ShowroomPage = () => {
   };
 
   // Loading Skeleton
-  if (loading || loadingProducts) {
+  if (loadingShowrooms || loadingProducts) {
     return (
       <div className="container mx-auto p-4 mt-12">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4">
           {Array.from({ length: 10 }).map((_, index) => (
             <div key={index} className="animate-pulse border rounded-lg shadow p-3 relative bg-gray-100">
               <div className="h-32 md:h-32 lg:h-32 flex items-center justify-center mb-3 bg-gray-200 rounded-lg">
-                <span className="text-gray-500 text-2xl font-bold">Franko</span>
+                <span className="text-gray-500 text-2xl font-bold">Loading...</span>
               </div>
               <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
               <div className="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -95,10 +78,11 @@ const ShowroomPage = () => {
       </div>
     );
   }
+
   return (
     <div className="container mx-auto p-4">
       {sortedProducts
-        .sort((a, b) => (a.showRoomName === 'Flash sales' ? -1 : b.showRoomName === 'Flash sales' ? 1 : 0))
+        .sort((a, b) => (a.showRoomName === 'Best selling' ? -1 : b.showRoomName === 'Best selling' ? 1 : 0))
         .filter((showroom) => showroom.products.length > 0)
         .map((showroom) => (
           <div key={showroom.showRoomID} className="mb-6">
@@ -107,11 +91,7 @@ const ShowroomPage = () => {
                 <FireOutlined />
                 <h2 className="text-sm sm:text-base">{showroom.showRoomName}</h2>
               </div>
-              {showroom.showRoomName === 'Flash sales' && (
-                <div className="text-center font-semibold text-xs sm:text-sm">
-                  Ends in: {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:{formatTime(timeLeft.seconds)}
-                </div>
-              )}
+              
               <Link to={`/showroom/${showroom.showRoomID}`} className="flex items-center text-xs sm:text-sm">
                 <span className="mr-1">Shop Now</span>
                 <RightOutlined />

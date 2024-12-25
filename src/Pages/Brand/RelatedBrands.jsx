@@ -1,14 +1,16 @@
 import { useRef, useState, useEffect } from 'react';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import "./RelatedBrands.css";
+import './RelatedBrands.css';
+import { debounce } from 'lodash';  // Import debounce from lodash
 
 const RelatedBrands = ({ filteredBrands, selectedBrandId, navigate }) => {
   const scrollRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
 
-  const checkScrollPosition = () => {
+  // Debounced version of checkScrollPosition
+  const checkScrollPosition = debounce(() => {
     const scrollElement = scrollRef.current;
     if (scrollElement) {
       const hasScroll = scrollElement.scrollWidth > scrollElement.offsetWidth;
@@ -18,7 +20,7 @@ const RelatedBrands = ({ filteredBrands, selectedBrandId, navigate }) => {
         scrollElement.scrollLeft + scrollElement.offsetWidth < scrollElement.scrollWidth
       );
     }
-  };
+  }, 200);  // Adjust debounce time if needed
 
   const scrollLeft = () => {
     scrollRef.current.scrollBy({ left: -200, behavior: 'smooth' });
@@ -59,6 +61,7 @@ const RelatedBrands = ({ filteredBrands, selectedBrandId, navigate }) => {
             icon={<LeftOutlined />}
             onClick={scrollLeft}
             className="absolute left-0 z-10 bg-green-500 text-white hover:bg-gray-300"
+            aria-label="Scroll left"
           />
         )}
         <div
@@ -66,7 +69,7 @@ const RelatedBrands = ({ filteredBrands, selectedBrandId, navigate }) => {
           className="flex space-x-4 p-4 py-2 overflow-x-auto scrollbar-hide"
           style={{
             scrollBehavior: 'smooth',
-            overflowX: 'scroll', // Use scroll for controlled horizontal scrolling.
+            overflowX: 'scroll',
           }}
         >
           {filteredBrands.map((brand) => (
@@ -79,6 +82,8 @@ const RelatedBrands = ({ filteredBrands, selectedBrandId, navigate }) => {
               } py-3 rounded-full text-sm cursor-pointer break-words text-center`}
               style={{ minWidth: '200px' }}
               onClick={() => navigate(`/brand/${brand.brandId}`)}
+              role="button"
+              aria-label={`Go to ${brand.brandName}`}
             >
               {brand.brandName}
             </div>
@@ -90,6 +95,7 @@ const RelatedBrands = ({ filteredBrands, selectedBrandId, navigate }) => {
             icon={<RightOutlined />}
             onClick={scrollRight}
             className="absolute right-0 z-10 bg-green-500 text-white hover:bg-gray-300"
+            aria-label="Scroll right"
           />
         )}
       </div>

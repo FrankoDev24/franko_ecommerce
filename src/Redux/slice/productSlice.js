@@ -89,6 +89,11 @@ const productSlice = createSlice({
       state.productsByShowroom = {};
       state.currentProduct = null;
       state.error = null;
+
+    },
+    setProductsCache: (state, action) => {
+      const { brandId, products } = action.payload;
+      state.productsCache[brandId] = products;
     },
    
   },
@@ -179,5 +184,5 @@ const productSlice = createSlice({
 },
 });
 // Export the reducer and actions
-export const { clearProducts, setFilteredProducts } = productSlice.actions;
+export const { clearProducts, setFilteredProducts, setProductsCache } = productSlice.actions;
 export default productSlice.reducer;
