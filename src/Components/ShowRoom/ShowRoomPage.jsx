@@ -104,12 +104,12 @@ const ShowroomProductsPage = () => {
         <meta name="twitter:image" content="URL_to_image" />
       </Helmet>
 
-      <h3 className="text-2xl md:text-3xl font-semibold mb-4">
+      <h3 className="text-md md:text-lg font-semibold mb-4 text-red-500">
         {showroom ? `${showroom.showRoomName} Products` : "Showroom Products"}
       </h3>
 
       <div className="mb-6">
-        <h3 className="text-lg font-semibold">Filter by Price</h3>
+        <h3 className="text-md font-semibold text-green-600">Filter by Price</h3>
         <div className="flex items-center space-x-2 md:space-x-4">
           <Input
             type="number"
@@ -135,21 +135,30 @@ const ShowroomProductsPage = () => {
           </Button>
         </div>  
       </div>
- {error ? (
-        <div className="text-center text-red-500 mt-6">Error fetching products</div>
-      ) : loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 12 }).map((_, index) => (
-            <div key={index} className="animate-pulse border rounded-lg shadow p-3 relative bg-gray-100">
-              <div className="h-36 md:h-44 lg:h-52 flex items-center justify-center mb-3 bg-gray-200 rounded-lg">
-                <span className="text-gray-500 text-2xl font-bold">Franko</span>
-              </div>
-              <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          ))}
-        </div>
-      ) : currentProducts.length > 0 ? (
+ {loading || error ? (
+       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+       {Array.from({ length: 12 }).map((_, index) => (
+         <div
+           key={index}
+           className="animate-pulse border rounded-lg shadow p-3 relative bg-gray-100"
+         >
+           <div className="h-36 md:h-44 lg:h-52 flex items-center justify-center mb-3 bg-gray-200 rounded-lg relative">
+             <div
+               className="absolute inset-0 bg-center bg-no-repeat opacity-10"
+               style={{
+                 backgroundImage: "url('/frankoIcon.png')", // Adjust path as needed
+                 backgroundSize: "90px",
+                 backgroundPosition: "center center",
+               }}
+             ></div>
+           </div>
+           <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+           <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+         </div>
+       ))}
+     </div>
+     
+      )  : currentProducts.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {currentProducts.map((product, index) => {
             const discount = calculateDiscount(product.oldPrice, product.price);

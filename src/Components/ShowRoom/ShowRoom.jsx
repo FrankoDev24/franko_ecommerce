@@ -68,7 +68,14 @@ const ShowroomPage = () => {
           {Array.from({ length: 10 }).map((_, index) => (
             <div key={index} className="animate-pulse border rounded-lg shadow p-3 relative bg-gray-100">
               <div className="h-32 md:h-32 lg:h-32 flex items-center justify-center mb-3 bg-gray-200 rounded-lg">
-                <span className="text-gray-500 text-2xl font-bold">Loading...</span>
+              <div
+             className="absolute inset-0 bg-center bg-no-repeat opacity-10"
+             style={{
+              backgroundImage: "url('./frankoIcon.png')", // Update with your actual logo path
+              backgroundSize: "90px", // Adjust size of the logo
+              backgroundPosition: "center center", // Center the logo
+            }}
+           ></div>
               </div>
               <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
               <div className="h-3 bg-gray-200 rounded w-1/2"></div>

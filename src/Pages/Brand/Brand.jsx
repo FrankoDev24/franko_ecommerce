@@ -117,7 +117,7 @@ const Brand = () => {
            <div
              className="absolute inset-0 bg-center bg-no-repeat opacity-10"
              style={{
-              backgroundImage: "url('./frankoIcon.png')", // Update with your actual logo path
+              backgroundImage: "url('/frankoIcon.png')", // Update with your actual logo path
               backgroundSize: "90px", // Adjust size of the logo
               backgroundPosition: "center center", // Center the logo
             }}
