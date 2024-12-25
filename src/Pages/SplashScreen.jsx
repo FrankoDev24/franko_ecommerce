@@ -28,7 +28,7 @@ const SplashScreen = () => {
   return (
     <div className="splash-screen">
       <img src={logo} alt="Company Logo" className="logo" />
-      <p>Loading products and showroom data...</p>
+   
     </div>
   );
 };
