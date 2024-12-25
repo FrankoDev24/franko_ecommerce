@@ -49,7 +49,7 @@ import FulfillmentsOrder from "./Fufilments/Fufilments/FulfillmentsOrder";
 import Dashboard from "./AdminPages/Dashboard";
 import Cancellation from "./Pages/Cancellation";
 import Welcome from "./Components/Welcome/Welcome";
-import SplashScreen from "./Pages/SplashScreen";
+
 
 // Utility to fetch customer role
 const getUserRole = () => {
@@ -113,7 +113,6 @@ if (userPosition) {
 const App = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
-  const [showSplashScreen, setShowSplashScreen] = useState(false)
 
 
   // Monitor network status
@@ -132,14 +131,7 @@ const App = () => {
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
-    // Check if the user has visited before
-    const visitedBefore = localStorage.getItem("visitedBefore");
-
-    if (!visitedBefore) {
-      setShowSplashScreen(true);
-      localStorage.setItem("visitedBefore", "true");
-    }
-
+   
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
@@ -156,7 +148,7 @@ const App = () => {
       <Welcome show={showWelcomeModal} onClose={() => setShowWelcomeModal(false)} />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={showSplashScreen ? <SplashScreen /> : <Navigate to="/home" />} />
+
         <Route path="/" element={<Navigate to="/home" />} />
         <Route path="/home" element={<Home />} />
         <Route path="/cart/:transactionNumber" element={<Cart />} />
